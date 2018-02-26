@@ -25,7 +25,6 @@ $DATABASE_INSTALL = array(
     video_id      INTEGER NOT NULL,
     q_time        INTEGER NOT NULL,
     q_text        TEXT NULL,
-    q_type        INTEGER NOT NULL,
     correct_fb    TEXT NULL,
     incorrect_fb  TEXT NULL,
     

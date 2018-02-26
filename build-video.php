@@ -51,10 +51,10 @@ include("menu.php");
         </div>
         <div class="col-sm-4">
             <h3>Questions</h3>
-            <ul class="list-group">
-            </ul>
+            <div class="list-group" id="theQuestions">
+            </div>
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addQuestionModal">
-                <span aria-hidden="true" class="fa fa-plus" /> Add Question
+                <span aria-hidden="true" class="fa fa-plus"></span> Add Question
             </button>
         </div>
     </div>
@@ -62,12 +62,12 @@ include("menu.php");
     <div id="addQuestionModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add Question</h4>
-                </div>
-                <div class="modal-body">
-                    <form id="addQuestionForm">
+                <form id="addQuestionForm">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Add Question</h4>
+                    </div>
+                    <div class="modal-body">
                         <input type="hidden" id="sess" value="<?php $_GET["PHPSESSID"] ?>">
                         <div class="form-group row">
                             <div class="col-xs-3">
@@ -79,14 +79,38 @@ include("menu.php");
                             <label for="questionText">Question Text</label>
                             <textarea class="form-control" rows="5" id="questionText" name="questionText"></textarea>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="answerContainer">
                             <label>Possible Answers</label>
+                            <div class="input-group possible-answer" data-answer-id="-1">
+                                <span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>
+                                <input type="text" class="form-control" title="Possible Answer">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-danger remove-answer" type="button">
+                                        <span class="fa fa-lg fa-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-group possible-answer" data-answer-id="-1">
+                                <span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>
+                                <input type="text" class="form-control" title="Possible Answer">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-danger remove-answer" type="button">
+                                        <span class="fa fa-lg fa-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-dismiss="modal">Save</button>
-                </div>
+                        <button type="button" class="btn btn-primary" id="addAnswerBtn"><span aria-hidden="true" class="fa fa-plus"></span> Add Answer</button>
+                        <hr>
+                        <div class="checkbox">
+                            <label><strong><input type="checkbox" value="" id="randomizeAnswers"> Randomize Answers</strong></label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
             </div>
 
         </div>
@@ -98,9 +122,14 @@ $OUTPUT->footerStart();
     <script src="scripts/main.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function () {
             IntVideo.initBuild(<?php echo $videoType ?>, "<?php echo $videoUrl ?>");
         });
+
+        function onWarpwirePlayerAPIReady() {
+            IntVideo.wwPlayer = new wwIframeApi();
+            IntVideo.setupWarpwireBuildEvents();
+        }
     </script>
 <?php
 $OUTPUT->footerEnd();

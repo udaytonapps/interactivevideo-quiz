@@ -1,6 +1,6 @@
 <?php
 $instructorMenu = array(
-    '' => 'View All Results'
+
 );
 $studentMenu = array(
     'index.php' => 'Study Mode',
