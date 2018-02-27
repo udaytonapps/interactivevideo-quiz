@@ -28,7 +28,7 @@ button.question-text {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 8px;
+    padding: 8px 18px 8px 8px;
     text-align: left;
 }
 #theQuestions div.dropdown {
@@ -39,4 +39,9 @@ div.feedback-panel {
 }
 #feedbackDown, #feedbackUp {
     margin-right: 6px;
+}
+span.iv-caret {
+    position: absolute;
+    right: 9px;
+    top: 18px;
 }

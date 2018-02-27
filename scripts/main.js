@@ -39,6 +39,8 @@ var IntVideo = (function () {
 
             var restartOnClose = false;
 
+            $("#addQuestionBtn").removeClass("disabled");
+
             _questionModal.on('show.bs.modal', function() {
                 if (intVideo.wwPlayer('wwvideo').getPlayerState() === WWIRE.PLAYERSTATES.PLAYING) {
                     intVideo.wwPlayer('wwvideo').pause();
@@ -49,7 +51,7 @@ var IntVideo = (function () {
                 $("#videoTime").val(Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime()));
             });
 
-            _questionModal.on('hidden.bs.modal', function() {
+            _questionModal.on('hide.bs.modal', function() {
                 if (restartOnClose) {
                     intVideo.wwPlayer('wwvideo').play();
                 }
@@ -114,8 +116,8 @@ var IntVideo = (function () {
 
             $("#theQuestions").append('<div class="dropdown">' +
                 '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
-                '<span class="label label-default">' + timeSeconds + ' sec</span> ' + questionText + '</button>' +
-                '<ul class="dropdown-menu">' +
+                '<span class="label label-default">' + timeSeconds + ' sec</span> ' + questionText + '<span class="caret iv-caret"></span></button>' +
+                '<ul class="dropdown-menu dropdown-menu-right">' +
                 '<li><a href="javascript:void(0);" onclick="IntVideo.seekTo(' + timeSeconds + ', true);"><span class="fa fa-external-link text-primary"></span> Go to Question</a></li>' +
                 '<li class="divider"></li>' +
                 '<li><a href="#"><span class="fa fa-pencil text-warning"></span> Edit Question</a></li>' +
@@ -181,7 +183,9 @@ var IntVideo = (function () {
         $("button.remove-answer").off("click").on("click", _removeAnswer);
         $("#correctFeedback").val("");
         $("#incorrectFeedback").val("");
-        $("#panelFeedback").collapse("hide");
+        $("#feedbackDown").show();
+        $("#feedbackUp").hide();
+        $("#panelFeedback").removeClass("in");
     };
 
     const _possibleAnswerMarkup = '<div class="input-group possible-answer" data-answer-id="-1">' +
