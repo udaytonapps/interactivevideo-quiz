@@ -34,20 +34,51 @@ var IntVideo = (function () {
         _setupAddQuestionForm();
     };
 
-    intVideo.setupWarpwireBuildEvents = function() {
+    intVideo.setupWarpwireBuildEvents = function () {
         intVideo.wwPlayer('wwvideo').onReady = function(event) {
 
+            var restartOnClose = false;
+
             _questionModal.on('show.bs.modal', function() {
-                intVideo.wwPlayer('wwvideo').pause();
+                if (intVideo.wwPlayer('wwvideo').getPlayerState() === WWIRE.PLAYERSTATES.PLAYING) {
+                    intVideo.wwPlayer('wwvideo').pause();
+                    restartOnClose = true;
+                } else {
+                    restartOnClose = false;
+                }
                 $("#videoTime").val(Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime()));
             });
 
             _questionModal.on('hidden.bs.modal', function() {
-                intVideo.wwPlayer('wwvideo').play();
-
+                if (restartOnClose) {
+                    intVideo.wwPlayer('wwvideo').play();
+                }
                 _resetAddQuestionForm();
             });
         };
+    };
+
+    intVideo.deleteQuestion = function (link) {
+        // TODO: Delete the question and update question list.
+        $(link).parent().parent().parent().fadeOut("slow", function () {
+            $(this).remove();
+        });
+    };
+
+    intVideo.updateQuestionList = function () {
+
+    };
+
+    intVideo.seekTo = function (seconds, play) {
+        if (_videoType === typeEnum.Warpwire) {
+            if (!isNaN(seconds)) {
+                intVideo.wwPlayer('wwvideo').seekTo(seconds);
+                if (play) {
+                    intVideo.wwPlayer('wwvideo').play();
+                }
+            }
+        }
+
     };
 
     _getEmbedForBuild = function () {
@@ -81,21 +112,24 @@ var IntVideo = (function () {
             var questionText = $("#questionText").val();
             var timeSeconds = $("#videoTime").val();
 
-            $("#theQuestions").append('<a href="javascript:void(0);" class="list-group-item question-text">' +
-                '<span class="label label-default">' + timeSeconds + ' sec</span> ' + questionText + '</a>'
+            $("#theQuestions").append('<div class="dropdown">' +
+                '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
+                '<span class="label label-default">' + timeSeconds + ' sec</span> ' + questionText + '</button>' +
+                '<ul class="dropdown-menu">' +
+                '<li><a href="javascript:void(0);" onclick="IntVideo.seekTo(' + timeSeconds + ', true);"><span class="fa fa-external-link text-primary"></span> Go to Question</a></li>' +
+                '<li class="divider"></li>' +
+                '<li><a href="#"><span class="fa fa-pencil text-warning"></span> Edit Question</a></li>' +
+                '<li><a href="javascript:void(0);" onclick="IntVideo.deleteQuestion(this)"><span class="fa fa-trash text-danger"></span> Delete Question</a></li>' +
+                '</ul>' +
+                '</div>'
             ).hide().fadeIn("slow");
 
-            if (_videoType === typeEnum.Warpwire) {
-                var seekTo = timeSeconds;
-                if (!isNaN(seekTo)) {
-                    intVideo.wwPlayer('wwvideo').seekTo(seekTo);
-                }
-            }
+            intVideo.seekTo(timeSeconds);
 
             $("#addQuestionModal").modal("hide");
         });
 
-        $("#addAnswerBtn").on("click", function() {
+        $("#addAnswerBtn").on("click", function () {
             $("#answerContainer").append(_possibleAnswerMarkup);
             _numberOfAnswers++;
             if (_numberOfAnswers >= 6) {
@@ -105,8 +139,20 @@ var IntVideo = (function () {
             $("button.remove-answer").off("click").on("click", _removeAnswer);
         });
 
-        $("button.answer-correct").on("click", _markAsCorrect);
-        $("button.remove-answer").on("click", _removeAnswer);
+        $("button.answer-correct").off("click").on("click", _markAsCorrect);
+        $("button.remove-answer").off("click").on("click", _removeAnswer);
+
+        var feedbackPanel = $("#panelFeedback");
+
+        feedbackPanel.on("hide.bs.collapse", function () {
+            $("#feedbackDown").show();
+            $("#feedbackUp").hide();
+        });
+
+        feedbackPanel.on("show.bs.collapse", function () {
+            $("#feedbackDown").hide();
+            $("#feedbackUp").show();
+        });
     };
 
     _removeAnswer = function () {
@@ -131,6 +177,11 @@ var IntVideo = (function () {
         _numberOfAnswers = 2;
         $("#addAnswerBtn").removeProp("disabled");
         $("#randomizeAnswers").removeProp("checked");
+        $("button.answer-correct").off("click").on("click", _markAsCorrect);
+        $("button.remove-answer").off("click").on("click", _removeAnswer);
+        $("#correctFeedback").val("");
+        $("#incorrectFeedback").val("");
+        $("#panelFeedback").collapse("hide");
     };
 
     const _possibleAnswerMarkup = '<div class="input-group possible-answer" data-answer-id="-1">' +
