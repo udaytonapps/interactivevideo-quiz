@@ -53,9 +53,14 @@ include("menu.php");
             <h3>Questions</h3>
             <div class="list-group" id="theQuestions">
             </div>
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addQuestionModal">
+            <button id="addQuestionBtn" type="button" class="btn btn-success disabled" data-toggle="modal" data-target="#addQuestionModal">
                 <span aria-hidden="true" class="fa fa-plus"></span> Add Question
             </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-10 col-sm-offset-2">
+            <a href="actions/deletevideo.php" class="btn btn-danger">Delete Video</a>
         </div>
     </div>
 </div>
@@ -129,7 +134,6 @@ include("menu.php");
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 <?php

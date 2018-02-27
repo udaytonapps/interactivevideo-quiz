@@ -30,7 +30,8 @@ $DATABASE_INSTALL = array(
     
     CONSTRAINT `{$CFG->dbprefix}iv_question_ibfk_1`
         FOREIGN KEY (`video_id`)
-        REFERENCES `{$CFG->dbprefix}iv_video` (`video_id`),
+        REFERENCES `{$CFG->dbprefix}iv_video` (`video_id`)
+        ON DELETE CASCADE,
     
     PRIMARY KEY(question_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
@@ -43,7 +44,8 @@ $DATABASE_INSTALL = array(
     
     CONSTRAINT `{$CFG->dbprefix}iv_answer_ibfk_1`
         FOREIGN KEY (`question_id`)
-        REFERENCES `{$CFG->dbprefix}iv_question` (`question_id`),
+        REFERENCES `{$CFG->dbprefix}iv_question` (`question_id`)
+        ON DELETE CASCADE,
 
     PRIMARY KEY(answer_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
@@ -56,11 +58,13 @@ $DATABASE_INSTALL = array(
 
     CONSTRAINT `{$CFG->dbprefix}iv_response_ibfk_1`
         FOREIGN KEY (`question_id`)
-        REFERENCES `{$CFG->dbprefix}iv_question` (`question_id`),
+        REFERENCES `{$CFG->dbprefix}iv_question` (`question_id`)
+        ON DELETE CASCADE,
         
     CONSTRAINT `{$CFG->dbprefix}iv_response_ibfk_2`
         FOREIGN KEY (`answer_id`)
-        REFERENCES `{$CFG->dbprefix}iv_answer` (`answer_id`),
+        REFERENCES `{$CFG->dbprefix}iv_answer` (`answer_id`)
+        ON DELETE CASCADE,
         
     PRIMARY KEY(response_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8")

@@ -24,6 +24,12 @@ class IV_DAO {
         return $this->PDOX->lastInsertId();
     }
 
+    function deleteVideoAndQuestions($video_id) {
+        $query = "DELETE FROM {$this->p}iv_video WHERE video_id = :videoId;";
+        $arr = array(':videoId' => $video_id);
+        $this->PDOX->queryDie($query, $arr);
+    }
+
     function getVideoInfoById($video_id) {
         $query = "SELECT video_type, video_url FROM {$this->p}iv_video WHERE video_id = :videoId;";
         $arr = array(':videoId' => $video_id);
