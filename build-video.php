@@ -77,7 +77,7 @@ include("menu.php");
                         </div>
                         <div class="form-group">
                             <label for="questionText">Question Text</label>
-                            <textarea class="form-control" rows="5" id="questionText" name="questionText"></textarea>
+                            <textarea class="form-control" rows="3" id="questionText" name="questionText"></textarea>
                         </div>
                         <div class="form-group" id="answerContainer">
                             <label>Possible Answers</label>
@@ -101,9 +101,26 @@ include("menu.php");
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary" id="addAnswerBtn"><span aria-hidden="true" class="fa fa-plus"></span> Add Answer</button>
-                        <hr>
                         <div class="checkbox">
                             <label><strong><input type="checkbox" value="" id="randomizeAnswers"> Randomize Answers</strong></label>
+                        </div>
+                        <hr>
+                        <div class="panel panel-default">
+                            <div class="panel-heading feedback-panel">
+                                <a data-toggle="collapse" href="#panelFeedback" class="btn btn-link btn-block">
+                                    <span id="feedbackDown" aria-hidden="true" class="fa fa-chevron-down"></span><span id="feedbackUp" aria-hidden="true" class="fa fa-chevron-up" style="display:none;"></span>Add Feedback
+                                </a>
+                            </div>
+                            <div id="panelFeedback" class="panel-body collapse">
+                                <div class="form-group">
+                                    <label for="questionText">Correct Feedback</label>
+                                    <textarea class="form-control" rows="3" id="correctFeedback" name="correctFeedback"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="questionText">Incorrect Feedback</label>
+                                    <textarea class="form-control" rows="3" id="incorrectFeedback" name="incorrectFeedback"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
