@@ -56,11 +56,12 @@ include("menu.php");
             <button id="addQuestionBtn" type="button" class="btn btn-success disabled" data-toggle="modal" data-target="#addQuestionModal">
                 <span aria-hidden="true" class="fa fa-plus"></span> Add Question
             </button>
+            <button type="button" class="btn btn-default" onclick="IntVideo.updateQuestionList();">Get Questions</button>
         </div>
     </div>
-    <div class="row">
+    <div class="row video-action-row">
         <div class="col-sm-10 col-sm-offset-2">
-            <a href="actions/deletevideo.php" class="btn btn-danger">Delete Video</a>
+            <a href="actions/deletevideo.php" class="btn btn-danger" onclick="return IntVideo.deleteVideoConfirm();">Delete Video</a>
         </div>
     </div>
 </div>
@@ -73,7 +74,6 @@ include("menu.php");
                         <h4 class="modal-title">Add Question</h4>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="sess" value="<?php $_GET["PHPSESSID"] ?>">
                         <div class="form-group row">
                             <div class="col-xs-3">
                                 <label for="videoTime">Video Time (seconds)</label>
@@ -136,6 +136,7 @@ include("menu.php");
             </div>
         </div>
     </div>
+    <input type="hidden" id="sess" value="<?php echo($_GET["PHPSESSID"]); ?>">
 <?php
 $OUTPUT->footerStart();
 ?>

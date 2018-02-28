@@ -7,13 +7,13 @@ var IntVideo = (function () {
     /* Matches VideoType.php */
     var typeEnum = Object.freeze({"Warpwire": 0, "YouTube": 1});
 
-    /* Defaults to Warpwire */
     var _videoType = typeEnum.Warpwire;
     var _videoUrl = '';
 
     var _numberOfAnswers = 0;
 
     var _questionModal = null;
+    var _questionArray;
 
     intVideo.initBuild = function (videoType, videoUrl) {
         if (videoType === typeEnum.YouTube) {
@@ -68,7 +68,26 @@ var IntVideo = (function () {
     };
 
     intVideo.updateQuestionList = function () {
+        var sess = $("input#sess").val();
 
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "actions/getquestions.php?PHPSESSID="+sess,
+            success: function (response) {
+                _questionArray = response;
+                var theQuestions = $("#theQuestions");
+
+                theQuestions.hide();
+                theQuestions.empty();
+
+                for (i = 0; i < _questionArray.length; i++) {
+                    _addQuestionToList(theQuestions, _questionArray[i].questionId, _questionArray[i].questionTime, _questionArray[i].questionText);
+                }
+
+                theQuestions.fadeIn("slow");
+            }
+        });
     };
 
     intVideo.seekTo = function (seconds, play) {
@@ -81,6 +100,10 @@ var IntVideo = (function () {
             }
         }
 
+    };
+
+    intVideo.deleteVideoConfirm = function () {
+        return confirm("Are you sure you want to delete this video and all associated questions? This cannot be undone.");
     };
 
     _getEmbedForBuild = function () {
@@ -102,31 +125,16 @@ var IntVideo = (function () {
         $("#addQuestionForm").on("submit", function(e) {
             e.preventDefault();
 
-            /*$.ajax({
+            $.ajax({
                 type: "post",
                 url: "actions/addquestion.php?PHPSESSID="+sess,
-                data: $("#addQuestionForm").serialize(),
+                data: "",
                 success: function (response) {
-
+                    intVideo.updateQuestionList();
                 }
-            });*/
+            });
 
-            var questionText = $("#questionText").val();
-            var timeSeconds = $("#videoTime").val();
-
-            $("#theQuestions").append('<div class="dropdown">' +
-                '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
-                '<span class="label label-default">' + timeSeconds + ' sec</span> ' + questionText + '<span class="caret iv-caret"></span></button>' +
-                '<ul class="dropdown-menu dropdown-menu-right">' +
-                '<li><a href="javascript:void(0);" onclick="IntVideo.seekTo(' + timeSeconds + ', true);"><span class="fa fa-external-link text-primary"></span> Go to Question</a></li>' +
-                '<li class="divider"></li>' +
-                '<li><a href="#"><span class="fa fa-pencil text-warning"></span> Edit Question</a></li>' +
-                '<li><a href="javascript:void(0);" onclick="IntVideo.deleteQuestion(this)"><span class="fa fa-trash text-danger"></span> Delete Question</a></li>' +
-                '</ul>' +
-                '</div>'
-            ).hide().fadeIn("slow");
-
-            intVideo.seekTo(timeSeconds);
+            intVideo.seekTo($("#videoTime").val());
 
             $("#addQuestionModal").modal("hide");
         });
@@ -155,6 +163,20 @@ var IntVideo = (function () {
             $("#feedbackDown").hide();
             $("#feedbackUp").show();
         });
+    };
+
+    _addQuestionToList = function (theList, questionId, questionTime, questionText) {
+        theList.append('<div class="dropdown">' +
+            '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
+            '<span class="label label-default">' + questionTime + ' sec</span> ' + questionText + '<span class="caret iv-caret"></span></button>' +
+            '<ul class="dropdown-menu dropdown-menu-right">' +
+            '<li><a href="javascript:void(0);" onclick="IntVideo.seekTo(' + questionTime + ', true);"><span class="fa fa-external-link text-primary"></span> Go to Question</a></li>' +
+            '<li class="divider"></li>' +
+            '<li><a href="#"><span class="fa fa-pencil text-warning"></span> Edit Question</a></li>' +
+            '<li><a href="javascript:void(0);" onclick="IntVideo.deleteQuestion(this)"><span class="fa fa-trash text-danger"></span> Delete Question</a></li>' +
+            '</ul>' +
+            '</div>'
+        );
     };
 
     _removeAnswer = function () {
