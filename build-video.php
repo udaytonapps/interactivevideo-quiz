@@ -58,9 +58,9 @@ include("menu.php");
             </button>
         </div>
     </div>
-    <div class="row">
+    <div class="row video-action-row">
         <div class="col-sm-10 col-sm-offset-2">
-            <a href="actions/deletevideo.php" class="btn btn-danger">Delete Video</a>
+            <a href="actions/deletevideo.php" class="btn btn-danger" onclick="return IntVideo.deleteVideoConfirm();">Delete Video</a>
         </div>
     </div>
 </div>
@@ -73,41 +73,24 @@ include("menu.php");
                         <h4 class="modal-title">Add Question</h4>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="sess" value="<?php $_GET["PHPSESSID"] ?>">
+                        <p id="formFeedback" class="alert alert-danger" style="display:none;"></p>
+                        <input type="hidden" id="questionId" name="questionId" value="-1">
                         <div class="form-group row">
                             <div class="col-xs-3">
                                 <label for="videoTime">Video Time (seconds)</label>
-                                <input type="text" class="form-control" id="videoTime" name="videoTime">
+                                <input type="text" class="form-control" id="videoTime" name="videoTime" required oninvalid="this.setCustomValidity('You must enter a time for this question.');" oninput="setCustomValidity('');">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="questionText">Question Text</label>
-                            <textarea class="form-control" rows="3" id="questionText" name="questionText"></textarea>
+                            <textarea class="form-control" rows="3" id="questionText" name="questionText" required oninvalid="this.setCustomValidity('Question text cannot be blank.');" oninput="setCustomValidity('');"></textarea>
                         </div>
                         <div class="form-group" id="answerContainer">
                             <label>Possible Answers</label>
-                            <div class="input-group possible-answer" data-answer-id="-1">
-                                <span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>
-                                <input type="text" class="form-control" title="Possible Answer">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-danger remove-answer" type="button">
-                                        <span class="fa fa-lg fa-remove"></span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="input-group possible-answer" data-answer-id="-1">
-                                <span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>
-                                <input type="text" class="form-control" title="Possible Answer">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-danger remove-answer" type="button">
-                                        <span class="fa fa-lg fa-remove"></span>
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                         <button type="button" class="btn btn-primary" id="addAnswerBtn"><span aria-hidden="true" class="fa fa-plus"></span> Add Answer</button>
                         <div class="checkbox">
-                            <label><strong><input type="checkbox" value="" id="randomizeAnswers"> Randomize Answers</strong></label>
+                            <label><strong><input type="checkbox" name="randomize" value="true" id="randomizeAnswers"> Randomize Answers</strong></label>
                         </div>
                         <hr>
                         <div class="panel panel-default">
@@ -127,15 +110,18 @@ include("menu.php");
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" id="answersToRemove" name="answersToRemove">
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <span class="text-danger" id="errorMessage" style="display:none;"><span aria-hidden="true" class="fa fa-exclamation-triangle"></span> Please fix errors before continuing.</span>
+                        <button type="submit" class="btn btn-success" id="submitQuestion">Save</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+    <input type="hidden" id="sess" value="<?php echo($_GET["PHPSESSID"]); ?>">
 <?php
 $OUTPUT->footerStart();
 ?>

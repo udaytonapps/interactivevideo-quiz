@@ -1,6 +1,6 @@
 <?php
 $instructorMenu = array(
-
+    "results.php" => '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Video Results'
 );
 $studentMenu = array(
     'index.php' => 'Study Mode',
