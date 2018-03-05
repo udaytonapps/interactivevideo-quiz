@@ -86,28 +86,10 @@ include("menu.php");
                         </div>
                         <div class="form-group" id="answerContainer">
                             <label>Possible Answers</label>
-                            <div class="input-group possible-answer" data-answer-id="-1">
-                                <span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>
-                                <input type="text" class="form-control" title="Possible Answer">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-danger remove-answer" type="button">
-                                        <span class="fa fa-lg fa-remove"></span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="input-group possible-answer" data-answer-id="-1">
-                                <span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>
-                                <input type="text" class="form-control" title="Possible Answer">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-danger remove-answer" type="button">
-                                        <span class="fa fa-lg fa-remove"></span>
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                         <button type="button" class="btn btn-primary" id="addAnswerBtn"><span aria-hidden="true" class="fa fa-plus"></span> Add Answer</button>
                         <div class="checkbox">
-                            <label><strong><input type="checkbox" value="" id="randomizeAnswers"> Randomize Answers</strong></label>
+                            <label><strong><input type="checkbox" name="randomize" value="true" id="randomizeAnswers"> Randomize Answers</strong></label>
                         </div>
                         <hr>
                         <div class="panel panel-default">

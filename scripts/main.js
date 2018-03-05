@@ -32,6 +32,8 @@ var IntVideo = (function () {
         _getEmbedForBuild();
 
         _setupAddQuestionForm();
+
+        intVideo.updateQuestionList();
     };
 
     intVideo.setupWarpwireBuildEvents = function () {
@@ -119,16 +121,22 @@ var IntVideo = (function () {
     _setupAddQuestionForm = function () {
         var sess = $("input#sess").val();
 
+        var answerContainer = $("#answerContainer");
+
         _questionModal = $("#addQuestionModal");
-        _numberOfAnswers = 2;
+        _numberOfAnswers = 0;
+        _appendPossibleAnswerMarkup(answerContainer);
+        _appendPossibleAnswerMarkup(answerContainer);
 
         $("#addQuestionForm").on("submit", function(e) {
             e.preventDefault();
 
+
+
             $.ajax({
                 type: "post",
                 url: "actions/addquestion.php?PHPSESSID="+sess,
-                data: "",
+                data: $("#addQuestionForm").serialize(),
                 success: function (response) {
                     intVideo.updateQuestionList();
                 }
@@ -140,8 +148,7 @@ var IntVideo = (function () {
         });
 
         $("#addAnswerBtn").on("click", function () {
-            $("#answerContainer").append(_possibleAnswerMarkup);
-            _numberOfAnswers++;
+            _appendPossibleAnswerMarkup(answerContainer);
             if (_numberOfAnswers >= 6) {
                 $("#addAnswerBtn").prop("disabled", true);
             }
@@ -185,10 +192,13 @@ var IntVideo = (function () {
         if (_numberOfAnswers < 6) {
             $("#addAnswerBtn").removeProp("disabled");
         }
+        _fixupAnswerIndexes();
     };
 
     _markAsCorrect = function () {
         $(this).toggleClass("btn-default btn-success");
+        var theCheckbox = $(this).parent().parent().find("div.checkbox").find("input:checkbox");
+        theCheckbox.prop("checked", !theCheckbox.prop("checked"));
     };
 
     _resetAddQuestionForm = function () {
@@ -196,9 +206,9 @@ var IntVideo = (function () {
         $("#questionText").val("");
         $(".possible-answer").remove();
         var answerContainer = $("#answerContainer");
-        answerContainer.append(_possibleAnswerMarkup);
-        answerContainer.append(_possibleAnswerMarkup);
-        _numberOfAnswers = 2;
+        _numberOfAnswers = 0;
+        _appendPossibleAnswerMarkup(answerContainer);
+        _appendPossibleAnswerMarkup(answerContainer);
         $("#addAnswerBtn").removeProp("disabled");
         $("#randomizeAnswers").removeProp("checked");
         $("button.answer-correct").off("click").on("click", _markAsCorrect);
@@ -210,13 +220,27 @@ var IntVideo = (function () {
         $("#panelFeedback").removeClass("in");
     };
 
-    const _possibleAnswerMarkup = '<div class="input-group possible-answer" data-answer-id="-1">' +
-                '<span class="input-group-btn"><button type="button" class="btn btn-default answer-correct"><span class="fa fa-check"></span></button></span>' +
-                '<input type="text" class="form-control">' +
-                '<div class="input-group-btn">' +
-                '<button type="button" class="btn btn-danger remove-answer">' +
-                '<span class="fa fa-lg fa-remove"></span>' +
-                '</button></div></div>';
+    _fixupAnswerIndexes = function () {
+        var count = 1;
+        $("div.possible-answer").each(function () {
+            $(this).find("input.correct-checkbox").val(count);
+            $(this).find("input.answer-text").prop("name", "answer"+count);
+            count++;
+        });
+    };
+
+    _appendPossibleAnswerMarkup = function (container) {
+        container.append("<div class=\"input-group possible-answer\">" +
+            "<input type=\"hidden\" name=\"answerId"+(_numberOfAnswers + 1)+"\" value=\"-1\">" +
+            "<div class=\"checkbox\"><label><input type=\"checkbox\" class=\"correct-checkbox\" name=\"correctAnswer[]\" value=\"" + (_numberOfAnswers + 1) + "\">Is correct</label></div>" +
+            "<span class=\"input-group-btn\"><button type=\"button\" class=\"btn btn-default answer-correct\"><span class=\"fa fa-check\"></span></button></span>" +
+            "<input type=\"text\" name=\"answer" + (_numberOfAnswers + 1) + "\" class=\"form-control answer-text\">" +
+            "<div class=\"input-group-btn\">" +
+            "<button type=\"button\" class=\"btn btn-danger remove-answer\">" +
+            "<span class=\"fa fa-lg fa-remove\"></span>" +
+            "</button></div></div>");
+        _numberOfAnswers++;
+    };
 
     return intVideo;
 })();

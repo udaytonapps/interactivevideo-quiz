@@ -7,7 +7,8 @@ class Question {
     public $videoId;
     public $questionTime;
     public $questionText;
-    public $correctFeebback;
-    public $incorrectFeebback;
+    public $correctFeedback;
+    public $incorrectFeedback;
+    public $randomize;
     public $answers = array();
 }

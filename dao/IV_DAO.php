@@ -35,4 +35,11 @@ class IV_DAO {
         $arr = array(':videoId' => $video_id);
         return $this->PDOX->rowDie($query, $arr);
     }
+
+    function addQuestion($video_id, $question_time, $question_text, $correct_feedback, $incorrect_feedback) {
+        $query = "INSERT INTO {$this->p}iv_question (video_id, q_time, q_text, correct_fb, incorrect_fb) VALUES (:videoId, :questionTime, :questionText, :correctFeedback, :incorrectFeedback);";
+        $arr = array(':videoId' => $video_id, ':questionTime' => $question_time, ':questionText' => $question_text, ':correctFeedback' => $correct_feedback, ':incorrectFeedback' => $incorrect_feedback);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
 }
