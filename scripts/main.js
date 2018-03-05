@@ -3,6 +3,7 @@ var IntVideo = (function () {
     var intVideo = {};
 
     intVideo.wwPlayer = null;
+    intVideo.ytPlayer = null;
 
     /* Matches VideoType.php */
     var typeEnum = Object.freeze({"Warpwire": 0, "YouTube": 1});
@@ -16,16 +17,17 @@ var IntVideo = (function () {
     var _questionArray;
 
     intVideo.initBuild = function (videoType, videoUrl) {
+        var tag = document.createElement('script');
         if (videoType === typeEnum.YouTube) {
             _videoType = videoType;
+
+            tag.src = "https://www.youtube.com/iframe_api";
         } else {
 
-            var tag = document.createElement('script');
             tag.src = "scripts/wwIframeApi.min.js";
-
-            var firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         }
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         _videoUrl = videoUrl;
 
@@ -60,6 +62,30 @@ var IntVideo = (function () {
                 _resetAddQuestionForm();
             });
         };
+    };
+
+    intVideo.youTubeOnReady = function (event) {
+
+        var restartOnClose = false;
+
+        $("#addQuestionBtn").removeClass("disabled");
+
+        _questionModal.on('show.bs.modal', function() {
+            if (intVideo.ytPlayer.getPlayerState() == YT.PlayerState.PLAYING) {
+                intVideo.ytPlayer.pauseVideo();
+                restartOnClose = true;
+            } else {
+                restartOnClose = false;
+            }
+            $("#videoTime").val(Math.floor(intVideo.ytPlayer.getCurrentTime()));
+        });
+
+        _questionModal.on('hide.bs.modal', function() {
+            if (restartOnClose) {
+                event.target.playVideo();
+            }
+            _resetAddQuestionForm();
+        });
     };
 
     intVideo.deleteQuestion = function (link, questionId) {
@@ -112,6 +138,13 @@ var IntVideo = (function () {
                 intVideo.wwPlayer('wwvideo').seekTo(seconds);
                 if (play) {
                     intVideo.wwPlayer('wwvideo').play();
+                }
+            }
+        } else if (_videoType === typeEnum.YouTube) {
+            if (!isNaN(seconds)) {
+                intVideo.ytPlayer.seekTo(seconds);
+                if (play) {
+                    intVideo.ytPlayer.playVideo();
                 }
             }
         }
@@ -177,6 +210,13 @@ var IntVideo = (function () {
                 + _videoUrl
                 + '" frameborder="0" scrolling="0" allowfullscreen></iframe>'
             );
+        } else if (_videoType === typeEnum.YouTube) {
+            var youtubeID = _videoUrl.match(/youtube\.com.*?v[\/=](\w+)/)[1];
+            $("#buildVideo").html(
+                '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
+                + youtubeID
+                + '?enablejsapi=1" frameborder="0" scrolling="0" allowfullscreen></iframe>'
+            );
         }
     };
 
@@ -241,7 +281,7 @@ var IntVideo = (function () {
     };
 
     _addQuestionToList = function (theList, questionId, questionTime, questionText) {
-        theList.prepend('<div class="dropdown">' +
+        theList.append('<div class="dropdown">' +
             '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
             '<span class="label label-default">' + questionTime + ' sec</span> ' + questionText + '<span class="caret iv-caret"></span></button>' +
             '<ul class="dropdown-menu dropdown-menu-right">' +
@@ -344,6 +384,14 @@ var IntVideo = (function () {
     };
 
     _validateAddQuestion = function (theForm) {
+
+        var duration;
+        if (_videoType === typeEnum.Warpwire) {
+            duration = intVideo.wwPlayer('wwvideo').getDuration();
+        } else if (_videoType === typeEnum.YouTube) {
+            duration = intVideo.ytPlayer.getDuration();
+        }
+
         // Clear old errors
         $("#addQuestionForm").find("div.form-group").removeClass("has-error");
         var feedback = $("#formFeedback");
@@ -351,9 +399,9 @@ var IntVideo = (function () {
         feedback.hide();
         // Check if video time is > duration or less than 0
         var videoTime = $("#videoTime");
-        if (parseInt(videoTime.val()) > intVideo.wwPlayer('wwvideo').getDuration() || parseInt(videoTime.val()) < 0) {
+        if (parseInt(videoTime.val()) > duration || parseInt(videoTime.val()) < 0) {
             videoTime.parent().parent("div.form-group").addClass("has-error");
-            feedback.text("The question must appear during the video. Enter a whole number between 0 and "+ intVideo.wwPlayer('wwvideo').getDuration() + " seconds.").fadeIn();
+            feedback.text("The question must appear during the video. Enter a whole number between 0 and "+ duration + " seconds.").fadeIn();
             errorMsg.hide().fadeIn();
             return false
         }

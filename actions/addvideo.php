@@ -19,10 +19,14 @@ if ( $USER->instructor ) {
     $videoUrl = NULL;
 
     $wwUrl = $_POST['wwUrl'];
+    $ytUrl = $_POST['ytUrl'];
 
     if (!empty($wwUrl)) {
         $videoType = VideoType::Warpwire;
         $videoUrl = $wwUrl;
+    } else if (!empty($ytUrl)) {
+        $videoType = VideoType::YouTube;
+        $videoUrl = $ytUrl;
     }
 
     if (isset($videoType) && isset($videoUrl)) {

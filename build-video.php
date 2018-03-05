@@ -137,6 +137,14 @@ $OUTPUT->footerStart();
             IntVideo.wwPlayer = new wwIframeApi();
             IntVideo.setupWarpwireBuildEvents();
         }
+
+        function onYouTubeIframeAPIReady() {
+            IntVideo.ytPlayer = new YT.Player('ytvideo', {
+                events: {
+                    'onReady': IntVideo.youTubeOnReady
+                }
+            });
+        }
     </script>
 <?php
 $OUTPUT->footerEnd();

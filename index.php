@@ -44,9 +44,9 @@ if (!$videoId) {
                     </div>
                     <p>OR</p>
                     <div class="form-group">
-                        <label for="videoUrl">YouTube Video URL (Coming Soon)</label>
+                        <label for="videoUrl">YouTube Video URL</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="ytUrl" name="ytUrl" placeholder="https://www.youtube.com/watch?v=..." disabled>
+                            <input type="text" class="form-control" id="ytUrl" name="ytUrl" placeholder="https://www.youtube.com/watch?v=...">
                             <span class="input-group-addon"><span class="fa fa-youtube-play" style="color:#242424;font-size:20px;"></span></span>
                         </div>
                     </div>
