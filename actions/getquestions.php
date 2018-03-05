@@ -23,6 +23,7 @@ if (isset($_SESSION["videoId"])) {
     $questionsArray = array();
 
     $questions = $IV_DAO->getSortedQuestionsForVideo($videoId);
+
     foreach ($questions as $question) {
         $newQuestion = new Question();
         $newQuestion->questionId = $question["question_id"];
@@ -44,10 +45,10 @@ if (isset($_SESSION["videoId"])) {
             $newAnswer->answerText = $answer["a_text"];
             $newAnswer->isCorrect = $answer["is_correct"];
 
-            $newQuestion->answers[$answer["answer_id"]] = $newAnswer;
+            $newQuestion->answers[] = $newAnswer;
         }
 
-        $questionsArray[$question["question_id"]] = $newQuestion;
+        $questionsArray[] = $newQuestion;
     }
 
     echo json_encode($questionsArray);
