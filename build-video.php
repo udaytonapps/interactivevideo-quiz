@@ -56,7 +56,6 @@ include("menu.php");
             <button id="addQuestionBtn" type="button" class="btn btn-success disabled" data-toggle="modal" data-target="#addQuestionModal">
                 <span aria-hidden="true" class="fa fa-plus"></span> Add Question
             </button>
-            <button type="button" class="btn btn-default" onclick="IntVideo.updateQuestionList();">Get Questions</button>
         </div>
     </div>
     <div class="row video-action-row">
@@ -74,15 +73,17 @@ include("menu.php");
                         <h4 class="modal-title">Add Question</h4>
                     </div>
                     <div class="modal-body">
+                        <p id="formFeedback" class="alert alert-danger" style="display:none;"></p>
+                        <input type="hidden" id="questionId" name="questionId" value="-1">
                         <div class="form-group row">
                             <div class="col-xs-3">
                                 <label for="videoTime">Video Time (seconds)</label>
-                                <input type="text" class="form-control" id="videoTime" name="videoTime">
+                                <input type="text" class="form-control" id="videoTime" name="videoTime" required oninvalid="this.setCustomValidity('You must enter a time for this question.');" oninput="setCustomValidity('');">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="questionText">Question Text</label>
-                            <textarea class="form-control" rows="3" id="questionText" name="questionText"></textarea>
+                            <textarea class="form-control" rows="3" id="questionText" name="questionText" required oninvalid="this.setCustomValidity('Question text cannot be blank.');" oninput="setCustomValidity('');"></textarea>
                         </div>
                         <div class="form-group" id="answerContainer">
                             <label>Possible Answers</label>
@@ -109,9 +110,11 @@ include("menu.php");
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" id="answersToRemove" name="answersToRemove">
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        <span class="text-danger" id="errorMessage" style="display:none;"><span aria-hidden="true" class="fa fa-exclamation-triangle"></span> Please fix errors before continuing.</span>
+                        <button type="submit" class="btn btn-success" id="submitQuestion">Save</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </form>

@@ -17,65 +17,39 @@ $p = $CFG->dbprefix;
 
 $IV_DAO = new IV_DAO($PDOX, $p);
 
-// Temp Build demo questions
-$answer11 = new Answer();
-$answer11->answerId = 1;
-$answer11->questionId = 1;
-$answer11->answerText = "True";
-$answer11->isCorrect = true;
+if (isset($_SESSION["videoId"])) {
+    $videoId = $_SESSION["videoId"];
 
-$answer12 = new Answer();
-$answer12->answerId = 2;
-$answer12->questionId = 1;
-$answer12->answerText = "False";
-$answer12->isCorrect = false;
+    $questionsArray = array();
 
-$question1 = new Question();
+    $questions = $IV_DAO->getSortedQuestionsForVideo($videoId);
+    foreach ($questions as $question) {
+        $newQuestion = new Question();
+        $newQuestion->questionId = $question["question_id"];
+        $newQuestion->videoId = $question["video_id"];
+        $newQuestion->questionTime = $question["q_time"];
+        $newQuestion->questionText = $question["q_text"];
+        $newQuestion->correctFeedback = $question["correct_fb"];
+        $newQuestion->incorrectFeedback = $question["incorrect_fb"];
+        $newQuestion->randomize = $question["randomize"];
+        $newQuestion->answers = Array();
 
-$question1->questionId = 1;
-$question1->questionTime = 10;
-$question1->questionText = "Here is the first question that will be returned by this function.";
-$question1->correctFeedback = "Great job!";
-$question1->incorrectFeedback = "Sorry, the answer was the color yellow.";
-$question1->answers["1"] = $answer11;
-$question1->answers["2"] = $answer12;
-$question1->randomize = false;
+        // Get answers for question
+        $answers = $IV_DAO->getSortedAnswersForQuestion($question["question_id"]);
+        foreach ($answers as $answer) {
+            $newAnswer = new Answer();
+            $newAnswer->answerId = $answer["answer_id"];
+            $newAnswer->questionId = $answer["question_id"];
+            $newAnswer->answerOrder = $answer["answer_order"];
+            $newAnswer->answerText = $answer["a_text"];
+            $newAnswer->isCorrect = $answer["is_correct"];
 
-$answer21 = new Answer();
-$answer21->answerId = 3;
-$answer21->questionId = 2;
-$answer21->answerText = "Today is Wednesday.";
-$answer21->isCorrect = false;
+            $newQuestion->answers[$answer["answer_id"]] = $newAnswer;
+        }
 
-$answer22 = new Answer();
-$answer22->answerId = 4;
-$answer22->questionId = 2;
-$answer22->answerText = "This is the correct answer.";
-$answer22->isCorrect = true;
+        $questionsArray[$question["question_id"]] = $newQuestion;
+    }
 
-$answer23 = new Answer();
-$answer23->answerId = 5;
-$answer23->questionId = 2;
-$answer23->answerText = "This answer is also wrong.";
-$answer23->isCorrect = false;
-
-$question2 = new Question();
-
-$question2->questionId = 2;
-$question2->questionTime = 5;
-$question2->questionText = "This is the second question that has three answers associated with it.";
-$question2->correctFeedback = "Great job!";
-$question2->incorrectFeedback = "Sorry, the answer was the color blue.";
-$question2->answers["3"] = $answer21;
-$question2->answers["4"] = $answer22;
-$question2->answers["5"] = $answer23;
-$question2->randomize = true;
-
-$theQuestions = array();
-$theQuestions["1"] = $question1;
-$theQuestions["2"] = $question2;
-
-usort($theQuestions, array('IVUtil', 'compareQuestionByTime'));
-
-echo json_encode($theQuestions);
+    echo json_encode($questionsArray);
+}
 

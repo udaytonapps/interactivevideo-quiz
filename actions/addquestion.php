@@ -5,7 +5,6 @@ require_once('../util/VideoType.php');
 
 use \Tsugi\Core\LTIX;
 use \IV\DAO\IV_DAO;
-use \IV\Util\VideoType;
 
 $LAUNCH = LTIX::requireData();
 
@@ -24,8 +23,40 @@ if ( $USER->instructor ) {
     $correctFeedback = isset($_POST['correctFeedback']) ? $_POST['correctFeedback'] : "";
     $incorrectFeedback = isset($_POST['incorrectFeedback']) ? $_POST['incorrectFeedback'] : "";
 
-    $questionId = $IV_DAO->addQuestion($videoId, $questionTime, $questionText, $correctFeedback, $incorrectFeedback);
+    if ($_POST["questionId"] == -1) {
+        // This is a new question
+        $questionId = $IV_DAO->addQuestion($videoId, $questionTime, $questionText, $correctFeedback, $incorrectFeedback, $randomize);
+    } else {
+        // Update existing question
+        $questionId = $_POST["questionId"];
+        $IV_DAO->updateQuestion($questionId, $questionTime, $questionText, $correctFeedback, $incorrectFeedback, $randomize);
+    }
 
-    // Use the Question ID to add the Answers
+    // First delete "removed" answers
+    if (isset($_POST["answersToRemove"]))
+    $toRemove = explode(",", $_POST["answersToRemove"]);
+    foreach ($toRemove as $ansId) {
+        $IV_DAO->deleteAnswer($questionId, $ansId);
+    }
 
+    // This loop assumes the form correctly updated the answer orders to 1-6 without skipping any
+    // indexes. Once an unset answer is found the rest will be discarded.
+    for ($i = 1; $i <= 6; $i++) {
+        if (isset($_POST['answer'.$i])) {
+            $answerOrder = $i;
+            $isCorrect = in_array ($i, $_POST['correctAnswer']);
+            $answerText = $_POST['answer'.$i];
+
+            if ($_POST["answerId".$i] == -1) {
+                // New answer
+                $IV_DAO->addAnswer($questionId, $answerOrder, $isCorrect, $answerText);
+            } else {
+                // Update existing answer
+                $IV_DAO->updateAnswer($_POST["answerId".$i], $answerOrder, $isCorrect, $answerText);
+            }
+        } else {
+            // No more answers delete the rest from the database
+            break;
+        }
+    }
 }
