@@ -12,6 +12,23 @@ $p = $CFG->dbprefix;
 
 $IV_DAO = new IV_DAO($PDOX, $p);
 
+if (!isset($_SESSION["videoId"])) {
+    // No video id in session. Redirect back to index.
+    header( 'Location: '.addSession('index.php') ) ;
+}
+
+$videoId = $_SESSION["videoId"];
+
+$video = $IV_DAO->getVideoInfoById($videoId);
+
+if (!$video) {
+    // Video not found.
+    header( 'Location: '.addSession('index.php') ) ;
+}
+
+$videoType = $video["video_type"];
+$videoUrl = $video["video_url"];
+
 // Start of the output
 $OUTPUT->header();
 ?>
@@ -21,8 +38,69 @@ $OUTPUT->header();
 $OUTPUT->bodyStart();
 
 include("menu.php");
+?>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-8">
+            <div id="playVideo" class="videoWrapper">
+                <p class="text-center">
+                    Loading video <span aria-hidden="true" class="fa fa-spinner fa-spin"></span>
+                </p>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div id="questionContainer">
+                <h4 id="questionsRemaining"></h4>
+                <ul class="list-group" id="theQuestions">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row video-action-row">
+        <div class="col-sm-10 col-sm-offset-2">
+        </div>
+    </div>
+</div>
+    <div id="askQuestionModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Question</h4>
+                </div>
+                <div class="modal-body" id="askQuestionModalBody">
 
-echo ("Coming soon.");
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <input type="hidden" id="sess" value="<?php echo($_GET["PHPSESSID"]); ?>">
+<?php
 $OUTPUT->footerStart();
+?>
+    <!-- Our main javascript file for tool functions -->
+    <script src="scripts/main.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            IntVideo.initPlay(<?php echo $videoType ?>, "<?php echo $videoUrl ?>");
+        });
+
+        function onWarpwirePlayerAPIReady() {
+            IntVideo.wwPlayer = new wwIframeApi();
+            IntVideo.setupWarpwirePlayEvents();
+        }
+
+        function onYouTubeIframeAPIReady() {
+            IntVideo.ytPlayer = new YT.Player('ytvideo', {
+                events: {
+                    'onReady': IntVideo.youTubeOnReadyPlay
+                }
+            });
+        }
+    </script>
+<?php
 $OUTPUT->footerEnd();

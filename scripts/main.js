@@ -12,9 +12,14 @@ var IntVideo = (function () {
     var _videoUrl = '';
 
     var _numberOfAnswers = 0;
+    var _numberOfQuestionsRemaining = 0;
 
     var _questionModal = null;
     var _questionArray;
+
+    var _questionDictionary = {};
+
+    var _questionInterval = null;
 
     intVideo.initBuild = function (videoType, videoUrl) {
         var tag = document.createElement('script');
@@ -36,6 +41,24 @@ var IntVideo = (function () {
         _setupAddQuestionForm();
 
         intVideo.updateQuestionList(true);
+    };
+
+    intVideo.initPlay = function (videoType, videoUrl) {
+        var tag = document.createElement('script');
+        if (videoType === typeEnum.YouTube) {
+            _videoType = videoType;
+
+            tag.src = "https://www.youtube.com/iframe_api";
+        } else {
+
+            tag.src = "scripts/wwIframeApi.min.js";
+        }
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        _videoUrl = videoUrl;
+
+        _getEmbedForPlay();
     };
 
     intVideo.setupWarpwireBuildEvents = function () {
@@ -64,7 +87,43 @@ var IntVideo = (function () {
         };
     };
 
-    intVideo.youTubeOnReady = function (event) {
+    intVideo.setupWarpwirePlayEvents = function () {
+        intVideo.wwPlayer('wwvideo').onReady = function(event) {
+            _questionModal = $("#askQuestionModal");
+
+            intVideo.loadQuestionsForPlay();
+
+            _questionInterval = setInterval(function () {
+                var currentPlayTime = intVideo.wwPlayer('wwvideo').getCurrentTime();
+                for(question in _questionArray) {
+                    var questionTime = _questionArray[question].questionTime;
+                    var questionText = _questionArray[question].questionText;
+                    if (Math.floor(currentPlayTime).toString() === questionTime && _questionArray[question].answered === false) {
+                        intVideo.wwPlayer('wwvideo').pause();
+                        _questionArray[question].answered = true;
+                        _numberOfQuestionsRemaining--;
+                        _questionModal.find("#askQuestionModalBody").append("<p>" + questionText + "</p>");
+                        _questionModal.modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        $("#questionContainer").hide();
+                        $('li.question-item[data-question-time="' + questionTime + '"]').css("text-decoration", "line-through");
+                    }
+                }
+
+            }, 1000);
+
+            _questionModal.on('hidden.bs.modal', function() {
+                _questionModal.find("#askQuestionModalBody").empty();
+                _updateQuestionsRemainingDisplay();
+                $("#questionContainer").fadeIn("slow");
+                intVideo.wwPlayer('wwvideo').play();
+            });
+        };
+    };
+
+    intVideo.youTubeOnReadyBuild = function (event) {
 
         var restartOnClose = false;
 
@@ -86,6 +145,10 @@ var IntVideo = (function () {
             }
             _resetAddQuestionForm();
         });
+    };
+
+    intVideo.youTubeOnReadyPlay = function (event) {
+        event.target.playVideo();
     };
 
     intVideo.deleteQuestion = function (link, questionId) {
@@ -128,6 +191,34 @@ var IntVideo = (function () {
 
                     theQuestions.fadeIn("slow");
                 }
+            }
+        });
+    };
+
+    intVideo.loadQuestionsForPlay = function () {
+        var sess = $("input#sess").val();
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "actions/getquestions.php?PHPSESSID="+sess,
+            success: function (response) {
+                _questionArray = response;
+
+                var theQuestions = $("#theQuestions");
+
+                theQuestions.hide();
+                theQuestions.empty();
+                _numberOfQuestionsRemaining = 0;
+
+                for (question in _questionArray) {
+                    theQuestions.append('<li class="list-group-item question-item" data-question-time="' + _questionArray[question].questionTime + '"><span class="question-time">' + _questionArray[question].questionTime + ' seconds</span></li>');
+                    _questionArray[question].answered = false;
+                    _numberOfQuestionsRemaining++;
+                }
+
+                _updateQuestionsRemainingDisplay();
+                theQuestions.fadeIn("slow");
             }
         });
     };
@@ -216,6 +307,23 @@ var IntVideo = (function () {
                 '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
                 + youtubeID
                 + '?enablejsapi=1" frameborder="0" scrolling="0" allowfullscreen></iframe>'
+            );
+        }
+    };
+
+    _getEmbedForPlay = function () {
+        if (_videoType === typeEnum.Warpwire) {
+            $("#playVideo").html(
+                '<iframe id="wwvideo" data-ww-id="wwvideo" src="'
+                + _videoUrl
+                + '?share=0&title=0&controls=0" frameborder="0" scrolling="0" allowfullscreen></iframe>'
+            );
+        } else if (_videoType === typeEnum.YouTube) {
+            var youtubeID = _videoUrl.match(/youtube\.com.*?v[\/=](\w+)/)[1];
+            $("#playVideo").html(
+                '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
+                + youtubeID
+                + '?enablejsapi=1&amp;rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" scrolling="0" allowfullscreen></iframe>'
             );
         }
     };
@@ -429,6 +537,10 @@ var IntVideo = (function () {
             return false;
         }
         return true;
+    };
+
+    _updateQuestionsRemainingDisplay = function () {
+        $("#questionsRemaining").html(_numberOfQuestionsRemaining + " Question" + (_numberOfQuestionsRemaining === 1 ? "" : "s") + " Remaining");
     };
 
     return intVideo;
