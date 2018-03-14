@@ -141,7 +141,7 @@ $OUTPUT->footerStart();
         function onYouTubeIframeAPIReady() {
             IntVideo.ytPlayer = new YT.Player('ytvideo', {
                 events: {
-                    'onReady': IntVideo.youTubeOnReady
+                    'onReady': IntVideo.youTubeOnReadyBuild
                 }
             });
         }
