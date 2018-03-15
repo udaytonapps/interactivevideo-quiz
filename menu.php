@@ -3,8 +3,8 @@ $instructorMenu = array(
     "results.php" => '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Video Results'
 );
 $studentMenu = array(
-    'index.php' => 'Study Mode',
-    '' => 'Results'
+    'play-video.php' => 'Play Mode',
+    'student-results.php' => 'Results'
 );
 
 if($USER->instructor) {

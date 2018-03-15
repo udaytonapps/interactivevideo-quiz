@@ -58,6 +58,9 @@ include("menu.php");
     </div>
     <div class="row video-action-row">
         <div class="col-sm-10 col-sm-offset-2">
+            <button id="playButton" class="btn btn-success" disabled="disabled" onclick="IntVideo.play()">Play</button>
+            <button id="pauseButton" class="btn btn-danger" disabled="disabled" onclick="IntVideo.pause()">Pause</button>
+            <span id="currentPlayTime">0</span> seconds
         </div>
     </div>
 </div>
