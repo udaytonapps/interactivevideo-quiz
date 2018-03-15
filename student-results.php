@@ -22,11 +22,7 @@ $OUTPUT->bodyStart();
 
 include("menu.php");
 
-if ($USER->instructor) {
-    echo ("Coming soon.");
-} else {
-    header( 'Location: '.addSession('play-video.php') ) ;
-}
+echo("Student results will be here");
 
 $OUTPUT->footerStart();
 $OUTPUT->footerEnd();
