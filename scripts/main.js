@@ -17,8 +17,6 @@ var IntVideo = (function () {
     var _questionModal = null;
     var _questionArray;
 
-    var _questionDictionary = {};
-
     var _questionInterval = null;
 
     intVideo.initBuild = function (videoType, videoUrl) {
@@ -100,13 +98,18 @@ var IntVideo = (function () {
                     var questionText = _questionArray[question].questionText;
                     if (Math.floor(currentPlayTime).toString() === questionTime && _questionArray[question].answered === false) {
                         intVideo.wwPlayer('wwvideo').pause();
+
                         _questionArray[question].answered = true;
                         _numberOfQuestionsRemaining--;
-                        _questionModal.find("#askQuestionModalBody").append("<p>" + questionText + "</p>");
+
+                        _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
+                        $("button.answer-option").off("click").on("click", _markAsCorrect);
                         _questionModal.modal({
                             backdrop: 'static',
                             keyboard: false
                         });
+                        $("#submitAnswerButton").off("click").on("click", _recordResponseAndCloseModal);
+
                         $("#questionContainer").hide();
                         $('li.question-item[data-question-time="' + questionTime + '"]').css("text-decoration", "line-through");
                     }
@@ -117,7 +120,7 @@ var IntVideo = (function () {
             _questionModal.on('hidden.bs.modal', function() {
                 _questionModal.find("#askQuestionModalBody").empty();
                 _updateQuestionsRemainingDisplay();
-                $("#questionContainer").fadeIn("slow");
+                $("#questionContainer").fadeIn("fast");
                 intVideo.wwPlayer('wwvideo').play();
             });
         };
@@ -537,6 +540,28 @@ var IntVideo = (function () {
             return false;
         }
         return true;
+    };
+
+    _addQuestionToModal = function (modalBody, question) {
+        $("#askQuestionModalTitle").text("Question: " + question.questionTime + " Second" + (question.questionTime === "1" ? "" : "s"));
+        modalBody.append('<h4 class="question-text">' + question.questionText + '</h4>' +
+            '<input type="hidden" id="questionId" value="'+question.questionId+'">' +
+            '<div class="list-group answer-list">');
+        for(answer in question.answers) {
+            modalBody.append("<div class=\"list-group-item answer\">" +
+            "<div class=\"checkbox sr-only\"><label><input type=\"checkbox\" class=\"correct-checkbox\" name=\"markedAnswer[]\" value=\"" + question.answers[answer].answerId + "\">"+question.answers[answer].answerText+"</label></div>" +
+            "<span><button type=\"button\" class=\"btn btn-default answer-option\">" + question.answers[answer].answerText + "</button></span>" +
+            "</div>");
+        }
+        modalBody.append('</div>');
+    };
+
+    _recordResponseAndCloseModal = function () {
+        // TODO: Record response in the database
+        $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each(function(){
+            // TODO: Record response for each or as one?
+        });
+        $("#askQuestionModal").modal("hide");
     };
 
     _updateQuestionsRemainingDisplay = function () {

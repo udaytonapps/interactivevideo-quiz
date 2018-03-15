@@ -41,14 +41,14 @@ include("menu.php");
 ?>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-12 col-md-9">
             <div id="playVideo" class="videoWrapper">
                 <p class="text-center">
                     Loading video <span aria-hidden="true" class="fa fa-spinner fa-spin"></span>
                 </p>
             </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-12 col-md-3">
             <div id="questionContainer">
                 <h4 id="questionsRemaining"></h4>
                 <ul class="list-group" id="theQuestions">
@@ -65,13 +65,13 @@ include("menu.php");
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Question</h4>
+                    <h4 id="askQuestionModalTitle" class="modal-title"></h4>
                 </div>
                 <div class="modal-body" id="askQuestionModalBody">
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="submitAnswerButton">Submit</button>
                 </div>
             </div>
         </div>

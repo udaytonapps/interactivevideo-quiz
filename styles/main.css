@@ -48,3 +48,14 @@ span.iv-caret {
 div.video-action-row {
     margin-top: 2em;
 }
+#askQuestionModalBody {
+    text-align: center;
+}
+#askQuestionModalBody div.list-group-item {
+    border: none;
+    padding: 6px;
+}
+#askQuestionModalBody button.answer-option {
+    white-space: normal;
+    min-width: 250px;
+}
