@@ -620,6 +620,9 @@ var IntVideo = (function () {
         modalBody.append('<h4 class="question-text">' + question.questionText + '</h4>' +
             '<input type="hidden" id="questionId" value="'+question.questionId+'">' +
             '<div class="list-group answer-list">');
+        if (question.randomize === "1") {
+            _shuffle(question.answers);
+        }
         for (var answer in question.answers) {
             modalBody.append("<div class=\"list-group-item answer\">" +
             "<div class=\"checkbox sr-only\"><label><input type=\"checkbox\" class=\"correct-checkbox\" name=\"markedAnswer[]\" value=\"" + question.answers[answer].answerId + "\">"+question.answers[answer].answerText+"</label></div>" +
@@ -711,6 +714,27 @@ var IntVideo = (function () {
 
     _updateQuestionsRemainingDisplay = function () {
         $("#questionsRemaining").html(_numberOfQuestionsRemaining + " Question" + (_numberOfQuestionsRemaining === 1 ? "" : "s") + " Remaining");
+    };
+
+    _shuffle = function (array) {
+        //The Fisher-Yates (aka Knuth) shuffle
+
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
     };
 
     return intVideo;
