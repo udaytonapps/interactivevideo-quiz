@@ -98,4 +98,10 @@ class IV_DAO {
         $arr = array(":userId" => $user_id, ":questionId" => $question_id);
         $this->PDOX->queryDie($query, $arr);
     }
+
+    function getResponse($user_id, $question_id, $answer_id) {
+        $query = "SELECT * FROM {$this->p}iv_response WHERE user_id = :userId AND question_id = :questionId AND answer_id = :answerId;";
+        $arr = array(':userId' => $user_id, ':questionId' => $question_id, ':answerId' => $answer_id);
+        return $this->PDOX->rowDie($query, $arr);
+    }
 }
