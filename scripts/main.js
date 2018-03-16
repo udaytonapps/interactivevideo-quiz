@@ -168,7 +168,45 @@ var IntVideo = (function () {
     };
 
     intVideo.youTubeOnReadyPlay = function (event) {
-        event.target.playVideo();
+        _questionModal = $("#askQuestionModal");
+
+        intVideo.loadQuestionsForPlay();
+
+        _questionInterval = setInterval(function () {
+            var currentPlayTime = Math.floor(intVideo.ytPlayer.getCurrentTime());
+            for (var question in _questionArray) {
+                var questionTime = _questionArray[question].questionTime;
+                var questionText = _questionArray[question].questionText;
+                if (currentPlayTime.toString() === questionTime && _questionArray[question].answered === false) {
+                    intVideo.ytPlayer.pauseVideo();
+
+                    _questionArray[question].answered = true;
+                    _numberOfQuestionsRemaining--;
+
+                    _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
+                    $("button.answer-option").off("click").on("click", _markAsCorrect);
+                    _questionModal.modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    var submitButton = $("#submitAnswerButton");
+                    submitButton.removeClass("btn-success");
+                    submitButton.addClass("btn-primary");
+                    submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                }
+            }
+            $("#currentPlayTime").text(currentPlayTime);
+        }, 1000);
+
+        var playButton = document.getElementById('playButton');
+        playButton.removeAttribute('disabled');
+
+        _questionModal.on('hidden.bs.modal', function() {
+            _questionModal.find("#askQuestionModalBody").empty();
+            _updateQuestionsRemainingDisplay();
+            $("#questionContainer").fadeIn("fast");
+            intVideo.ytPlayer.playVideo();
+        });
     };
 
     intVideo.deleteQuestion = function (link, questionId) {
@@ -267,12 +305,16 @@ var IntVideo = (function () {
     intVideo.play = function () {
         if (_videoType === typeEnum.Warpwire) {
             intVideo.wwPlayer('wwvideo').play();
+        } else if (_videoType === typeEnum.YouTube) {
+            intVideo.ytPlayer.playVideo();
         }
     };
 
     intVideo.pause = function () {
         if (_videoType === typeEnum.Warpwire) {
             intVideo.wwPlayer('wwvideo').pause();
+        } else if (_videoType === typeEnum.YouTube) {
+            intVideo.ytPlayer.pauseVideo();
         }
     };
 
@@ -578,6 +620,9 @@ var IntVideo = (function () {
         modalBody.append('<h4 class="question-text">' + question.questionText + '</h4>' +
             '<input type="hidden" id="questionId" value="'+question.questionId+'">' +
             '<div class="list-group answer-list">');
+        if (question.randomize === "1") {
+            _shuffle(question.answers);
+        }
         for (var answer in question.answers) {
             modalBody.append("<div class=\"list-group-item answer\">" +
             "<div class=\"checkbox sr-only\"><label><input type=\"checkbox\" class=\"correct-checkbox\" name=\"markedAnswer[]\" value=\"" + question.answers[answer].answerId + "\">"+question.answers[answer].answerText+"</label></div>" +
@@ -669,6 +714,27 @@ var IntVideo = (function () {
 
     _updateQuestionsRemainingDisplay = function () {
         $("#questionsRemaining").html(_numberOfQuestionsRemaining + " Question" + (_numberOfQuestionsRemaining === 1 ? "" : "s") + " Remaining");
+    };
+
+    _shuffle = function (array) {
+        //The Fisher-Yates (aka Knuth) shuffle
+
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
     };
 
     return intVideo;
