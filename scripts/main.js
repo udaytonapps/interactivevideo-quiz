@@ -138,8 +138,7 @@ var IntVideo = (function () {
                 pauseButton.setAttribute('disabled', 'disabled');
                 playButton.removeAttribute('disabled');
             } else if (event.data == WWIRE.PLAYERSTATES.ENDED) {
-                var sess = $("input#sess").val();
-                window.location("student-results.php?PHPSESSID="+sess);
+                window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
             }
         };
     };
@@ -232,10 +231,12 @@ var IntVideo = (function () {
                 theQuestions.empty();
                 _numberOfQuestionsRemaining = 0;
 
+                var questionCount = 1;
                 for (var question in _questionArray) {
-                    theQuestions.append('<li class="list-group-item question-item" data-question-time="' + _questionArray[question].questionTime + '"><span class="question-time">' + _questionArray[question].questionTime + ' seconds</span></li>');
+                    theQuestions.append('<li class="list-group-item question-item next-up text-muted" data-question-time="' + _questionArray[question].questionTime + '"><span class="question-time label label-primary">' + _questionArray[question].questionTime + ' sec</span> Question ' + questionCount + '</li>');
                     _questionArray[question].answered = false;
                     _numberOfQuestionsRemaining++;
+                    questionCount++;
                 }
 
                 _updateQuestionsRemainingDisplay();
@@ -592,16 +593,33 @@ var IntVideo = (function () {
         submitButton.toggleClass("btn-primary btn-success");
         submitButton.text("Continue Video");
 
+        var sess = $("#sess").val();
+        var questionId = $("#questionId").val();
+        var answerIds = [];
+        $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each( function () {
+            answerIds.push($(this).val());
+        });
+
+        // First persist responses
+        $.ajax({
+            type: "POST",
+            url: "actions/recordresponses.php?PHPSESSID="+sess,
+            data: {
+                "questionId": questionId,
+                "answers": answerIds
+            }
+        });
+
         var questionTime, correct = true;
         for (var question in _questionArray) {
-            if (_questionArray[question].questionId === $("#questionId").val()) {
+            if (_questionArray[question].questionId === questionId) {
                 // Found which question is being answered.
                 questionTime = _questionArray[question].questionTime;
                 for (var answer in _questionArray[question].answers) {
                     if (_questionArray[question].answers[answer].isCorrect === "1") {
                         var found = false;
-                        $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each(function () {
-                            if ($(this).val() === _questionArray[question].answers[answer].answerId) {
+                        answerIds.forEach(function (id) {
+                            if (id === _questionArray[question].answers[answer].answerId) {
                                 found = true;
                             }
                         });
@@ -612,8 +630,8 @@ var IntVideo = (function () {
                         }
                     } else {
                         // Not a correct answer make sure it wasn't checked by student
-                        $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each(function () {
-                            if ($(this).val() === _questionArray[question].answers[answer].answerId) {
+                        answerIds.forEach(function (id) {
+                            if (id === _questionArray[question].answers[answer].answerId) {
                                 // Student marked a wrong answer as correct
                                 correct = false;
                             }
@@ -625,9 +643,11 @@ var IntVideo = (function () {
                     }
                 }
                 if (correct) {
-                    $("#askQuestionModalBody").html('<h3 class="alert alert-success">' + _questionArray[question].correctFeedback + '</h3>');
+                    $("#askQuestionModalBody").html('<div class="alert alert-success">' +
+                        '<h3>Correct!</h3><p>' + _questionArray[question].correctFeedback + '</p></div>');
                 } else {
-                    $("#askQuestionModalBody").html('<h3 class="alert alert-danger">' + _questionArray[question].incorrectFeedback + '</h3>');
+                    $("#askQuestionModalBody").html('<div class="alert alert-danger">' +
+                        '<h3>Incorrect</h3><p>' + _questionArray[question].incorrectFeedback + '</p></div>');
                 }
                 break;
             }
@@ -636,10 +656,14 @@ var IntVideo = (function () {
 
         var questionListItem = $('li.question-item[data-question-time="' + questionTime + '"]');
 
+        questionListItem.removeClass("next-up");
+
         if (correct) {
             questionListItem.prepend('<span class="text-success fa fa-check"></span> ');
+            questionListItem.find("span.question-time").toggleClass("label-primary label-success");
         } else {
             questionListItem.prepend('<span class="text-danger fa fa-times"></span> ');
+            questionListItem.find("span.question-time").toggleClass("label-primary label-danger");
         }
     };
 
