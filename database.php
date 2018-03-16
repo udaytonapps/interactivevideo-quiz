@@ -68,6 +68,7 @@ $DATABASE_INSTALL = array(
         REFERENCES `{$CFG->dbprefix}iv_answer` (`answer_id`)
         ON DELETE CASCADE,
         
+    UNIQUE(user_id, question_id, answer_id),
     PRIMARY KEY(response_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8")
 );

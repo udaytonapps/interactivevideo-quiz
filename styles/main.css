@@ -62,3 +62,11 @@ div.video-action-row {
 #currentPlayTime {
     padding-left: 8px;
 }
+#questionContainer li.next-up {
+    font-weight: bold;
+    color: #111;
+}
+#questionContainer li.next-up ~ li.next-up {
+    font-weight: normal;
+    color: #111;
+}
