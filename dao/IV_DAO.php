@@ -104,4 +104,17 @@ class IV_DAO {
         $arr = array(':userId' => $user_id, ':questionId' => $question_id, ':answerId' => $answer_id);
         return $this->PDOX->rowDie($query, $arr);
     }
+
+    function getStudentsWithResponses($video_id) {
+        $query = "SELECT DISTINCT r.user_id FROM {$this->p}iv_response r JOIN {$this->p}iv_question q ON r.question_id = q.question_id WHERE q.video_id = :videoId;";
+        $arr = array(':videoId' => $video_id);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    function findDisplayName($user_id) {
+        $query = "SELECT displayname FROM {$this->p}lti_user WHERE user_id = :user_id;";
+        $arr = array(':user_id' => $user_id);
+        $context = $this->PDOX->rowDie($query, $arr);
+        return $context["displayname"];
+    }
 }

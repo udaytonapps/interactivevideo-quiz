@@ -4,8 +4,6 @@ require_once "dao/IV_DAO.php";
 
 use \Tsugi\Core\LTIX;
 use \IV\DAO\IV_DAO;
-use IV\Model\Answer;
-use IV\Model\Question;
 
 // Retrieve the launch data if present
 $LTI = LTIX::requireData();
@@ -14,7 +12,11 @@ $p = $CFG->dbprefix;
 
 $IV_DAO = new IV_DAO($PDOX, $p);
 
-$userId = $USER->id;
+if ($USER->instructor && isset($_GET["student"])) {
+    $userId = $_GET["student"];
+} else {
+    $userId = $USER->id;
+}
 
 // Start of the output
 $OUTPUT->header();
@@ -33,7 +35,19 @@ if (isset($_SESSION["videoId"])) {
 
     $questions = $IV_DAO->getSortedQuestionsForVideo($videoId);
 
-    echo ('<div class="container-fluid"><div class="row"><div class="col-sm-12">');
+    echo ('<div class="container-fluid">');
+
+    if ($USER->instructor) {
+        $displayName = $IV_DAO->findDisplayName($userId);
+        ?>
+        <ul class="breadcrumb">
+            <li><a href="results.php">All Results</a></li>
+            <li class="active"><?php echo $displayName ?></li>
+        </ul>
+        <?php
+    }
+
+    echo ('<div class="row"><div class="col-sm-12">');
 
     $questionNumber = 0;
     $totalCorrect = 0;
