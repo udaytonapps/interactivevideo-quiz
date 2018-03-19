@@ -17,9 +17,9 @@ class IV_DAO {
         return $this->PDOX->rowDie($query, $arr);
     }
 
-    function createVideo($context_id, $link_id, $user_id, $video_url, $video_type) {
-        $query = "INSERT INTO {$this->p}iv_video (link_id, context_id, user_id, video_url, video_type) VALUES (:linkId, :contextId, :userId, :videoUrl, :videoType);";
-        $arr = array(':linkId' => $link_id, ':contextId' => $context_id, ':userId' => $user_id, ':videoUrl' => $video_url, ':videoType' => $video_type);
+    function createVideo($context_id, $link_id, $user_id, $video_url, $video_type, $video_title) {
+        $query = "INSERT INTO {$this->p}iv_video (link_id, context_id, user_id, video_url, video_type, video_title) VALUES (:linkId, :contextId, :userId, :videoUrl, :videoType, :videoTitle);";
+        $arr = array(':linkId' => $link_id, ':contextId' => $context_id, ':userId' => $user_id, ':videoUrl' => $video_url, ':videoType' => $video_type, ':videoTitle' => $video_title);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }

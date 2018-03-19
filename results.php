@@ -36,7 +36,7 @@ if ($USER->instructor) {
 
     echo ('<div class="row"><div class="col-sm-6"><div class="table-responsive">
             <table class="table table-bordered table-striped">
-            <thead><tr><th>Student Name</th><th class="text-center">Finished Video</th></tr></thead>
+            <thead><tr><th class="col-md-9">Student Name</th><th class="col-md-3 text-center">Finished Video</th></tr></thead>
             <tbody>');
 
     $students = $IV_DAO->getStudentsWithResponses($videoId);
@@ -50,8 +50,8 @@ if ($USER->instructor) {
         $finishedVideo = true;
 
         echo ('<tr>
-                <td class="col-md-9"><a href="student-results.php?student='.$userId.'">'.$displayName.'</a></td>
-                <td class="col-md-3 text-center">');
+                <td><a href="student-results.php?student='.$userId.'">'.$displayName.'</a></td>
+                <td class="text-center">');
 
         if ($finishedVideo) {
             echo ('<span class="fa fa-check text-success"></span>');

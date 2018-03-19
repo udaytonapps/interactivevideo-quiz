@@ -21,6 +21,8 @@ if ( $USER->instructor ) {
     $wwUrl = $_POST['wwUrl'];
     $ytUrl = $_POST['ytUrl'];
 
+    $videoTitle = $_POST['videoTitle'];
+
     if (!empty($wwUrl)) {
         $videoType = VideoType::Warpwire;
         $videoUrl = $wwUrl;
@@ -30,7 +32,7 @@ if ( $USER->instructor ) {
     }
 
     if (isset($videoType) && isset($videoUrl)) {
-        $_SESSION["videoId"] = $IV_DAO->createVideo($CONTEXT->id, $LINK->id, $USER->id, $videoUrl, $videoType);
+        $_SESSION["videoId"] = $IV_DAO->createVideo($CONTEXT->id, $LINK->id, $USER->id, $videoUrl, $videoType, $videoTitle);
         header( 'Location: '.addSession('../build-video.php') ) ;
     }
 }
