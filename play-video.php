@@ -64,6 +64,9 @@ include("menu.php");
                     <button id="pauseButton" class="btn btn-danger" disabled="disabled" onclick="IntVideo.pause()">
                         <span class="fa fa-pause" aria-hidden="true" title="Pause"></span><span class="sr-only">Pause</span>
                     </button>
+                    <button id="backTen" class="btn btn-warning" disabled="disabled" onclick="IntVideo.backTenSeconds()">
+                        <span class="fa fa-undo" aria-hidden="true" title="Back Ten Seconds"></span> 10<span class="sr-only">Back 10 Seconds</span>
+                    </button>
                     <span class="pull-right" id="currentPlayTime"></span>
                 </div>
             </div>

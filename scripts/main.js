@@ -136,11 +136,14 @@ var IntVideo = (function () {
 
             var playButton = document.getElementById('playButton');
             var pauseButton = document.getElementById('pauseButton');
+            var backButton = document.getElementById('backTen');
             if (event.data == WWIRE.PLAYERSTATES.PLAYING) {
                 pauseButton.removeAttribute('disabled');
+                backButton.removeAttribute('disabled');
                 playButton.setAttribute('disabled', 'disabled');
             } else if (event.data == WWIRE.PLAYERSTATES.PAUSED) {
                 pauseButton.setAttribute('disabled', 'disabled');
+                backButton.setAttribute('disabled', 'disabled');
                 playButton.removeAttribute('disabled');
             } else if (event.data == WWIRE.PLAYERSTATES.ENDED) {
                 $.ajax({
@@ -224,12 +227,15 @@ var IntVideo = (function () {
 
         var playButton = document.getElementById('playButton');
         var pauseButton = document.getElementById('pauseButton');
+        var backButton = document.getElementById('backTen');
 
         if (event.data == 1) { // Playing
             pauseButton.removeAttribute('disabled');
+            backButton.removeAttribute('disabled');
             playButton.setAttribute('disabled', 'disabled');
         } else if (event.data == 2) { // Paused
             pauseButton.setAttribute('disabled', 'disabled');
+            backButton.setAttribute('disabled', 'disabled');
             playButton.removeAttribute('disabled');
         } else if (event.data == 0) { // Ended
             $.ajax({
@@ -317,6 +323,20 @@ var IntVideo = (function () {
         });
     };
 
+    intVideo.backTenSeconds = function () {
+        var currentTime;
+        if (_videoType === typeEnum.Warpwire) {
+            currentTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
+        } else if (_videoType === typeEnum.YouTube) {
+            currentTime = Math.floor(intVideo.ytPlayer.getCurrentTime());
+        }
+        var newTime = currentTime - 10.0;
+        if (newTime < 0) {
+            newTime = 0;
+        }
+        intVideo.seekTo(newTime, true);
+    };
+
     intVideo.seekTo = function (seconds, play) {
         if (_videoType === typeEnum.Warpwire) {
             if (!isNaN(seconds)) {
@@ -333,7 +353,6 @@ var IntVideo = (function () {
                 }
             }
         }
-
     };
 
     intVideo.play = function () {
