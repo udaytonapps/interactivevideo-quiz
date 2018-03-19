@@ -15,6 +15,7 @@ $DATABASE_INSTALL = array(
     user_id     INTEGER NULL,
     video_url   VARCHAR(4000),
     video_type  INTEGER NOT NULL,
+    video_title varchar(255) NOT NULL,
     
     UNIQUE(link_id, context_id),
     PRIMARY KEY(video_id)
@@ -70,5 +71,20 @@ $DATABASE_INSTALL = array(
         
     UNIQUE(user_id, question_id, answer_id),
     PRIMARY KEY(response_id)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
+    array( "{$CFG->dbprefix}iv_finished",
+        "create table {$CFG->dbprefix}iv_finished (
+    finished_id   INTEGER NOT NULL AUTO_INCREMENT,
+    video_id      INTEGER NOT NULL,
+    user_id       INTEGER NOT NULL,
+    finished      BOOL NOT NULL DEFAULT 0,
+
+    CONSTRAINT `{$CFG->dbprefix}iv_finished_ibfk_1`
+        FOREIGN KEY (`video_id`)
+        REFERENCES `{$CFG->dbprefix}iv_video` (`video_id`)
+        ON DELETE CASCADE,
+        
+    UNIQUE(user_id, video_id),
+    PRIMARY KEY(finished_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8")
 );

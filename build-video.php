@@ -28,6 +28,7 @@ if (!$video) {
 
 $videoType = $video["video_type"];
 $videoUrl = $video["video_url"];
+$videoTitle = $video["video_title"];
 
 // Start of the output
 $OUTPUT->header();
@@ -41,6 +42,19 @@ include("menu.php");
 ?>
 
 <div class="container-fluid">
+    <div class="row video-action-row">
+        <div class="col-xs-8">
+            <span id="videoTitle" class="h3 video-title"><?php echo $videoTitle ?></span>
+        </div>
+        <div class="col-xs-4 text-right video-actions">
+            <button type="button" class="btn btn-warning edit-title" data-toggle="modal" data-target="#editTitleModal">
+                <span class="fa fa-pencil" aria-hidden="true" title="Edit Video Title"></span><span class="sr-only">Edit Video Title</span>
+            </button>
+            <a href="actions/deletevideo.php" class="btn btn-danger delete-video" onclick="return IntVideo.deleteVideoConfirm();">
+                <span class="fa fa-trash" aria-hidden="true" title="Delete Video"></span><span class="sr-only">Delete Video</span>
+            </a>
+        </div>
+    </div>
     <div class="row">
         <div class="col-sm-8">
             <div id="buildVideo" class="videoWrapper">
@@ -50,17 +64,12 @@ include("menu.php");
             </div>
         </div>
         <div class="col-sm-4">
-            <h3>Questions</h3>
+            <h3 class="question-list-title">Questions</h3>
             <div class="list-group" id="theQuestions">
             </div>
             <button id="addQuestionBtn" type="button" class="btn btn-success disabled" data-toggle="modal" data-target="#addQuestionModal">
                 <span aria-hidden="true" class="fa fa-plus"></span> Add Question
             </button>
-        </div>
-    </div>
-    <div class="row video-action-row">
-        <div class="col-sm-10 col-sm-offset-2">
-            <a href="actions/deletevideo.php" class="btn btn-danger" onclick="return IntVideo.deleteVideoConfirm();">Delete Video</a>
         </div>
     </div>
 </div>
@@ -118,6 +127,28 @@ include("menu.php");
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div id="editTitleModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form id="editTitleForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Video Title</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="videoTitle">Video Title</label>
+                        <input type="text" class="form-control" id="videoTitleInput" name="videoTitleInput" required oninvalid="this.setCustomValidity('You must enter a title for this interactive video.');" oninput="setCustomValidity('');">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" id="submitEditTitle">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </form>
             </div>
         </div>
     </div>

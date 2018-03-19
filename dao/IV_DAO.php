@@ -17,11 +17,17 @@ class IV_DAO {
         return $this->PDOX->rowDie($query, $arr);
     }
 
-    function createVideo($context_id, $link_id, $user_id, $video_url, $video_type) {
-        $query = "INSERT INTO {$this->p}iv_video (link_id, context_id, user_id, video_url, video_type) VALUES (:linkId, :contextId, :userId, :videoUrl, :videoType);";
-        $arr = array(':linkId' => $link_id, ':contextId' => $context_id, ':userId' => $user_id, ':videoUrl' => $video_url, ':videoType' => $video_type);
+    function createVideo($context_id, $link_id, $user_id, $video_url, $video_type, $video_title) {
+        $query = "INSERT INTO {$this->p}iv_video (link_id, context_id, user_id, video_url, video_type, video_title) VALUES (:linkId, :contextId, :userId, :videoUrl, :videoType, :videoTitle);";
+        $arr = array(':linkId' => $link_id, ':contextId' => $context_id, ':userId' => $user_id, ':videoUrl' => $video_url, ':videoType' => $video_type, ':videoTitle' => $video_title);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
+    }
+
+    function updateVideoTitle($video_id, $video_title) {
+        $query = "UPDATE {$this->p}iv_video SET video_title = :videoTitle WHERE video_id = :videoId;";
+        $arr = array(':videoTitle' => $video_title, ':videoId' => $video_id);
+        $this->PDOX->queryDie($query, $arr);
     }
 
     function deleteVideoAndQuestions($video_id) {
@@ -31,7 +37,7 @@ class IV_DAO {
     }
 
     function getVideoInfoById($video_id) {
-        $query = "SELECT video_type, video_url FROM {$this->p}iv_video WHERE video_id = :videoId;";
+        $query = "SELECT video_type, video_url, video_title FROM {$this->p}iv_video WHERE video_id = :videoId;";
         $arr = array(':videoId' => $video_id);
         return $this->PDOX->rowDie($query, $arr);
     }
@@ -103,5 +109,32 @@ class IV_DAO {
         $query = "SELECT * FROM {$this->p}iv_response WHERE user_id = :userId AND question_id = :questionId AND answer_id = :answerId;";
         $arr = array(':userId' => $user_id, ':questionId' => $question_id, ':answerId' => $answer_id);
         return $this->PDOX->rowDie($query, $arr);
+    }
+
+    function getStudentsWithResponses($video_id) {
+        $query = "SELECT DISTINCT r.user_id FROM {$this->p}iv_response r JOIN {$this->p}iv_question q ON r.question_id = q.question_id WHERE q.video_id = :videoId;";
+        $arr = array(':videoId' => $video_id);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    function markStudentAsFinished($video_id, $user_id) {
+        $query = "INSERT INTO {$this->p}iv_finished (video_id, user_id, finished) VALUES (:videoId, :userId, 1);";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
+
+    function isStudentFinished($video_id, $user_id) {
+        $query = "SELECT finished FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $finished = $this->PDOX->rowDie($query, $arr);
+        return $finished["finished"];
+    }
+
+    function findDisplayName($user_id) {
+        $query = "SELECT displayname FROM {$this->p}lti_user WHERE user_id = :user_id;";
+        $arr = array(':user_id' => $user_id);
+        $context = $this->PDOX->rowDie($query, $arr);
+        return $context["displayname"];
     }
 }

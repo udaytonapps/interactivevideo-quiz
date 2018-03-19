@@ -28,6 +28,10 @@ if (!$video) {
 
 $videoType = $video["video_type"];
 $videoUrl = $video["video_url"];
+$videoTitle = $video["video_title"];
+
+$finished = $IV_DAO->isStudentFinished($videoId, $USER->id);
+$_SESSION["finished"] = $finished;
 
 // Start of the output
 $OUTPUT->header();
@@ -42,10 +46,29 @@ include("menu.php");
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12 col-md-9">
+            <span class="h3 video-title"><?php echo $videoTitle ?></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-9">
             <div id="playVideo" class="videoWrapper">
                 <p class="text-center">
                     Loading video <span aria-hidden="true" class="fa fa-spinner fa-spin"></span>
                 </p>
+            </div>
+            <div class="row video-action-row">
+                <div class="col-sm-12">
+                    <button id="playButton" class="btn btn-success" disabled="disabled" onclick="IntVideo.play()">
+                        <span class="fa fa-play" aria-hidden="true" title="Play"></span><span class="sr-only">Play</span>
+                    </button>
+                    <button id="pauseButton" class="btn btn-danger" disabled="disabled" onclick="IntVideo.pause()">
+                        <span class="fa fa-pause" aria-hidden="true" title="Pause"></span><span class="sr-only">Pause</span>
+                    </button>
+                    <button id="backTen" class="btn btn-warning" disabled="disabled" onclick="IntVideo.backTenSeconds()">
+                        <span class="fa fa-undo" aria-hidden="true" title="Back Ten Seconds"></span> 10<span class="sr-only">Back 10 Seconds</span>
+                    </button>
+                    <span class="pull-right" id="currentPlayTime"></span>
+                </div>
             </div>
         </div>
         <div class="col-sm-12 col-md-3">
@@ -54,13 +77,6 @@ include("menu.php");
                 <ul class="list-group" id="theQuestions">
                 </ul>
             </div>
-        </div>
-    </div>
-    <div class="row video-action-row">
-        <div class="col-sm-10 col-sm-offset-2">
-            <button id="playButton" class="btn btn-success" disabled="disabled" onclick="IntVideo.play()">Play</button>
-            <button id="pauseButton" class="btn btn-danger" disabled="disabled" onclick="IntVideo.pause()">Pause</button>
-            <span id="currentPlayTime">0</span> seconds
         </div>
     </div>
 </div>
@@ -100,7 +116,8 @@ $OUTPUT->footerStart();
         function onYouTubeIframeAPIReady() {
             IntVideo.ytPlayer = new YT.Player('ytvideo', {
                 events: {
-                    'onReady': IntVideo.youTubeOnReadyPlay
+                    'onReady': IntVideo.youTubeOnReadyPlay,
+                    'onStateChange' : IntVideo.youTubeOnStateChangePlay
                 }
             });
         }

@@ -7,6 +7,7 @@ div.videoWrapper {
     padding-bottom: 56.25%; /* 16:9 */
     padding-top: 25px;
     height: 0;
+    margin-bottom: 1em;
 }
 div.videoWrapper iframe {
     position: absolute;
@@ -15,7 +16,7 @@ div.videoWrapper iframe {
     width: 100%;
     height: 100%;
 }
-#buildVideo iframe {
+#buildVideo iframe, #playVideo iframe {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 #addQuestionModal .modal-footer {
@@ -45,9 +46,6 @@ span.iv-caret {
     right: 9px;
     top: 18px;
 }
-div.video-action-row {
-    margin-top: 2em;
-}
 #askQuestionModalBody {
     text-align: center;
 }
@@ -69,4 +67,33 @@ div.video-action-row {
 #questionContainer li.next-up ~ li.next-up {
     font-weight: normal;
     color: #111;
+}
+span.video-title {
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    margin-top: 0;
+}
+h3.video-title, h4.score {
+    margin-top: 0;
+}
+button.edit-title {
+    margin-right: 6px;
+}
+h3.question-list-title {
+    margin-top: 0;
+}
+div.video-actions {
+    white-space: nowrap;
+}
+h2.feedback-header {
+    margin-top: 0;
+}
+div.question-results {
+    padding-left: 36px;
+}
+h4.question-header {
+    margin-top: 30px;
 }
