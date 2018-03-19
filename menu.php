@@ -3,13 +3,15 @@ $instructorMenu = array(
     "results.php" => '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Video Results'
 );
 $studentMenu = array(
-    'play-video.php' => 'Play Mode',
-    'student-results.php' => 'Results'
+    'play-video.php' => '<span aria-hidden="true" class="fa fa-lg fa-play-circle"></span> Play Mode'
 );
 
 if($USER->instructor) {
     $menu = $instructorMenu;
 } else {
+    if ($_SESSION["finished"]) {
+        $studentMenu['student-results.php'] = '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Results';
+    }
     $menu = $studentMenu;
 }
 ?>

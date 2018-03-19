@@ -47,16 +47,16 @@ if ($USER->instructor) {
 
         $displayName = $IV_DAO->findDisplayName($userId);
 
-        $finishedVideo = true;
+        $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
 
         echo ('<tr>
                 <td><a href="student-results.php?student='.$userId.'">'.$displayName.'</a></td>
                 <td class="text-center">');
 
         if ($finishedVideo) {
-            echo ('<span class="fa fa-check text-success"></span>');
+            echo ('<span class="fa fa-lg fa-check text-success"></span>');
         } else {
-            echo ('<span class="fa fa-times text-danger"></span>');
+            echo ('<span class="fa fa-lg fa-times text-danger"></span>');
         }
 
         echo ('</td></tr>');

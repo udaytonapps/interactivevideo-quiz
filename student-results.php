@@ -31,6 +31,8 @@ include("menu.php");
 if (isset($_SESSION["videoId"])) {
     $videoId = $_SESSION["videoId"];
 
+    $video = $IV_DAO->getVideoInfoById($videoId);
+
     $questionsArray = array();
 
     $questions = $IV_DAO->getSortedQuestionsForVideo($videoId);
@@ -47,46 +49,62 @@ if (isset($_SESSION["videoId"])) {
         <?php
     }
 
-    echo ('<div class="row"><div class="col-sm-12">');
+    echo ('<div class="row"><div class="col-sm-8">
+            <h3 class="video-title">'.$video["video_title"].'</h3>');
 
     $questionNumber = 0;
     $totalCorrect = 0;
     foreach ($questions as $question) {
         $questionNumber++;
 
-        echo ('<div><h4>Question '.$questionNumber.' <span class="label label-default">'.$question["q_time"].' sec</span></h4><p>'.$question["q_text"].'</p><ul class="list-group">');
+        $listContent = '';
 
         // Get answers for question
         $answers = $IV_DAO->getSortedAnswersForQuestion($question["question_id"]);
         $correct = true;
         foreach ($answers as $answer) {
-            echo ('<li class="list-group-item">');
+            $listContent = $listContent . '<li class="list-group-item">';
             $response = $IV_DAO->getResponse($userId, $question["question_id"], $answer["answer_id"]);
             if ($answer["is_correct"] == 1 && $response) {
                 // Correct answer and was chosen. Show in UI
-                echo ('<span class="fa fa-check text-success"></span>');
+                $listContent = $listContent . '<span class="fa fa-check text-success"></span>';
             } else if ($answer["is_correct"] == 0 && $response) {
                 // Incorrect answer was chosen. Mark as wrong in UI
-                echo ('<span class="fa fa-times text-danger"></span>');
+                $listContent = $listContent . '<span class="fa fa-times text-danger"></span>';
                 $correct = false;
             } else if ($answer["is_correct"] == 1 && !$response) {
                 // Correct answer wasn't chosen. Don't show in UI but mark as wrong
                 $correct = false;
             }
             if ($answer["is_correct"] == 1) {
-                echo (' <span class="text-success"><strong>'.$answer["a_text"].'</strong></span></li>');
+                $listContent = $listContent . ' <span class="text-success"><strong>'.$answer["a_text"].'</strong></span></li>';
             } else {
-                echo (' <span>'.$answer["a_text"].'</span></li>');
+                $listContent = $listContent . ' <span>'.$answer["a_text"].'</span></li>';
             }
 
         }
-        if ($correct) {
-            $totalCorrect++;
-        }
-        echo("</ul></div>");
+
+        echo ('<div>
+                    <h4 class="question-header">');
+                if ($correct) {
+                    $totalCorrect++;
+                    echo ('<span class="fa fa-check text-success"></span><span class="sr-only">Correct</span>');
+                } else {
+                    echo ('<span class="fa fa-times text-danger"></span><span class="sr-only">Incorrect</span>');
+                }
+        echo('<span class="label label-default pull-right">'.$question["q_time"].' sec</span> Question '.$questionNumber.'</h4>
+                    <div class="question-results">
+                    <p><strong>'.$question["q_text"].'</strong></p>
+                    <ul class="list-group">'.$listContent.'</ul>
+               </div>
+           </div>');
     }
 
-    echo ('<h4>Score: <span class="text-success">'.$totalCorrect.' / '.$questionNumber.'</span> correct</h4></div></div>');
+    echo ('</div>
+            <div class="col-sm-4 text-right">
+            <h4 class="score">Score: <span class="text-success">'.$totalCorrect.' / '.$questionNumber.'</span> correct</h4>
+            <a href="'.$video["video_url"].'" target="_blank" title="View Video">View video without questions</a>
+            </div></div>');
 
 }
 

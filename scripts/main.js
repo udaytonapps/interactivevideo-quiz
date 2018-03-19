@@ -13,6 +13,7 @@ var IntVideo = (function () {
 
     var _numberOfAnswers = 0;
     var _numberOfQuestionsRemaining = 0;
+    var _totalQuestions = 0;
 
     var _questionModal = null;
     var _questionArray;
@@ -37,6 +38,8 @@ var IntVideo = (function () {
         _getEmbedForBuild();
 
         _setupAddQuestionForm();
+
+        _setupEditTitleModal();
 
         intVideo.updateQuestionList(true);
     };
@@ -114,7 +117,7 @@ var IntVideo = (function () {
                         submitButton.off("click").on("click", _recordResponseAndCloseModal);
                     }
                 }
-                $("#currentPlayTime").text(currentPlayTime);
+                $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
             }, 1000);
 
             var playButton = document.getElementById('playButton');
@@ -129,6 +132,8 @@ var IntVideo = (function () {
         };
 
         intVideo.wwPlayer('wwvideo').onStateChange = function(event) {
+            var sess = $("input#sess").val();
+
             var playButton = document.getElementById('playButton');
             var pauseButton = document.getElementById('pauseButton');
             if (event.data == WWIRE.PLAYERSTATES.PLAYING) {
@@ -138,6 +143,11 @@ var IntVideo = (function () {
                 pauseButton.setAttribute('disabled', 'disabled');
                 playButton.removeAttribute('disabled');
             } else if (event.data == WWIRE.PLAYERSTATES.ENDED) {
+                $.ajax({
+                    type: "post",
+                    data: {},
+                    url: "actions/markfinished.php?PHPSESSID="+sess
+                });
                 window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
             }
         };
@@ -195,7 +205,7 @@ var IntVideo = (function () {
                     submitButton.off("click").on("click", _recordResponseAndCloseModal);
                 }
             }
-            $("#currentPlayTime").text(currentPlayTime);
+            $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.ytPlayer.getDuration()));
         }, 1000);
 
         var playButton = document.getElementById('playButton');
@@ -207,6 +217,28 @@ var IntVideo = (function () {
             $("#questionContainer").fadeIn("fast");
             intVideo.ytPlayer.playVideo();
         });
+    };
+
+    intVideo.youTubeOnStateChangePlay = function (event) {
+        var sess = $("input#sess").val();
+
+        var playButton = document.getElementById('playButton');
+        var pauseButton = document.getElementById('pauseButton');
+
+        if (event.data == 1) { // Playing
+            pauseButton.removeAttribute('disabled');
+            playButton.setAttribute('disabled', 'disabled');
+        } else if (event.data == 2) { // Paused
+            pauseButton.setAttribute('disabled', 'disabled');
+            playButton.removeAttribute('disabled');
+        } else if (event.data == 0) { // Ended
+            $.ajax({
+                type: "post",
+                data: {},
+                url: "actions/markfinished.php?PHPSESSID="+sess
+            });
+            window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
+        }
     };
 
     intVideo.deleteQuestion = function (link, questionId) {
@@ -276,6 +308,8 @@ var IntVideo = (function () {
                     _numberOfQuestionsRemaining++;
                     questionCount++;
                 }
+
+                _totalQuestions = _numberOfQuestionsRemaining;
 
                 _updateQuestionsRemainingDisplay();
                 theQuestions.fadeIn("slow");
@@ -464,6 +498,38 @@ var IntVideo = (function () {
         });
     };
 
+    _setupEditTitleModal = function () {
+        var sess = $("input#sess").val();
+        var videoTitle = $("#videoTitle");
+        var editTitleModal = $("#editTitleModal");
+
+        editTitleModal.on("show.bs.modal", function () {
+            $("#videoTitleInput").val(videoTitle.text());
+        });
+
+        var saveTitleButton = $("#submitEditTitle");
+
+        $("#editTitleForm").on("submit", function(e) {
+            e.preventDefault();
+
+            saveTitleButton.addClass("disabled");
+
+            $.ajax({
+                type: "post",
+                url: "actions/editvideotitle.php?PHPSESSID="+sess,
+                data: {
+                    "videoTitle" : $("#videoTitleInput").val()
+                },
+                success: function (response) {
+                    videoTitle.text($("#videoTitleInput").val());
+                }
+            });
+
+            editTitleModal.modal("hide");
+            saveTitleButton.removeClass("disabled");
+        });
+    };
+
     _addQuestionToList = function (theList, questionId, questionTime, questionText) {
         theList.append('<div class="dropdown">' +
             '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
@@ -616,7 +682,7 @@ var IntVideo = (function () {
     };
 
     _addQuestionToModal = function (modalBody, question) {
-        $("#askQuestionModalTitle").text("Question: " + question.questionTime + " Second" + (question.questionTime === "1" ? "" : "s"));
+        $("#askQuestionModalTitle").html("<span id=\"askQuestionModalTitleText\">Question " + (_totalQuestions - _numberOfQuestionsRemaining) + "</span><span class=\"label label-default pull-right\">" + question.questionTime + " sec</span>");
         modalBody.append('<h4 class="question-text">' + question.questionText + '</h4>' +
             '<input type="hidden" id="questionId" value="'+question.questionId+'">' +
             '<div class="list-group answer-list">');
@@ -687,12 +753,14 @@ var IntVideo = (function () {
                         }
                     }
                 }
+                var questionModalTitle = $("#askQuestionModalTitleText");
+                questionModalTitle.text(questionModalTitle.text() + " Feedback");
                 if (correct) {
                     $("#askQuestionModalBody").html('<div class="alert alert-success">' +
-                        '<h3>Correct!</h3><p>' + _questionArray[question].correctFeedback + '</p></div>');
+                        '<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>');
                 } else {
                     $("#askQuestionModalBody").html('<div class="alert alert-danger">' +
-                        '<h3>Incorrect</h3><p>' + _questionArray[question].incorrectFeedback + '</p></div>');
+                        '<h2 class="feedback-header">Incorrect</h2><p><strong>' + _questionArray[question].incorrectFeedback + '</strong></p></div>');
                 }
                 break;
             }
@@ -735,6 +803,22 @@ var IntVideo = (function () {
         }
 
         return array;
+    };
+
+    _updateCurrentPlayTime = function (currentTime, duration) {
+        // Assumes video is less than 24 hours
+        if (duration > 3600) {
+            var start = 11;
+            var length = 8;
+        } else {
+            var start = 14;
+            var length = 5;
+        }
+
+        var currentFormattedTime = new Date(currentTime * 1000).toISOString().substr(start, length);
+        var formattedDuration = new Date(duration * 1000).toISOString().substr(start, length);
+
+        return currentFormattedTime + "/" + formattedDuration;
     };
 
     return intVideo;
