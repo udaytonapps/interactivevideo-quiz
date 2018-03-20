@@ -14,7 +14,8 @@ class IV_DAO {
     function getVideoId($context_id, $link_id) {
         $query = "SELECT video_id FROM {$this->p}iv_video WHERE context_id = :contextId AND link_id = :linkId;";
         $arr = array(':contextId' => $context_id, ':linkId' => $link_id);
-        return $this->PDOX->rowDie($query, $arr);
+        $context = $this->PDOX->rowDie($query, $arr);
+        return $context["video_id"];
     }
 
     function createVideo($context_id, $link_id, $user_id, $video_url, $video_type, $video_title) {

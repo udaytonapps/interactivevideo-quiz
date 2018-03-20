@@ -42,6 +42,25 @@ $OUTPUT->header();
 $OUTPUT->bodyStart();
 
 include("menu.php");
+
+if ($finished) {
+    ?>
+    <div id="continueModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body" id="askQuestionModalBody">
+                    <h3>You have already finished watching this video.</h3>
+                    <p>Click continue to rewatch this video with questions. Any questions you answer will override your previous answers.</p>
+                    <p><a href="<?php echo $videoUrl ?>" target="_blank" title="Link to video without questions">Click here to watch this video without the questions.</a></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-dismiss="modal">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}
 ?>
 <div class="container-fluid">
     <div class="row">
@@ -105,7 +124,14 @@ $OUTPUT->footerStart();
 
     <script type="text/javascript">
         $(document).ready(function () {
-            IntVideo.initPlay(<?php echo $videoType ?>, "<?php echo $videoUrl ?>");
+            <?php
+            if ($finished) {
+                echo ('$("#continueModal").modal("show");');
+                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'"); });');
+            } else {
+                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'");');
+            }
+            ?>
         });
 
         function onWarpwirePlayerAPIReady() {
