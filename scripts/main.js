@@ -148,10 +148,13 @@ var IntVideo = (function () {
             } else if (event.data == WWIRE.PLAYERSTATES.ENDED) {
                 $.ajax({
                     type: "post",
-                    data: {},
-                    url: "actions/markfinished.php?PHPSESSID="+sess
+                    url: "actions/markfinished.php?PHPSESSID="+sess,
+                    async: false,
+                    success: function (response) {
+                        console.log(response);
+                        window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
+                    }
                 });
-                window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
             }
         };
     };
@@ -240,10 +243,12 @@ var IntVideo = (function () {
         } else if (event.data == 0) { // Ended
             $.ajax({
                 type: "post",
-                data: {},
-                url: "actions/markfinished.php?PHPSESSID="+sess
+                url: "actions/markfinished.php?PHPSESSID="+sess,
+                async: false,
+                success: function (response) {
+                    window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
+                }
             });
-            window.location = "student-results.php?PHPSESSID=" + $("#sess").val();
         }
     };
 

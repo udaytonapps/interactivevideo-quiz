@@ -94,11 +94,19 @@ if (!$videoId) {
     echo('</div>');
 } else {
     // Video has been set so go to video page.
-    $_SESSION["videoId"] = $videoId["video_id"];
+    $_SESSION["videoId"] = $videoId;
+
+    $finished = $IV_DAO->isStudentFinished($videoId, $USER->id);
+    $_SESSION["finished"] = $finished;
+
     if ($USER->instructor) {
         header( 'Location: '.addSession('build-video.php') ) ;
     } else {
-        header( 'Location: '.addSession('play-video.php') ) ;
+        if (!$finished) {
+            header( 'Location: '.addSession('play-video.php') ) ;
+        } else {
+            header( 'Location: '.addSession('student-results.php') ) ;
+        }
     }
 
 }
