@@ -1,6 +1,8 @@
 <?php
 $instructorMenu = array(
-    "results.php" => '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Video Results'
+    "build-video.php" => '<span aria-hidden="true" class="fa fa-lg fa-wrench"></span> Build Mode',
+    "results.php" => '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Video Results',
+    "play-video.php" => '<span aria-hidden="true" class="fa fa-lg fa-play-circle"></span> Preview Mode'
 );
 $studentMenu = array(
     'play-video.php' => '<span aria-hidden="true" class="fa fa-lg fa-play-circle"></span> Play Mode'

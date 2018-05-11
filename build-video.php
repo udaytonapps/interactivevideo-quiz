@@ -85,12 +85,12 @@ include("menu.php");
                         <p id="formFeedback" class="alert alert-danger" style="display:none;"></p>
                         <input type="hidden" id="questionId" name="questionId" value="-1">
                         <div class="form-group row">
-                            <div class="col-xs-3">
+                            <div class="col-xs-12">
                                 <label for="videoTime">Video Time</label>
                                 <br />
-                                <input type="text" size="2" maxlength="2" id="videoHrs" name="videoHrs" title="Video Hours"> :
-                                <input type="text" size="2" maxlength="2" id="videoMin" name="videoMin" title="Video Minutes"> :
-                                <input type="text" size="2" maxlength="2" id="videoSec" name="videoSec" title="Video Seconds" required oninvalid="this.setCustomValidity('You must enter a time for this question.');" oninput="setCustomValidity('');">
+                                <input type="text" size="2" maxlength="2" id="videoHrs" name="videoHrs" title="Video Hours"> hrs
+                                <input type="text" size="2" maxlength="2" id="videoMin" name="videoMin" title="Video Minutes"> min
+                                <input type="text" size="2" maxlength="2" id="videoSec" name="videoSec" title="Video Seconds" required oninvalid="this.setCustomValidity('You must enter a time for this question.');" oninput="setCustomValidity('');"> sec
                                 <input type="hidden" class="form-control" id="videoTime" name="videoTime">
                             </div>
                         </div>
