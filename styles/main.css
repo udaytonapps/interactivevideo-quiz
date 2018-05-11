@@ -46,14 +46,14 @@ span.iv-caret {
     right: 9px;
     top: 18px;
 }
-#askQuestionModalBody {
+#askQuestionModalBody, #tryAgainBody {
     text-align: center;
 }
-#askQuestionModalBody div.list-group-item {
+#askQuestionModalBody div.list-group-item, #tryAgainBody div.list-group-item {
     border: none;
     padding: 6px;
 }
-#askQuestionModalBody button.answer-option {
+#askQuestionModalBody button.answer-option, #tryAgainBody button.answer-option {
     white-space: normal;
     min-width: 250px;
 }

@@ -792,6 +792,7 @@ var IntVideo = (function () {
         var questionTime, correct = true;
         for (var question in _questionArray) {
             if (_questionArray[question].questionId === questionId) {
+
                 // Found which question is being answered.
                 questionTime = _questionArray[question].questionTime;
                 for (var answer in _questionArray[question].answers) {
@@ -823,13 +824,15 @@ var IntVideo = (function () {
                 }
                 var questionModalTitle = $("#askQuestionModalTitleText");
                 questionModalTitle.text(questionModalTitle.text() + " Feedback");
+                var feedbackString = '';
                 if (correct) {
-                    $("#askQuestionModalBody").html('<div class="alert alert-success">' +
-                        '<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>');
+                     feedbackString = '<div class="alert alert-success">' +
+                        '<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
                 } else {
-                    $("#askQuestionModalBody").html('<div class="alert alert-danger">' +
-                        '<h2 class="feedback-header">Incorrect</h2><p><strong>' + _questionArray[question].incorrectFeedback + '</strong></p></div>');
+                    feedbackString = '<div class="alert alert-danger">' +
+                        '<h2 class="feedback-header">Incorrect</h2><p><strong>' + _questionArray[question].incorrectFeedback + '</strong></p></div>';
                 }
+                $("#askQuestionModalBody").hide().empty().html(feedbackString).fadeIn("fast");
                 break;
             }
         }
