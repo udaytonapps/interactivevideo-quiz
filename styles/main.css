@@ -1,1 +1,99 @@
 /* Main CSS file */
+img.warpwire-logo {
+    width: 20px;
+}
+div.videoWrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 25px;
+    height: 0;
+    margin-bottom: 1em;
+}
+div.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#buildVideo iframe, #playVideo iframe {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+#addQuestionModal .modal-footer {
+    margin-top: 0;
+}
+#answerContainer .input-group {
+    margin-top: 10px;
+}
+button.question-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 18px 8px 8px;
+    text-align: left;
+}
+#theQuestions div.dropdown {
+    margin-top: 2px;
+}
+div.feedback-panel {
+    padding: 0;
+}
+#feedbackDown, #feedbackUp {
+    margin-right: 6px;
+}
+span.iv-caret {
+    position: absolute;
+    right: 9px;
+    top: 18px;
+}
+#askQuestionModalBody, #tryAgainBody {
+    text-align: center;
+}
+#askQuestionModalBody div.list-group-item, #tryAgainBody div.list-group-item {
+    border: none;
+    padding: 6px;
+}
+#askQuestionModalBody button.answer-option, #tryAgainBody button.answer-option {
+    white-space: normal;
+    min-width: 250px;
+}
+#currentPlayTime {
+    padding-left: 8px;
+}
+#questionContainer li.next-up {
+    font-weight: bold;
+    color: #111;
+}
+#questionContainer li.next-up ~ li.next-up {
+    font-weight: normal;
+    color: #111;
+}
+span.video-title {
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    margin-top: 0;
+}
+h3.video-title, h4.score {
+    margin-top: 0;
+}
+button.edit-title {
+    margin-right: 6px;
+}
+h3.question-list-title {
+    margin-top: 0;
+}
+div.video-actions {
+    white-space: nowrap;
+}
+h2.feedback-header {
+    margin-top: 0;
+}
+div.question-results {
+    padding-left: 36px;
+}
+h4.question-header {
+    margin-top: 30px;
+}
