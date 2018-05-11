@@ -76,7 +76,15 @@ var IntVideo = (function () {
                 } else {
                     restartOnClose = false;
                 }
-                $("#videoTime").val(Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime()));
+                var videoSeconds = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
+                var hours = Math.floor(videoSeconds / 3600);
+                var mins = Math.floor((videoSeconds % 3600) / 60);
+                var secs = Math.floor(videoSeconds % 60);
+
+                $("#videoTime").val(videoSeconds);
+                $("#videoHrs").val(hours);
+                $("#videoMin").val(mins);
+                $("#videoSec").val(secs);
             });
 
             _questionModal.on('hide.bs.modal', function() {
@@ -173,7 +181,15 @@ var IntVideo = (function () {
             } else {
                 restartOnClose = false;
             }
-            $("#videoTime").val(Math.floor(intVideo.ytPlayer.getCurrentTime()));
+            var videoSeconds = Math.floor(intVideo.ytPlayer.getCurrentTime());
+            var hours = Math.floor(videoSeconds / 3600);
+            var mins = Math.floor((videoSeconds % 3600) / 60);
+            var secs = Math.floor(videoSeconds % 60);
+
+            $("#videoTime").val(videoSeconds);
+            $("#videoHrs").val(hours);
+            $("#videoMin").val(mins);
+            $("#videoSec").val(secs);
         });
 
         _questionModal.on('hide.bs.modal', function() {
@@ -317,7 +333,8 @@ var IntVideo = (function () {
 
                 var questionCount = 1;
                 for (var question in _questionArray) {
-                    theQuestions.append('<li class="list-group-item question-item next-up text-muted" data-question-time="' + _questionArray[question].questionTime + '"><span class="question-time label label-primary">' + _questionArray[question].questionTime + ' sec</span> Question ' + questionCount + '</li>');
+                    theQuestions.append('<li class="list-group-item question-item next-up text-muted" data-question-time="' + _questionArray[question].questionTime + '">' +
+                        '<span class="question-time label label-primary">' + _formatPlayTime(_questionArray[question].questionTime) + '</span> Question ' + questionCount + '</li>');
                     _questionArray[question].answered = false;
                     _numberOfQuestionsRemaining++;
                     questionCount++;
@@ -394,7 +411,15 @@ var IntVideo = (function () {
             for (var question in _questionArray) {
                 if (parseInt(_questionArray[question].questionId) === questionId) {
 
-                    $("#videoTime").val(_questionArray[question].questionTime);
+                    var videoTimeSeconds = _questionArray[question].questionTime;
+                    var hours = Math.floor(videoTimeSeconds / 3600);
+                    var mins = Math.floor((videoTimeSeconds % 3600) / 60);
+                    var secs = Math.floor(videoTimeSeconds % 60);
+
+                    $("#videoTime").val(videoTimeSeconds);
+                    $("#videoHrs").val(hours);
+                    $("#videoMin").val(mins);
+                    $("#videoSec").val(secs);
                     $("#questionText").val(_questionArray[question].questionText);
 
                     $(".possible-answer").remove();
@@ -559,7 +584,7 @@ var IntVideo = (function () {
     _addQuestionToList = function (theList, questionId, questionTime, questionText) {
         theList.append('<div class="dropdown">' +
             '<button type="button" class="btn btn-default btn-block question-text" data-toggle="dropdown">' +
-            '<span class="label label-default">' + questionTime + ' sec</span> ' + questionText + '<span class="caret iv-caret"></span></button>' +
+            '<span class="label label-default">' + _formatPlayTime(questionTime) + '</span> ' + questionText + '<span class="caret iv-caret"></span></button>' +
             '<ul class="dropdown-menu dropdown-menu-right">' +
             '<li><a href="javascript:void(0);" onclick="IntVideo.seekTo(' + questionTime + ', true);"><span class="fa fa-external-link text-primary"></span> Go to Question</a></li>' +
             '<li class="divider"></li>' +
@@ -601,6 +626,9 @@ var IntVideo = (function () {
 
     _resetAddQuestionForm = function () {
         $("#videoTime").val("");
+        $("#videoHrs").val("");
+        $("#videoMin").val("");
+        $("#videoSec").val("");
         $("#questionId").val("-1");
         $("#questionText").val("");
         $("#answersToRemove").val("");
@@ -668,13 +696,26 @@ var IntVideo = (function () {
             duration = intVideo.ytPlayer.getDuration();
         }
 
+        // Combine time inputs into seconds
+        var hours = $("#videoHrs").val();
+        hours = hours ? parseInt(hours, 10) : 0;
+        var minutes = $("#videoMin").val();
+        minutes = minutes ? parseInt(minutes, 10) : 0;
+        var seconds = $("#videoSec").val();
+        seconds = seconds ? parseInt(seconds, 10) : 0;
+
+        var questionTimeSec = (hours * 3600) + (minutes * 60) + seconds;
+
+        var videoTimeInput = $("#videoTime");
+        videoTimeInput.val(questionTimeSec);
+
         // Clear old errors
         $("#addQuestionForm").find("div.form-group").removeClass("has-error");
         var feedback = $("#formFeedback");
         var errorMsg = $("#errorMessage");
         feedback.hide();
         // Check if video time is > duration or less than 0
-        var videoTime = $("#videoTime");
+        var videoTime = videoTimeInput;
         if (parseInt(videoTime.val()) > duration || parseInt(videoTime.val()) < 0) {
             videoTime.parent().parent("div.form-group").addClass("has-error");
             feedback.text("The question must appear during the video. Enter a whole number between 0 and "+ duration + " seconds.").fadeIn();
@@ -708,7 +749,8 @@ var IntVideo = (function () {
     };
 
     _addQuestionToModal = function (modalBody, question) {
-        $("#askQuestionModalTitle").html("<span id=\"askQuestionModalTitleText\">Question " + (_totalQuestions - _numberOfQuestionsRemaining) + "</span><span class=\"label label-default pull-right\">" + question.questionTime + " sec</span>");
+        $("#askQuestionModalTitle").html("<span id=\"askQuestionModalTitleText\">Question " + (_totalQuestions - _numberOfQuestionsRemaining) + "</span>" +
+            "<span class=\"label label-default pull-right\">" + _formatPlayTime(question.questionTime) + "</span>");
         modalBody.append('<h4 class="question-text">' + question.questionText + '</h4>' +
             '<input type="hidden" id="questionId" value="'+question.questionId+'">' +
             '<div class="list-group answer-list">');
@@ -845,6 +887,19 @@ var IntVideo = (function () {
         var formattedDuration = new Date(duration * 1000).toISOString().substr(start, length);
 
         return currentFormattedTime + "/" + formattedDuration;
+    };
+
+    _formatPlayTime = function (timeToFormat) {
+        // Assumes video is less than 24 hours
+        if (timeToFormat > 3600) {
+            var start = 11;
+            var length = 8;
+        } else {
+            var start = 14;
+            var length = 5;
+        }
+
+        return new Date(timeToFormat * 1000).toISOString().substr(start, length);
     };
 
     return intVideo;
