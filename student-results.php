@@ -1,9 +1,11 @@
 <?php
 require_once "../config.php";
 require_once "dao/IV_DAO.php";
+require_once "util/IVUtil.php";
 
 use \Tsugi\Core\LTIX;
 use \IV\DAO\IV_DAO;
+use \IV\Util\IVUtil;
 
 // Retrieve the launch data if present
 $LTI = LTIX::requireData();
@@ -98,7 +100,7 @@ foreach ($questions as $question) {
     } else {
         echo ('<span class="fa fa-times text-danger"></span><span class="sr-only">Incorrect</span>');
     }
-    echo('<span class="label label-default pull-right">'.$question["q_time"].' sec</span> Question '.$questionNumber.'</h4>
+    echo('<span class="label label-default pull-right">'.IVUtil::formatQuestionTime($question["q_time"]).'</span> Question '.$questionNumber.'</h4>
                     <div class="question-results">
                     <p><strong>'.$question["q_text"].'</strong></p>
                     <ul class="list-group">'.$listContent.'</ul>

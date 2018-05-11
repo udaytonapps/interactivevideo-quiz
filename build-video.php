@@ -86,8 +86,12 @@ include("menu.php");
                         <input type="hidden" id="questionId" name="questionId" value="-1">
                         <div class="form-group row">
                             <div class="col-xs-3">
-                                <label for="videoTime">Video Time (seconds)</label>
-                                <input type="text" class="form-control" id="videoTime" name="videoTime" required oninvalid="this.setCustomValidity('You must enter a time for this question.');" oninput="setCustomValidity('');">
+                                <label for="videoTime">Video Time</label>
+                                <br />
+                                <input type="text" size="2" maxlength="2" id="videoHrs" name="videoHrs" title="Video Hours"> :
+                                <input type="text" size="2" maxlength="2" id="videoMin" name="videoMin" title="Video Minutes"> :
+                                <input type="text" size="2" maxlength="2" id="videoSec" name="videoSec" title="Video Seconds" required oninvalid="this.setCustomValidity('You must enter a time for this question.');" oninput="setCustomValidity('');">
+                                <input type="hidden" class="form-control" id="videoTime" name="videoTime">
                             </div>
                         </div>
                         <div class="form-group">
