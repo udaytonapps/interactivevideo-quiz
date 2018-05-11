@@ -48,7 +48,7 @@ if ($finished) {
     <div id="continueModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-body" id="askQuestionModalBody">
+                <div class="modal-body" id="tryAgainBody">
                     <h3>You have already finished watching this video.</h3>
                     <p>Click continue to rewatch this video with questions. Any questions you answer will override your previous answers.</p>
                     <p><a href="<?php echo $videoUrl ?>" target="_blank" title="Link to video without questions">Click here to watch this video without the questions.</a></p>
