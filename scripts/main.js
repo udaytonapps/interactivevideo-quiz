@@ -399,9 +399,55 @@ var IntVideo = (function () {
 
     intVideo.changeSpeed = function (speed) {
         if (_videoType === typeEnum.Warpwire) {
+            var preSpeed = intVideo.wwPlayer('wwvideo').getPlaybackRate(speed);
             intVideo.wwPlayer('wwvideo').setPlaybackRate(speed);
+            if(preSpeed == 0.25){
+                document.getElementById("speed025").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 0.5){
+                document.getElementById("speed05").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 1){
+                document.getElementById("speed1").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 1.5){
+                document.getElementById("speed15").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 2){
+                document.getElementById("speed2").classList.remove('speedDropdown-selected');
+            }
+            if(speed == 0.25){
+                document.getElementById("speed025").classList.add('speedDropdown-selected');
+            } else if (speed == 0.5){
+                document.getElementById("speed05").classList.add('speedDropdown-selected');
+            } else if (speed == 1){
+                document.getElementById("speed1").classList.add('speedDropdown-selected');
+            } else if (speed == 1.5){
+                document.getElementById("speed15").classList.add('speedDropdown-selected');
+            } else if (speed == 2){
+                document.getElementById("speed2").classList.add('speedDropdown-selected');
+            }
         } else if (_videoType === typeEnum.YouTube) {
+            var preSpeed = intVideo.ytPlayer.getPlaybackRate(speed);
             intVideo.ytPlayer.setPlaybackRate(speed);
+            if(preSpeed == 0.25){
+                document.getElementById("speed025").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 0.5){
+                document.getElementById("speed05").classList.remove('speedDropdown-selectedn');
+            } else if (preSpeed == 1){
+                document.getElementById("speed1").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 1.5){
+                document.getElementById("speed15").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 2){
+                document.getElementById("speed2").classList.remove('speedDropdown-selected');
+            }
+            if(speed == 0.25){
+                document.getElementById("speed025").classList.add('speedDropdown-selected');
+            } else if (speed == 0.5){
+                document.getElementById("speed05").classList.add('speedDropdown-selected');
+            } else if (speed == 1){
+                document.getElementById("speed1").classList.add('speedDropdown-selected');
+            } else if (speed == 1.5){
+                document.getElementById("speed15").classList.add('speedDropdown-selected');
+            } else if (speed == 2){
+                document.getElementById("speed2").classList.add('speedDropdown-selected');
+            }
         }
     };
 
@@ -421,8 +467,12 @@ var IntVideo = (function () {
             if(intVideo.wwPlayer('wwvideo').getCaptions()[0] != null) {
                 if(intVideo.wwPlayer('wwvideo').getCaptions()[0].enabled){
                     intVideo.wwPlayer('wwvideo').setCaption('');
+                    document.getElementById("captionButton").classList.remove('btn-icon-selected');
+                    document.getElementById("captionButton").classList.add('btn-icon');
                 }else{
                     intVideo.wwPlayer('wwvideo').setCaption(intVideo.wwPlayer('wwvideo').getCaptions()[0].label);
+                    document.getElementById("captionButton").classList.remove('btn-icon');
+                    document.getElementById("captionButton").classList.add('btn-icon-selected');
                 }
             }
         } else if (_videoType === typeEnum.YouTube) {
@@ -430,9 +480,14 @@ var IntVideo = (function () {
             if(fullButton.getAttribute("captions")=="true"){
                 intVideo.ytPlayer.unloadModule("captions");
                 fullButton.setAttribute("captions", "false");
+                document.getElementById("captionButton").classList.remove('btn-icon-selected');
+                document.getElementById("captionButton").classList.add('btn-icon');
+                document.getElementById("captionButton").classList.add('btn-icon');
             }else{
                 intVideo.ytPlayer.loadModule("captions");
                 fullButton.setAttribute("captions", "true");
+                document.getElementById("captionButton").classList.remove('btn-icon');
+                document.getElementById("captionButton").classList.add('btn-icon-selected');
             }
         }
     };
