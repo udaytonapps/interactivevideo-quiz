@@ -127,6 +127,7 @@ var IntVideo = (function () {
                         submitButton.off("click").on("click", _recordResponseAndCloseModal);
                     }
                 }
+
                 $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
             }, 1000);
 
@@ -148,6 +149,10 @@ var IntVideo = (function () {
             var pauseButton = document.getElementById('pauseButton');
             var backButton = document.getElementById('backTen');
             if (event.data == WWIRE.PLAYERSTATES.PLAYING) {
+                $.ajax({
+                    type: 'POST',
+                    url: "actions/markstarted.php?PHPSESSID="+sess,
+                });
                 pauseButton.removeAttribute('disabled');
                 backButton.removeAttribute('disabled');
                 playButton.setAttribute('disabled', 'disabled');
@@ -251,6 +256,10 @@ var IntVideo = (function () {
         var pauseButton = document.getElementById('pauseButton');
         var backButton = document.getElementById('backTen');
         if (event.data == 1) { // Playing
+            $.ajax({
+                type: 'POST',
+                url: "actions/markstarted.php?PHPSESSID="+sess,
+            });
             pauseButton.removeAttribute('disabled');
             backButton.removeAttribute('disabled');
             playButton.setAttribute('disabled', 'disabled');
@@ -949,6 +958,7 @@ var IntVideo = (function () {
 
     _updateCurrentPlayTime = function (currentTime, duration) {
         // Assumes video is less than 24 hours
+        $("#currentPlayTime").trigger("change");
         if (duration > 3600) {
             var start = 11;
             var length = 8;
@@ -959,6 +969,14 @@ var IntVideo = (function () {
 
         var currentFormattedTime = new Date(currentTime * 1000).toISOString().substr(start, length);
         var formattedDuration = new Date(duration * 1000).toISOString().substr(start, length);
+        var sess = $("#sess").val();
+        $.ajax({
+            type: 'POST',
+            url: "actions/updatetime.php?PHPSESSID="+sess,
+            data: {
+                "time": currentTime
+            }
+        });
 
         return currentFormattedTime + "/" + formattedDuration;
     };

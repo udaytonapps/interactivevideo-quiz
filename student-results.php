@@ -107,7 +107,7 @@ foreach ($questions as $question) {
                </div>
            </div>');
 }
-
+$IV_DAO->markStudentNumberCorrect($videoId, $userId, $totalCorrect);
 echo ('</div>
             <div class="col-sm-4 text-right">
             <h4 class="score">Score: <span class="text-success">'.$totalCorrect.' / '.$questionNumber.'</span> correct</h4>
