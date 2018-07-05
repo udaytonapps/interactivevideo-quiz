@@ -168,3 +168,7 @@ h4.question-header {
     outline:none;
     color: green;
 }
+
+.move-modal-down{
+    margin-top: 123px;
+}
