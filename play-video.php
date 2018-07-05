@@ -119,7 +119,7 @@ if ($finished) {
 </div>
     <div id="askQuestionModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content move-modal-down">
                 <div class="modal-header">
                     <h4 id="askQuestionModalTitle" class="modal-title"></h4>
                 </div>
