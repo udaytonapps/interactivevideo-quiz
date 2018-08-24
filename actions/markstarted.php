@@ -14,4 +14,6 @@ $IV_DAO = new IV_DAO($PDOX, $p);
 $userId = $USER->id;
 $videoId = $_SESSION["videoId"];
 
+$IV_DAO->createFinishRecordIfNotExist($videoId, $userId);
+
 $IV_DAO->markStudentAsStarted($videoId, $userId);
