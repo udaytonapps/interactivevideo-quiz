@@ -76,7 +76,7 @@ if ($USER->instructor) {
                 }
 
                 echo ('</td>
-            <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td><td style="text-align: center">' . $minutes . ':' . $seconds . '</td>
+            <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td>
             </tr>');
             }
 
@@ -120,7 +120,7 @@ if ($USER->instructor) {
                 }
 
                 echo('</td>
-                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td><td style="text-align: center">' . $minutes . ':' . $seconds . '</td>
+                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td>
                 </tr>');
             }
         }
