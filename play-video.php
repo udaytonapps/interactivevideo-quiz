@@ -69,7 +69,7 @@ if ($finished) {
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12 col-md-9">
+        <div id="playVideoContainer" class="col-sm-12 col-md-9">
             <div id="playVideo" class="videoWrapper">
                 <p class="text-center">
                     Loading video <span aria-hidden="true" class="fa fa-spinner fa-spin"></span>
@@ -86,6 +86,12 @@ if ($finished) {
                     <button id="backTen" class="btn btn-warning" disabled="disabled" onclick="IntVideo.backTenSeconds()">
                         <span class="fa fa-undo" aria-hidden="true" title="Back Ten Seconds"></span> 10<span class="sr-only">Back 10 Seconds</span>
                     </button>
+                    <button id="captionButton" class="btn btn-icon"  onclick="IntVideo.toggleCaptions()">
+                        <span class="fa fa-cc " aria-hidden="true" title="Captions"></span><span class="sr-only">Turn Captions On/Off</span>
+                    </button>
+                    <button id="fullScreenButton" class="btn btn-icon"  captions = "true" onclick="IntVideo.toggleFullScreen()">
+                        <span id="fullScreenSpan" class="fa fa-expand" aria-hidden="true" title="FullScreen"></span><span class="sr-only">Full Screen</span>
+                    </button>
                     <span class="pull-right" id="currentPlayTime"></span>
                 </div>
             </div>
@@ -101,7 +107,7 @@ if ($finished) {
 </div>
     <div id="askQuestionModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content move-modal-down">
                 <div class="modal-header">
                     <h4 id="askQuestionModalTitle" class="modal-title"></h4>
                 </div>

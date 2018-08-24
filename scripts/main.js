@@ -58,7 +58,9 @@ var IntVideo = (function () {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         _videoUrl = videoUrl;
-
+        if (_videoType === typeEnum.YouTube) {
+            intVideo.defaultYoutubeCaptions();
+        }
         _getEmbedForPlay();
     };
 
@@ -125,6 +127,7 @@ var IntVideo = (function () {
                         submitButton.off("click").on("click", _recordResponseAndCloseModal);
                     }
                 }
+
                 $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
             }, 1000);
 
@@ -146,6 +149,10 @@ var IntVideo = (function () {
             var pauseButton = document.getElementById('pauseButton');
             var backButton = document.getElementById('backTen');
             if (event.data == WWIRE.PLAYERSTATES.PLAYING) {
+                $.ajax({
+                    type: 'POST',
+                    url: "actions/markstarted.php?PHPSESSID="+sess
+                });
                 pauseButton.removeAttribute('disabled');
                 backButton.removeAttribute('disabled');
                 playButton.setAttribute('disabled', 'disabled');
@@ -248,8 +255,11 @@ var IntVideo = (function () {
         var playButton = document.getElementById('playButton');
         var pauseButton = document.getElementById('pauseButton');
         var backButton = document.getElementById('backTen');
-
         if (event.data == 1) { // Playing
+            $.ajax({
+                type: 'POST',
+                url: "actions/markstarted.php?PHPSESSID="+sess
+            });
             pauseButton.removeAttribute('disabled');
             backButton.removeAttribute('disabled');
             playButton.setAttribute('disabled', 'disabled');
@@ -393,6 +403,77 @@ var IntVideo = (function () {
             intVideo.wwPlayer('wwvideo').pause();
         } else if (_videoType === typeEnum.YouTube) {
             intVideo.ytPlayer.pauseVideo();
+        }
+    };
+
+    intVideo.defaultYoutubeCaptions = function () {
+        if(intVideo.ytPlayer != null) {
+            intVideo.ytPlayer.loadModule("captions");
+        }
+    };
+
+    $("#fullScreenButton").click(function () {
+        var vidCon = document.getElementById("playVideoContainer");
+        $(vidCon).toggleClass("transition");
+    });
+
+    intVideo.toggleCaptions = function () {
+        if (_videoType === typeEnum.Warpwire) {
+            if(intVideo.wwPlayer('wwvideo').getCaptions()[0] != null) {
+                if(intVideo.wwPlayer('wwvideo').getCaptions()[0].enabled){
+                    intVideo.wwPlayer('wwvideo').setCaption('');
+                    document.getElementById("captionButton").classList.remove('btn-icon-selected');
+                    document.getElementById("captionButton").classList.add('btn-icon');
+                }else{
+                    intVideo.wwPlayer('wwvideo').setCaption(intVideo.wwPlayer('wwvideo').getCaptions()[0].label);
+                    document.getElementById("captionButton").classList.remove('btn-icon');
+                    document.getElementById("captionButton").classList.add('btn-icon-selected');
+                }
+            }
+        } else if (_videoType === typeEnum.YouTube) {
+            var fullButton = document.getElementById('fullScreenButton');
+            if(fullButton.getAttribute("captions")=="true"){
+                intVideo.ytPlayer.unloadModule("captions");
+                fullButton.setAttribute("captions", "false");
+                document.getElementById("captionButton").classList.remove('btn-icon-selected');
+                document.getElementById("captionButton").classList.add('btn-icon');
+                document.getElementById("captionButton").classList.add('btn-icon');
+            }else{
+                intVideo.ytPlayer.loadModule("captions");
+                fullButton.setAttribute("captions", "true");
+                document.getElementById("captionButton").classList.remove('btn-icon');
+                document.getElementById("captionButton").classList.add('btn-icon-selected');
+            }
+        }
+    };
+
+    intVideo.toggleFullScreen = function () {
+
+        if (_videoType === typeEnum.Warpwire) {
+            if ( document.getElementById("playVideoContainer").classList.contains('col-md-9')){
+
+                document.getElementById("playVideoContainer").classList.remove('col-md-9');
+                document.getElementById("playVideoContainer").classList.add('col-md-12');
+                document.getElementById("fullScreenSpan").classList.remove('fa-expand');
+                document.getElementById("fullScreenSpan").classList.add('fa-compress');
+            } else if (document.getElementById("playVideoContainer").classList.contains('col-md-12')){
+                document.getElementById("playVideoContainer").classList.remove('col-md-12');
+                document.getElementById("playVideoContainer").classList.add('col-md-9');
+                document.getElementById("fullScreenSpan").classList.remove('fa-compress');
+                document.getElementById("fullScreenSpan").classList.add('fa-expand');
+            }
+        } else if (_videoType === typeEnum.YouTube) {
+            if ( document.getElementById("playVideoContainer").classList.contains('col-md-9')){
+                document.getElementById("playVideoContainer").classList.remove('col-md-9');
+                document.getElementById("playVideoContainer").classList.add('col-md-12');
+                document.getElementById("fullScreenSpan").classList.remove('fa-expand');
+                document.getElementById("fullScreenSpan").classList.add('fa-compress');
+            } else if (document.getElementById("playVideoContainer").classList.contains('col-md-12')){
+                document.getElementById("playVideoContainer").classList.remove('col-md-12');
+                document.getElementById("playVideoContainer").classList.add('col-md-9');
+                document.getElementById("fullScreenSpan").classList.remove('fa-compress');
+                document.getElementById("fullScreenSpan").classList.add('fa-expand');
+            }
         }
     };
 

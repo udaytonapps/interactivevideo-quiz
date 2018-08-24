@@ -30,38 +30,100 @@ $OUTPUT->bodyStart();
 include("menu.php");
 
 if ($USER->instructor) {
-
-    echo ('<div class="container-fluid">
+    echo('<div class="container-fluid">
             <h3>Video Results</h3>');
 
-    echo ('<div class="row"><div class="col-sm-6"><div class="table-responsive">
+    echo('<div class="row"><div class="col-sm-6"><div class="table-responsive">
             <table class="table table-bordered table-striped">
-            <thead><tr><th class="col-md-9">Student Name</th><th class="col-md-3 text-center">Finished Video</th></tr></thead>
+            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Started Video</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th></tr></thead>
             <tbody>');
+        $hasRosters = LTIX::populateRoster(false);
+        if ($hasRosters) {
+            $rosterData = $GLOBALS['ROSTER']->data;
+            foreach ($rosterData as $student) {
 
-    $students = $IV_DAO->getStudentsWithResponses($videoId);
+                $userId = $IV_DAO->getTsugiUserId($student["user_id"]);
+                $startedVideo = $IV_DAO->hasStudentStarted($videoId, $userId);
 
-    foreach ($students as $student) {
+                $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
 
-        $userId = $student["user_id"];
+                $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
 
-        $displayName = $IV_DAO->findDisplayName($userId);
+                $question_count = $IV_DAO->countQuestions($videoId);
 
-        $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
+                if($num_correct == null){
+                    $num_correct = 0;
+                }
 
-        echo ('<tr>
-                <td><a href="student-results.php?student='.$userId.'">'.$displayName.'</a></td>
-                <td class="text-center">');
+                if ($startedVideo) {
+                    echo ('<tr>
+                    <td><a href="student-results.php?student='.$userId.'">' . $student["person_name_full"] . '</a></td>
+                    <td class="text-center">
+                    <span class="fa fa-lg fa-check text-success"></span>');
+                } else {
+                    echo ('<tr>
+                    <td><p>' . $student["person_name_full"] . '</p></td>
+                    <td class="text-center">
+                    <span class="fa fa-lg fa-times text-danger"></span>');
+                }
 
-        if ($finishedVideo) {
-            echo ('<span class="fa fa-lg fa-check text-success"></span>');
+                echo ('</td><td class="text-center">');
+
+                if ($finishedVideo) {
+                    echo ('<span class="fa fa-lg fa-check text-success"></span>');
+                } else {
+                    echo ('<span class="fa fa-lg fa-times text-danger"></span>');
+                }
+
+                echo ('</td>
+            <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td>
+            </tr>');
+            }
+
         } else {
-            echo ('<span class="fa fa-lg fa-times text-danger"></span>');
+            $students = $IV_DAO->getStudents($videoId);
+
+            foreach ($students as $student) {
+
+                $userId = $student["user_id"];
+
+                $displayName = $IV_DAO->findDisplayName($userId);
+
+                $startedVideo = $IV_DAO->hasStudentStarted($videoId, $userId);
+
+                $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
+
+                $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
+
+                $question_count = $IV_DAO->countQuestions($videoId);
+
+                if ($num_correct == null) {
+                    $num_correct = 0;
+                }
+
+                echo('<tr>
+                        <td><a href="student-results.php?student=' . $userId . '">' . $displayName . '</a></td>
+                        <td class="text-center">');
+
+                if ($startedVideo) {
+                    echo('<span class="fa fa-lg fa-check text-success"></span>');
+                } else {
+                    echo('<span class="fa fa-lg fa-times text-danger"></span>');
+                }
+
+                echo('</td><td class="text-center">');
+
+                if ($finishedVideo) {
+                    echo('<span class="fa fa-lg fa-check text-success"></span>');
+                } else {
+                    echo('<span class="fa fa-lg fa-times text-danger"></span>');
+                }
+
+                echo('</td>
+                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td>
+                </tr>');
+            }
         }
-
-        echo ('</td></tr>');
-    }
-
     echo ("</tbody>
            </table>
            </div></div>
