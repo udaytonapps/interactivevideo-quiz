@@ -107,31 +107,6 @@ h4.question-header {
 
 #playVideoContainer.transition {}
 
-.speedDropdownCaret{
-    top: 12px;
-    position: absolute;
-    right: 9px;
-}
-
-.dropdownButton{
-    width: 130px;
-    text-align: left;
-}
-
-.speedDropdown {
-    position: relative;
-    display: inline-block;
-    min-width: 120px;
-}
-
-.speedDropdown-menu {
-    min-width: 130px;
-}
-
-.speedDropdown-selected {
-    background-color: #969696;
-}
-
 .btn-icon {
     background: none;
     border: none;

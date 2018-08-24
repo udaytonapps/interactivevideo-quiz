@@ -16,5 +16,7 @@ if (isset($_SESSION["videoId"])) {
     $userId = $USER->id;
     $videoId = $_SESSION["videoId"];
 
+    $IV_DAO->createFinishRecordIfNotExist($videoId, $userId);
+
     echo $IV_DAO->markStudentAsFinished($videoId, $userId);
 }

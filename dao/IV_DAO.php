@@ -125,7 +125,7 @@ class IV_DAO {
     }
 
     function markStudentAsStarted($video_id, $user_id) {
-        $query = "INSERT INTO {$this->p}iv_finished (video_id, user_id, started) VALUES (:videoId, :userId, 1);";
+        $query = "UPDATE {$this->p}iv_finished SET started = 1 where video_id = :videoId AND user_id = :userId;";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
@@ -142,19 +142,6 @@ class IV_DAO {
         $query = "UPDATE {$this->p}iv_finished SET num_correct = :num_correct where video_id = :videoId AND user_id = :userId;";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id, ':num_correct' => $num_correct);
         $this->PDOX->queryDie($query, $arr);
-    }
-
-    function updateWatchTime($video_id, $user_id, $watch_time) {
-        $query = "UPDATE {$this->p}iv_finished SET watch_time = :watch_time where video_id = :videoId AND user_id = :userId;";
-        $arr = array(':videoId' => $video_id, ':userId' => $user_id, ':watch_time' => $watch_time);
-        $this->PDOX->queryDie($query, $arr);
-    }
-
-    function getWatchTime($video_id, $user_id) {
-        $query = "SELECT watch_time FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
-        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
-        $watch_time = $this->PDOX->rowDie($query, $arr);
-        return $watch_time["watch_time"];
     }
 
     function hasStudentStarted($video_id, $user_id) {
@@ -176,13 +163,6 @@ class IV_DAO {
         $arr = array(":videoId" => $video_id, ":userId" => $user_id);
         $num_correct = $this->PDOX->rowDie($query, $arr);
         return $num_correct["num_correct"];
-    }
-
-    function watchTimeStudent($video_id, $user_id) {
-        $query = "SELECT watch_time FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
-        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
-        $watch_time = $this->PDOX->rowDie($query, $arr);
-        return $watch_time["watch_time"];
     }
 
     function findDisplayName($user_id) {
@@ -215,6 +195,16 @@ class IV_DAO {
         $query = "SELECT v.*, c.title as sitetitle FROM {$this->p}iv_video v join {$this->p}lti_context c on v.context_id = c.context_id WHERE v.user_id = :userId ";
         $arr = array(':userId' => $user_id);
         return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    function createFinishRecordIfNotExist($videoId, $userId) {
+        $query = "SELECT * FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $videoId, ":userId" => $userId);
+        $finished = $this->PDOX->rowDie($query, $arr);
+        if (!$finished) {
+            $insert = "INSERT INTO {$this->p}iv_finished (video_id, user_id) VALUES (:videoId, :userId)";
+            $this->PDOX->queryDie($insert, $arr);
+        }
     }
 
 }

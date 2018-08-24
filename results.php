@@ -49,21 +49,10 @@ if ($USER->instructor) {
 
                 $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
 
-                $watchTimeStudent = $IV_DAO->watchTimeStudent($videoId, $userId);
-
                 $question_count = $IV_DAO->countQuestions($videoId);
 
                 if($num_correct == null){
                     $num_correct = 0;
-                }
-                if($watchTimeStudent == null){
-                    $minutes = 0;
-                    $seconds = 0;
-                    $seconds = sprintf("%02d", $seconds);
-                } else {
-                    $minutes = floor($watchTimeStudent / 60);
-                    $seconds = $watchTimeStudent % 60;
-                    $seconds = sprintf("%02d", $seconds);
                 }
 
                 if ($startedVideo) {
@@ -106,18 +95,10 @@ if ($USER->instructor) {
 
                 $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
 
-                $watchTimeStudent = $IV_DAO->watchTimeStudent($videoId, $userId);
-
                 $question_count = $IV_DAO->countQuestions($videoId);
 
                 if ($num_correct == null) {
                     $num_correct = 0;
-                }
-                if ($watchTimeStudent == null) {
-                    $watchTimeStudent = "0:00";
-                } else {
-                    $minutes = floor($watchTimeStudent / 60);
-                    $seconds = $watchTimeStudent % 60;
                 }
 
                 echo('<tr>
