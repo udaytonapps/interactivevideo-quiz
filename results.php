@@ -35,7 +35,7 @@ if ($USER->instructor) {
 
     echo('<div class="row"><div class="col-sm-6"><div class="table-responsive">
             <table class="table table-bordered table-striped">
-            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Started Video</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th><th class="col-md-2 text-center">Time Watched</th></tr></thead>
+            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Started Video</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th></tr></thead>
             <tbody>');
         $hasRosters = LTIX::populateRoster(false);
         if ($hasRosters) {
@@ -76,7 +76,7 @@ if ($USER->instructor) {
                 }
 
                 echo ('</td>
-            <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td><td style="text-align: center">' . $minutes . ':' . $seconds . '</td>
+            <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td>
             </tr>');
             }
 
@@ -120,7 +120,7 @@ if ($USER->instructor) {
                 }
 
                 echo('</td>
-                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td><td style="text-align: center">' . $minutes . ':' . $seconds . '</td>
+                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td>
                 </tr>');
             }
         }
