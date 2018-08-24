@@ -69,7 +69,7 @@ if ($finished) {
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12 col-md-9">
+        <div id="playVideoContainer" class="col-sm-12 col-md-9">
             <div id="playVideo" class="videoWrapper">
                 <p class="text-center">
                     Loading video <span aria-hidden="true" class="fa fa-spinner fa-spin"></span>
@@ -86,6 +86,24 @@ if ($finished) {
                     <button id="backTen" class="btn btn-warning" disabled="disabled" onclick="IntVideo.backTenSeconds()">
                         <span class="fa fa-undo" aria-hidden="true" title="Back Ten Seconds"></span> 10<span class="sr-only">Back 10 Seconds</span>
                     </button>
+                    <div class="dropdown speedDropdown">
+                        <button  data-toggle="dropdown" class="dropdownButton">
+                            <span>Select Speed <span class="caret speedDropdownCaret"></span></button>
+                        <ul class="dropdown-menu speedDropdown-menu dropdown-menu-left ">
+                            <li id="speed025"><a href="#" onclick="IntVideo.changeSpeed(0.25)" value="0.25">0.25</a></li>
+                            <li id="speed05"><a href="#" onclick="IntVideo.changeSpeed(0.5)" value="0.5">0.5</a></li>
+                            <li id="speed1" class="speedDropdown-selected"><a href="#" onclick="IntVideo.changeSpeed(1)" value="1">1</a></li>
+                            <li id="speed15"><a href="#" onclick="IntVideo.changeSpeed(1.5)" value="1.5">1.5</a></li>
+                            <li id="speed2"><a href="#" onclick="IntVideo.changeSpeed(2)" value="2">2</a></li>
+                        </ul>
+                    </div>
+
+                    <button id="captionButton" class="btn btn-icon"  onclick="IntVideo.toggleCaptions()">
+                        <span class="fa fa-cc " aria-hidden="true" title="Captions"></span><span class="sr-only">Turn Captions On/Off</span>
+                    </button>
+                    <button id="fullScreenButton" class="btn btn-icon"  captions = "true" onclick="IntVideo.toggleFullScreen()">
+                        <span id="fullScreenSpan" class="fa fa-expand" aria-hidden="true" title="FullScreen"></span><span class="sr-only">Full Screen</span>
+                    </button>
                     <span class="pull-right" id="currentPlayTime"></span>
                 </div>
             </div>
@@ -101,7 +119,7 @@ if ($finished) {
 </div>
     <div id="askQuestionModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content move-modal-down">
                 <div class="modal-header">
                     <h4 id="askQuestionModalTitle" class="modal-title"></h4>
                 </div>

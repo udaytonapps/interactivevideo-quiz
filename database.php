@@ -74,10 +74,13 @@ $DATABASE_INSTALL = array(
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
     array( "{$CFG->dbprefix}iv_finished",
         "create table {$CFG->dbprefix}iv_finished (
-    finished_id   INTEGER NOT NULL AUTO_INCREMENT,
-    video_id      INTEGER NOT NULL,
-    user_id       INTEGER NOT NULL,
-    finished      BOOL NOT NULL DEFAULT 0,
+    finished_id       INTEGER NOT NULL AUTO_INCREMENT,
+    video_id          INTEGER NOT NULL,
+    user_id           INTEGER NOT NULL,
+    num_correct       INTEGER NOT NULL DEFAULT 0,
+    watch_time        INTEGER NOT NULL DEFAULT 0,
+    started           BOOL NOT NULL DEFAULT 0,
+    finished          BOOL NOT NULL DEFAULT 0,
 
     CONSTRAINT `{$CFG->dbprefix}iv_finished_ibfk_1`
         FOREIGN KEY (`video_id`)

@@ -58,7 +58,9 @@ var IntVideo = (function () {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         _videoUrl = videoUrl;
-
+        if (_videoType === typeEnum.YouTube) {
+            intVideo.defaultYoutubeCaptions();
+        }
         _getEmbedForPlay();
     };
 
@@ -125,6 +127,7 @@ var IntVideo = (function () {
                         submitButton.off("click").on("click", _recordResponseAndCloseModal);
                     }
                 }
+
                 $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
             }, 1000);
 
@@ -146,6 +149,10 @@ var IntVideo = (function () {
             var pauseButton = document.getElementById('pauseButton');
             var backButton = document.getElementById('backTen');
             if (event.data == WWIRE.PLAYERSTATES.PLAYING) {
+                $.ajax({
+                    type: 'POST',
+                    url: "actions/markstarted.php?PHPSESSID="+sess,
+                });
                 pauseButton.removeAttribute('disabled');
                 backButton.removeAttribute('disabled');
                 playButton.setAttribute('disabled', 'disabled');
@@ -248,8 +255,11 @@ var IntVideo = (function () {
         var playButton = document.getElementById('playButton');
         var pauseButton = document.getElementById('pauseButton');
         var backButton = document.getElementById('backTen');
-
         if (event.data == 1) { // Playing
+            $.ajax({
+                type: 'POST',
+                url: "actions/markstarted.php?PHPSESSID="+sess,
+            });
             pauseButton.removeAttribute('disabled');
             backButton.removeAttribute('disabled');
             playButton.setAttribute('disabled', 'disabled');
@@ -393,6 +403,131 @@ var IntVideo = (function () {
             intVideo.wwPlayer('wwvideo').pause();
         } else if (_videoType === typeEnum.YouTube) {
             intVideo.ytPlayer.pauseVideo();
+        }
+    };
+
+    intVideo.changeSpeed = function (speed) {
+        if (_videoType === typeEnum.Warpwire) {
+            var preSpeed = intVideo.wwPlayer('wwvideo').getPlaybackRate(speed);
+            intVideo.wwPlayer('wwvideo').setPlaybackRate(speed);
+            if(preSpeed == 0.25){
+                document.getElementById("speed025").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 0.5){
+                document.getElementById("speed05").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 1){
+                document.getElementById("speed1").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 1.5){
+                document.getElementById("speed15").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 2){
+                document.getElementById("speed2").classList.remove('speedDropdown-selected');
+            }
+            if(speed == 0.25){
+                document.getElementById("speed025").classList.add('speedDropdown-selected');
+            } else if (speed == 0.5){
+                document.getElementById("speed05").classList.add('speedDropdown-selected');
+            } else if (speed == 1){
+                document.getElementById("speed1").classList.add('speedDropdown-selected');
+            } else if (speed == 1.5){
+                document.getElementById("speed15").classList.add('speedDropdown-selected');
+            } else if (speed == 2){
+                document.getElementById("speed2").classList.add('speedDropdown-selected');
+            }
+        } else if (_videoType === typeEnum.YouTube) {
+            var preSpeed = intVideo.ytPlayer.getPlaybackRate(speed);
+            intVideo.ytPlayer.setPlaybackRate(speed);
+            if(preSpeed == 0.25){
+                document.getElementById("speed025").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 0.5){
+                document.getElementById("speed05").classList.remove('speedDropdown-selectedn');
+            } else if (preSpeed == 1){
+                document.getElementById("speed1").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 1.5){
+                document.getElementById("speed15").classList.remove('speedDropdown-selected');
+            } else if (preSpeed == 2){
+                document.getElementById("speed2").classList.remove('speedDropdown-selected');
+            }
+            if(speed == 0.25){
+                document.getElementById("speed025").classList.add('speedDropdown-selected');
+            } else if (speed == 0.5){
+                document.getElementById("speed05").classList.add('speedDropdown-selected');
+            } else if (speed == 1){
+                document.getElementById("speed1").classList.add('speedDropdown-selected');
+            } else if (speed == 1.5){
+                document.getElementById("speed15").classList.add('speedDropdown-selected');
+            } else if (speed == 2){
+                document.getElementById("speed2").classList.add('speedDropdown-selected');
+            }
+        }
+    };
+
+    intVideo.defaultYoutubeCaptions = function () {
+        if(intVideo.ytPlayer != null) {
+            intVideo.ytPlayer.loadModule("captions");
+        }
+    };
+
+    $("#fullScreenButton").click(function () {
+        var vidCon = document.getElementById("playVideoContainer");
+        $(vidCon).toggleClass("transition");
+    });
+
+    intVideo.toggleCaptions = function () {
+        if (_videoType === typeEnum.Warpwire) {
+            if(intVideo.wwPlayer('wwvideo').getCaptions()[0] != null) {
+                if(intVideo.wwPlayer('wwvideo').getCaptions()[0].enabled){
+                    intVideo.wwPlayer('wwvideo').setCaption('');
+                    document.getElementById("captionButton").classList.remove('btn-icon-selected');
+                    document.getElementById("captionButton").classList.add('btn-icon');
+                }else{
+                    intVideo.wwPlayer('wwvideo').setCaption(intVideo.wwPlayer('wwvideo').getCaptions()[0].label);
+                    document.getElementById("captionButton").classList.remove('btn-icon');
+                    document.getElementById("captionButton").classList.add('btn-icon-selected');
+                }
+            }
+        } else if (_videoType === typeEnum.YouTube) {
+            var fullButton = document.getElementById('fullScreenButton');
+            if(fullButton.getAttribute("captions")=="true"){
+                intVideo.ytPlayer.unloadModule("captions");
+                fullButton.setAttribute("captions", "false");
+                document.getElementById("captionButton").classList.remove('btn-icon-selected');
+                document.getElementById("captionButton").classList.add('btn-icon');
+                document.getElementById("captionButton").classList.add('btn-icon');
+            }else{
+                intVideo.ytPlayer.loadModule("captions");
+                fullButton.setAttribute("captions", "true");
+                document.getElementById("captionButton").classList.remove('btn-icon');
+                document.getElementById("captionButton").classList.add('btn-icon-selected');
+            }
+        }
+    };
+
+    intVideo.toggleFullScreen = function () {
+
+        if (_videoType === typeEnum.Warpwire) {
+            if ( document.getElementById("playVideoContainer").classList.contains('col-md-9')){
+
+                document.getElementById("playVideoContainer").classList.remove('col-md-9');
+                document.getElementById("playVideoContainer").classList.add('col-md-12');
+                document.getElementById("fullScreenSpan").classList.remove('fa-expand');
+                document.getElementById("fullScreenSpan").classList.add('fa-compress');
+            } else if (document.getElementById("playVideoContainer").classList.contains('col-md-12')){
+                document.getElementById("playVideoContainer").classList.remove('col-md-12');
+                document.getElementById("playVideoContainer").classList.add('col-md-9');
+                document.getElementById("fullScreenSpan").classList.remove('fa-compress');
+                document.getElementById("fullScreenSpan").classList.add('fa-expand');
+            }
+        } else if (_videoType === typeEnum.YouTube) {
+            if ( document.getElementById("playVideoContainer").classList.contains('col-md-9')){
+                document.getElementById("playVideoContainer").classList.remove('col-md-9');
+                document.getElementById("playVideoContainer").classList.add('col-md-12');
+                document.getElementById("fullScreenSpan").classList.remove('fa-expand');
+                document.getElementById("fullScreenSpan").classList.add('fa-compress');
+            } else if (document.getElementById("playVideoContainer").classList.contains('col-md-12')){
+                document.getElementById("playVideoContainer").classList.remove('col-md-12');
+                document.getElementById("playVideoContainer").classList.add('col-md-9');
+                document.getElementById("fullScreenSpan").classList.remove('fa-compress');
+                document.getElementById("fullScreenSpan").classList.add('fa-expand');
+            }
         }
     };
 
@@ -878,6 +1013,7 @@ var IntVideo = (function () {
 
     _updateCurrentPlayTime = function (currentTime, duration) {
         // Assumes video is less than 24 hours
+        $("#currentPlayTime").trigger("change");
         if (duration > 3600) {
             var start = 11;
             var length = 8;
@@ -888,6 +1024,14 @@ var IntVideo = (function () {
 
         var currentFormattedTime = new Date(currentTime * 1000).toISOString().substr(start, length);
         var formattedDuration = new Date(duration * 1000).toISOString().substr(start, length);
+        var sess = $("#sess").val();
+        $.ajax({
+            type: 'POST',
+            url: "actions/updatetime.php?PHPSESSID="+sess,
+            data: {
+                "time": currentTime
+            }
+        });
 
         return currentFormattedTime + "/" + formattedDuration;
     };

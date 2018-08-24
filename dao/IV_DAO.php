@@ -118,11 +118,50 @@ class IV_DAO {
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    function markStudentAsFinished($video_id, $user_id) {
-        $query = "INSERT INTO {$this->p}iv_finished (video_id, user_id, finished) VALUES (:videoId, :userId, 1);";
+    function getStudents($video_id) {
+        $query = "SELECT DISTINCT user_id FROM {$this->p}iv_finished WHERE video_id = :videoId;";
+        $arr = array(':videoId' => $video_id);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    function markStudentAsStarted($video_id, $user_id) {
+        $query = "INSERT INTO {$this->p}iv_finished (video_id, user_id, started) VALUES (:videoId, :userId, 1);";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
+    }
+
+    function markStudentAsFinished($video_id, $user_id) {
+        $query = "UPDATE {$this->p}iv_finished SET finished = 1 where video_id = :videoId AND user_id = :userId;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
+
+    function markStudentNumberCorrect($video_id, $user_id, $num_correct) {
+        $query = "UPDATE {$this->p}iv_finished SET num_correct = :num_correct where video_id = :videoId AND user_id = :userId;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id, ':num_correct' => $num_correct);
+        $this->PDOX->queryDie($query, $arr);
+    }
+
+    function updateWatchTime($video_id, $user_id, $watch_time) {
+        $query = "UPDATE {$this->p}iv_finished SET watch_time = :watch_time where video_id = :videoId AND user_id = :userId;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id, ':watch_time' => $watch_time);
+        $this->PDOX->queryDie($query, $arr);
+    }
+
+    function getWatchTime($video_id, $user_id) {
+        $query = "SELECT watch_time FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+        $watch_time = $this->PDOX->rowDie($query, $arr);
+        return $watch_time["watch_time"];
+    }
+
+    function hasStudentStarted($video_id, $user_id) {
+        $query = "SELECT started FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $started = $this->PDOX->rowDie($query, $arr);
+        return $started["started"];
     }
 
     function isStudentFinished($video_id, $user_id) {
@@ -132,10 +171,50 @@ class IV_DAO {
         return $finished["finished"];
     }
 
+    function numCorrectForStudent($video_id, $user_id) {
+        $query = "SELECT num_correct FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $num_correct = $this->PDOX->rowDie($query, $arr);
+        return $num_correct["num_correct"];
+    }
+
+    function watchTimeStudent($video_id, $user_id) {
+        $query = "SELECT watch_time FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $watch_time = $this->PDOX->rowDie($query, $arr);
+        return $watch_time["watch_time"];
+    }
+
     function findDisplayName($user_id) {
         $query = "SELECT displayname FROM {$this->p}lti_user WHERE user_id = :user_id;";
         $arr = array(':user_id' => $user_id);
         $context = $this->PDOX->rowDie($query, $arr);
         return $context["displayname"];
     }
+
+    function countQuestions($video_id)
+    {
+        $query = "SELECT COUNT(*) as Count FROM {$this->p}iv_question WHERE video_id = :video_id;";
+        $arr = array(':video_id' => $video_id);
+        $count = $this->PDOX->rowDie($query, $arr);
+        return $count["Count"];
+    }
+
+    function getTsugiUserId($userId) {
+        $query = "SELECT * FROM {$this->p}lti_user WHERE user_key = :userId;";
+        $arr = array(':userId' => $userId);
+        $ltiUser = $this->PDOX->rowDie($query, $arr);
+        if ($ltiUser !== false) {
+            return $ltiUser["user_id"];
+        } else {
+            return false;
+        }
+    }
+
+    function findVideosForImport($user_id) {
+        $query = "SELECT v.*, c.title as sitetitle FROM {$this->p}iv_video v join {$this->p}lti_context c on v.context_id = c.context_id WHERE v.user_id = :userId ";
+        $arr = array(':userId' => $user_id);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
 }
