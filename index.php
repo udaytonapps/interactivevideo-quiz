@@ -31,7 +31,7 @@ if (!$videoId) {
         // Show the enter URL form
         ?>
         <div class="row">
-            <div class="col-sm-6 col-sm-offset-3">
+            <div class="col-sm-6 col-sm-offset-1" style="border-right: 1px solid #ccc;">
                 <form method="post" action="actions/addvideo.php" id="addVideoForm">
                     <!-- TODO: This form uses two inputs for video url and can be simplified to a shared one.
                          TODO: Validate video url -->
@@ -80,6 +80,43 @@ if (!$videoId) {
                     </div>
                     <button type="submit" class="btn btn-success">Create</button> <span class="text-danger" id="blankUrlAlert" style="display:none;"><span aria-hidden="true" class="fa fa-warning"></span> You must enter a video url to continue.</span>
                 </form>
+            </div>
+            <div class="col-sm-4">
+                <h3>Reuse an existing interactive video</h3>
+                <p>You can select a video from the list below to use a previously created video and questions.</p>
+                <?php
+                $previousVideos = $IV_DAO->findVideosForImport($USER->id);
+                if (!$previousVideos) {
+                    echo '<p>No previous videos available for import.</p>';
+                } else {
+                    $videoMap = array();
+                    foreach ($previousVideos as $video) {
+                        if (!array_key_exists($video["sitetitle"], $videoMap)) {
+                            $videoMap[$video["sitetitle"]] = array();
+                        }
+                        array_push($videoMap[$video["sitetitle"]], $video);
+                    }
+                    ?>
+                    <form class="form" action="actions/import.php" method="post">
+                        <div class="form-group">
+                            <label for="importVid">Previous Interactive Video Quizzes</label>
+                            <select class="form-control" id="importVid" name="import-video">
+                                <?php
+                                foreach($videoMap as $sitetitle => $videos_in_context) {
+                                    echo '<optgroup label="'.$sitetitle,'">';
+                                    foreach ($videos_in_context as $vid) {
+                                        echo '<option value="'.$vid["video_id"].'">'.$vid["video_title"].'</option>';
+                                    }
+                                    echo '</optgroup>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><span class="fa fa-upload" aria-hidden="tre"></span> Import</button>
+                    </form>
+                    <?php
+                }
+                ?>
             </div>
         </div>
         <?php

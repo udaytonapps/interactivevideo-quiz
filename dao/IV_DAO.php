@@ -211,4 +211,10 @@ class IV_DAO {
         }
     }
 
+    function findVideosForImport($user_id) {
+        $query = "SELECT v.*, c.title as sitetitle FROM {$this->p}iv_video v join {$this->p}lti_context c on v.context_id = c.context_id WHERE v.user_id = :userId ";
+        $arr = array(':userId' => $user_id);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
 }
