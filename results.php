@@ -1,6 +1,7 @@
 <?php
 require_once "../config.php";
 require_once "dao/IV_DAO.php";
+require_once "util/IVUtil.php";
 
 use \Tsugi\Core\LTIX;
 use \IV\DAO\IV_DAO;
