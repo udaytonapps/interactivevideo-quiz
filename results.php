@@ -44,7 +44,7 @@ if ($USER->instructor) {
         if ($hasRosters) {
             $rosterData = $GLOBALS['ROSTER']->data;
 
-            usort($rosterData, 'compareStudentsLastName');
+            usort($rosterData, array('IVUtil', 'compareStudentsLastName'));
 
             foreach ($rosterData as $student) {
                 if ($student["role"] == 'Learner') {
