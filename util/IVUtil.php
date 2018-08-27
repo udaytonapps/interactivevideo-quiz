@@ -1,5 +1,4 @@
 <?php
-namespace IV\Util;
 
 class IVUtil {
 

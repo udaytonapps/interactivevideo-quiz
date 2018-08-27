@@ -5,7 +5,6 @@ require_once "util/IVUtil.php";
 
 use \Tsugi\Core\LTIX;
 use \IV\DAO\IV_DAO;
-use \IV\Util\IVUtil;
 
 // Retrieve the launch data if present
 $LTI = LTIX::requireData();
@@ -45,7 +44,7 @@ if ($USER->instructor) {
         if ($hasRosters) {
             $rosterData = $GLOBALS['ROSTER']->data;
 
-            usort($rosterData, array('IVUtil', 'compareStudentsLastName'));
+            usort($rosterData, 'compareStudentsLastName');
 
             foreach ($rosterData as $student) {
                 if ($student["role"] == 'Learner') {
