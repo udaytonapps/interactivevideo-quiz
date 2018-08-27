@@ -1,5 +1,4 @@
 <?php
-namespace IV\Util;
 
 class IVUtil {
 
@@ -28,5 +27,10 @@ class IVUtil {
         } else {
             return sprintf('%02d:%02d', $mins, $secs);
         }
+    }
+
+    // Comparator for student last name used for sorting roster
+    public static function compareStudentsLastName($a, $b) {
+        return strcmp($a["person_name_family"], $b["person_name_family"]);
     }
 }
