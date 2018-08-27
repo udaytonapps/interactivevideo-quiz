@@ -5,7 +5,6 @@ require_once "util/IVUtil.php";
 
 use \Tsugi\Core\LTIX;
 use \IV\DAO\IV_DAO;
-use \IV\Util\IVUtil;
 
 // Retrieve the launch data if present
 $LTI = LTIX::requireData();
