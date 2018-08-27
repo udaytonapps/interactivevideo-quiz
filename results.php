@@ -37,49 +37,55 @@ if ($USER->instructor) {
             <table class="table table-bordered table-striped">
             <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Started Video</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th></tr></thead>
             <tbody>');
+
         $hasRosters = LTIX::populateRoster(false);
+
         if ($hasRosters) {
             $rosterData = $GLOBALS['ROSTER']->data;
+
+            usort($rosterData, array('IVUtil', 'compareStudentsLastName'));
+
             foreach ($rosterData as $student) {
+                if ($student["role"] == 'Learner') {
 
-                $userId = $IV_DAO->getTsugiUserId($student["user_id"]);
-                $startedVideo = $IV_DAO->hasStudentStarted($videoId, $userId);
+                    $userId = $IV_DAO->getTsugiUserId($student["user_id"]);
+                    $startedVideo = $IV_DAO->hasStudentStarted($videoId, $userId);
 
-                $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
+                    $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
 
-                $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
+                    $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
 
-                $question_count = $IV_DAO->countQuestions($videoId);
+                    $question_count = $IV_DAO->countQuestions($videoId);
 
-                if($num_correct == null){
-                    $num_correct = 0;
+                    if($num_correct == null){
+                        $num_correct = 0;
+                    }
+
+                    if ($startedVideo) {
+                        echo ('<tr>
+                                <td><a href="student-results.php?student='.$userId.'">'.$student["person_name_family"].', '.$student["person_name_given"].'</a></td>
+                                <td class="text-center">
+                                <span class="fa fa-lg fa-check text-success"></span>');
+                    } else {
+                        echo ('<tr>
+                                <td><p>'.$student["person_name_family"].', '.$student["person_name_given"].'</p></td>
+                                <td class="text-center">
+                                <span class="fa fa-lg fa-times text-danger"></span>');
+                    }
+
+                    echo ('</td><td class="text-center">');
+
+                    if ($finishedVideo) {
+                        echo ('<span class="fa fa-lg fa-check text-success"></span>');
+                    } else {
+                        echo ('<span class="fa fa-lg fa-times text-danger"></span>');
+                    }
+
+                    echo ('</td>
+                           <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td>
+                           </tr>');
                 }
-
-                if ($startedVideo) {
-                    echo ('<tr>
-                    <td><a href="student-results.php?student='.$userId.'">' . $student["person_name_full"] . '</a></td>
-                    <td class="text-center">
-                    <span class="fa fa-lg fa-check text-success"></span>');
-                } else {
-                    echo ('<tr>
-                    <td><p>' . $student["person_name_full"] . '</p></td>
-                    <td class="text-center">
-                    <span class="fa fa-lg fa-times text-danger"></span>');
-                }
-
-                echo ('</td><td class="text-center">');
-
-                if ($finishedVideo) {
-                    echo ('<span class="fa fa-lg fa-check text-success"></span>');
-                } else {
-                    echo ('<span class="fa fa-lg fa-times text-danger"></span>');
-                }
-
-                echo ('</td>
-            <td style="text-align: center">' . $num_correct. '/' . $question_count . '</td>
-            </tr>');
             }
-
         } else {
             $students = $IV_DAO->getStudents($videoId);
 
