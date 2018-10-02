@@ -1029,22 +1029,14 @@ var IntVideo = (function () {
             var start = 14;
             var length = 5;
         }
-        $.ajax({
-            type: "GET",
-            dataType: "json",
-            url: "actions/getnextquestion.php?PHPSESSID="+sess,
-            success: function (response) {
-                _questionArrayNext = response;
-                for (var question in _questionArrayNext) {
-                    if(currentTime < _questionArrayNext[question].questionTime){
-                        var newTime = _questionArrayNext[question].questionTime - currentTime;
-                        var newFormattedTime = new Date(newTime * 1000).toISOString().substr(start, length);
-                        $("#nextPlayTime").text("Next question in: " + newFormattedTime);
-                        break;
-                    }
-                }
+        for (var question in _questionArray) {
+            if(currentTime < _questionArray[question].questionTime){
+                var newTime = _questionArray[question].questionTime - currentTime;
+                var newFormattedTime = new Date(newTime * 1000).toISOString().substr(start, length);
+                $("#nextPlayTime").text("Next question in: " + newFormattedTime);
+                break;
             }
-        });
+        }
     };
 
     _formatPlayTime = function (timeToFormat) {
