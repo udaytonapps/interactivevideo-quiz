@@ -111,6 +111,7 @@ if ($finished) {
         <div class="col-sm-12 col-md-3">
             <div id="questionContainer">
                 <h4 id="questionsRemaining"></h4>
+                <p id="nextPlayTime"></p>
                 <ul class="list-group" id="theQuestions">
                 </ul>
             </div>
