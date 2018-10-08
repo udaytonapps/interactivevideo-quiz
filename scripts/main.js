@@ -129,6 +129,7 @@ var IntVideo = (function () {
                 }
 
                 $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
+                _updateNextCountdown(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration());
             }, 1000);
 
             var playButton = document.getElementById('playButton');
@@ -236,6 +237,7 @@ var IntVideo = (function () {
                 }
             }
             $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.ytPlayer.getDuration()));
+            _updateNextCountdown(currentPlayTime, intVideo.ytPlayer.getDuration());
         }, 1000);
 
         var playButton = document.getElementById('playButton');
@@ -971,6 +973,25 @@ var IntVideo = (function () {
         var formattedDuration = new Date(duration * 1000).toISOString().substr(start, length);
 
         return currentFormattedTime + "/" + formattedDuration;
+    };
+
+    _updateNextCountdown = function (currentTime, duration) {
+        var sess = $("input#sess").val();
+        if (duration > 3600) {
+            var start = 11;
+            var length = 8;
+        } else {
+            var start = 14;
+            var length = 5;
+        }
+        for (var question in _questionArray) {
+            if(currentTime < _questionArray[question].questionTime){
+                var newTime = _questionArray[question].questionTime - currentTime;
+                var newFormattedTime = new Date(newTime * 1000).toISOString().substr(start, length);
+                $("#nextPlayTime").text("Next question in: " + newFormattedTime);
+                break;
+            }
+        }
     };
 
     _formatPlayTime = function (timeToFormat) {
