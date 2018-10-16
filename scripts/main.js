@@ -909,11 +909,34 @@ var IntVideo = (function () {
                 questionModalTitle.text(questionModalTitle.text() + " Feedback");
                 var feedbackString = '';
                 if (correct) {
-                     feedbackString = '<div class="alert alert-success">' +
-                        '<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
+                     feedbackString +=
+                         '<div><h3><strong>Question:</strong>' + _questionArray[question].questionText + '</h3></div>' +
+                         '<div class="alert alert-success">' +'<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
                 } else {
-                    feedbackString = '<div class="alert alert-danger">' +
-                        '<h2 class="feedback-header">Incorrect</h2><p><strong>' + _questionArray[question].incorrectFeedback + '</strong></p></div>';
+                    feedbackString +=
+                        '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
+                    feedbackString +=
+                        '<div class="alert alert-danger">' +'<h2 class="feedback-header">Incorrect!</h2><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
+                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                    var noAnswer = true;
+                    answerIds.forEach(function (id) {
+                        for (var answer in _questionArray[question].answers) {
+                            if(id === _questionArray[question].answers[answer].answerId){
+                                noAnswer = false;
+                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                            }
+                        }
+                    });
+                    if(noAnswer){
+                        feedbackString += '<div><p>' +  "No Answers" + '</p></div></div>';
+                    }
+                    feedbackString += '</div>';
+                    feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
+                    for (var answer in _questionArray[question].answers) {
+                        if(_questionArray[question].answers[answer].isCorrect) {
+                            feedbackString += '<div><p>' + _questionArray[question].answers[answer].answerText + '</p></div>';
+                        }
+                    }
                 }
                 $("#askQuestionModalBody").hide().empty().html(feedbackString).fadeIn("fast");
                 break;
