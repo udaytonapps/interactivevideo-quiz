@@ -103,7 +103,7 @@ include("menu.php");
                         </div>
                         <button type="button" class="btn btn-primary" id="addAnswerBtn"><span aria-hidden="true" class="fa fa-plus"></span> Add Answer</button>
                         <div class="checkbox">
-                            <label><strong><input type="checkbox" name="randomize" value="true" id="randomizeAnswers"> Randomize Answers</strong></label>
+                            <label><strong><input type="checkbox" name="randomize" id="randomizeAnswers"> Randomize Answers</strong></label>
                         </div>
                         <hr>
                         <div class="panel panel-default">

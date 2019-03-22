@@ -19,7 +19,7 @@ if ( $USER->instructor ) {
     // Add the Question
     $questionTime = $_POST['videoTime'];
     $questionText = $_POST['questionText'];
-    $randomize = isset($_POST['randomize']);
+    $randomize = isset($_POST['randomize']) ? 1 : 0;
     $correctFeedback = isset($_POST['correctFeedback']) ? $_POST['correctFeedback'] : "";
     $incorrectFeedback = isset($_POST['incorrectFeedback']) ? $_POST['incorrectFeedback'] : "";
 
