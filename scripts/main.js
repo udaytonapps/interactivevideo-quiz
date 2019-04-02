@@ -129,6 +129,7 @@ var IntVideo = (function () {
                 }
 
                 $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
+                _updateNextCountdown(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration());
             }, 1000);
 
             var playButton = document.getElementById('playButton');
@@ -236,6 +237,7 @@ var IntVideo = (function () {
                 }
             }
             $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.ytPlayer.getDuration()));
+            _updateNextCountdown(currentPlayTime, intVideo.ytPlayer.getDuration());
         }, 1000);
 
         var playButton = document.getElementById('playButton');
@@ -907,11 +909,34 @@ var IntVideo = (function () {
                 questionModalTitle.text(questionModalTitle.text() + " Feedback");
                 var feedbackString = '';
                 if (correct) {
-                     feedbackString = '<div class="alert alert-success">' +
-                        '<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
+                     feedbackString +=
+                         '<div><h3><strong>Question:</strong>' + _questionArray[question].questionText + '</h3></div>' +
+                         '<div class="alert alert-success">' +'<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
                 } else {
-                    feedbackString = '<div class="alert alert-danger">' +
-                        '<h2 class="feedback-header">Incorrect</h2><p><strong>' + _questionArray[question].incorrectFeedback + '</strong></p></div>';
+                    feedbackString +=
+                        '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
+                    feedbackString +=
+                        '<div class="alert alert-danger">' +'<h2 class="feedback-header">Incorrect!</h2><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
+                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                    var noAnswer = true;
+                    answerIds.forEach(function (id) {
+                        for (var answer in _questionArray[question].answers) {
+                            if(id === _questionArray[question].answers[answer].answerId){
+                                noAnswer = false;
+                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                            }
+                        }
+                    });
+                    if(noAnswer){
+                        feedbackString += '<div><p>' +  "No Answers" + '</p></div></div>';
+                    }
+                    feedbackString += '</div>';
+                    feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
+                    for (var answer in _questionArray[question].answers) {
+                        if(_questionArray[question].answers[answer].isCorrect) {
+                            feedbackString += '<div><p>' + _questionArray[question].answers[answer].answerText + '</p></div>';
+                        }
+                    }
                 }
                 $("#askQuestionModalBody").hide().empty().html(feedbackString).fadeIn("fast");
                 break;
@@ -971,6 +996,25 @@ var IntVideo = (function () {
         var formattedDuration = new Date(duration * 1000).toISOString().substr(start, length);
 
         return currentFormattedTime + "/" + formattedDuration;
+    };
+
+    _updateNextCountdown = function (currentTime, duration) {
+        var sess = $("input#sess").val();
+        if (duration > 3600) {
+            var start = 11;
+            var length = 8;
+        } else {
+            var start = 14;
+            var length = 5;
+        }
+        for (var question in _questionArray) {
+            if(currentTime < _questionArray[question].questionTime){
+                var newTime = _questionArray[question].questionTime - currentTime;
+                var newFormattedTime = new Date(newTime * 1000).toISOString().substr(start, length);
+                $("#nextPlayTime").text("Next question in: " + newFormattedTime);
+                break;
+            }
+        }
     };
 
     _formatPlayTime = function (timeToFormat) {
