@@ -1007,13 +1007,18 @@ var IntVideo = (function () {
             var start = 14;
             var length = 5;
         }
+        var atleastoneleft = false;
         for (var question in _questionArray) {
             if(currentTime < _questionArray[question].questionTime){
                 var newTime = _questionArray[question].questionTime - currentTime;
                 var newFormattedTime = new Date(newTime * 1000).toISOString().substr(start, length);
                 $("#nextPlayTime").text("Next question in: " + newFormattedTime);
+                atleastoneleft = true;
                 break;
             }
+        }
+        if (!atleastoneleft) {
+            $("#nextPlayTime").text("Next question in: --:--");
         }
     };
 
