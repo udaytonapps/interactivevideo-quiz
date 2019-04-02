@@ -910,13 +910,13 @@ var IntVideo = (function () {
                 var feedbackString = '';
                 if (correct) {
                      feedbackString +=
-                         '<div><h3><strong>Question:</strong>' + _questionArray[question].questionText + '</h3></div>' +
-                         '<div class="alert alert-success">' +'<h2 class="feedback-header">Correct!</h2><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
+                         '<div><h4><strong>Question:</strong></h4><h4>' + _questionArray[question].questionText + '</h4></div>' +
+                         '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
                 } else {
                     feedbackString +=
                         '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
                     feedbackString +=
-                        '<div class="alert alert-danger">' +'<h2 class="feedback-header">Incorrect!</h2><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
+                        '<div class="alert alert-danger">' +'<h3 class="feedback-header">Incorrect</h3><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
                     feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
                     var noAnswer = true;
                     answerIds.forEach(function (id) {
@@ -933,7 +933,7 @@ var IntVideo = (function () {
                     feedbackString += '</div>';
                     feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
                     for (var answer in _questionArray[question].answers) {
-                        if(_questionArray[question].answers[answer].isCorrect) {
+                        if(_questionArray[question].answers[answer].isCorrect === "1") {
                             feedbackString += '<div><p>' + _questionArray[question].answers[answer].answerText + '</p></div>';
                         }
                     }
