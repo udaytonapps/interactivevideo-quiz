@@ -26,7 +26,7 @@ $DATABASE_INSTALL = array(
     video_id      INTEGER NOT NULL,
     q_time        INTEGER NOT NULL,
     q_text        TEXT NULL,
-    randomize     BOOL NOT NULL,
+    randomize     BOOL NOT NULL DEFAULT 0,
     correct_fb    TEXT NULL,
     incorrect_fb  TEXT NULL,
     
@@ -42,7 +42,7 @@ $DATABASE_INSTALL = array(
     answer_id     INTEGER NOT NULL AUTO_INCREMENT,
     question_id   INTEGER NOT NULL,
     answer_order  INTEGER NOT NULL,
-    is_correct    BOOL NOT NULL,
+    is_correct    BOOL NOT NULL DEFAULT 0,
     a_text        TEXT NULL,
     
     CONSTRAINT `{$CFG->dbprefix}iv_answer_ibfk_1`
