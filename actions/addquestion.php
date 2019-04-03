@@ -19,7 +19,7 @@ if ( $USER->instructor ) {
     // Add the Question
     $questionTime = $_POST['videoTime'];
     $questionText = $_POST['questionText'];
-    $randomize = isset($_POST['randomize']);
+    $randomize = isset($_POST['randomize']) ? 1 : 0;
     $correctFeedback = isset($_POST['correctFeedback']) ? $_POST['correctFeedback'] : "";
     $incorrectFeedback = isset($_POST['incorrectFeedback']) ? $_POST['incorrectFeedback'] : "";
 
@@ -44,7 +44,7 @@ if ( $USER->instructor ) {
     for ($i = 1; $i <= 6; $i++) {
         if (isset($_POST['answer'.$i])) {
             $answerOrder = $i;
-            $isCorrect = in_array ($i, $_POST['correctAnswer']);
+            $isCorrect = in_array ($i, $_POST['correctAnswer']) ? 1 : 0;
             $answerText = $_POST['answer'.$i];
 
             if ($_POST["answerId".$i] == -1) {

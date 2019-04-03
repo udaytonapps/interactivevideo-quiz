@@ -147,3 +147,7 @@ h4.question-header {
 .move-modal-down{
     margin-top: 123px;
 }
+
+.spaceBelow{
+    padding-bottom: 1em;
+}
