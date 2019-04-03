@@ -911,7 +911,21 @@ var IntVideo = (function () {
                 if (correct) {
                      feedbackString +=
                          '<div><h4><strong>Question:</strong></h4><h4>' + _questionArray[question].questionText + '</h4></div>' +
-                         '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
+                         '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
+                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                    var noAnswerProvided = true;
+                    answerIds.forEach(function (id) {
+                        for (var answer in _questionArray[question].answers) {
+                            if(id === _questionArray[question].answers[answer].answerId){
+                                noAnswerProvided = false;
+                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                            }
+                        }
+                    });
+                    if(noAnswerProvided){
+                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                    }
+                    feedbackString += '</div>';
                 } else {
                     feedbackString +=
                         '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
@@ -928,7 +942,7 @@ var IntVideo = (function () {
                         }
                     });
                     if(noAnswer){
-                        feedbackString += '<div><p>' +  "No Answers" + '</p></div></div>';
+                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
                     }
                     feedbackString += '</div>';
                     feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
