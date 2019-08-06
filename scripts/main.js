@@ -125,6 +125,7 @@ var IntVideo = (function () {
                         submitButton.removeClass("btn-success");
                         submitButton.addClass("btn-primary");
                         submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                        submitButton.text("Submit");
                     }
                 }
 
