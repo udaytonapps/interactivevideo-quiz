@@ -11,7 +11,7 @@ $studentMenu = array(
 if($USER->instructor) {
     $menu = $instructorMenu;
 } else {
-    if ($_SESSION["finished"]) {
+    if (isset($_SESSION["finished"]) && $_SESSION["finished"]) {
         $studentMenu['student-results.php'] = '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Results';
     }
     $menu = $studentMenu;
