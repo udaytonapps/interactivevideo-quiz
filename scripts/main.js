@@ -547,7 +547,11 @@ var IntVideo = (function () {
                 + '" frameborder="0" scrolling="0" allowfullscreen></iframe>'
             );
         } else if (_videoType === typeEnum.YouTube) {
-            var youtubeID = _videoUrl.match(/youtube\.com.*?v[\/=](\w+)/)[1];
+            let youtubeID = window.location.search.split('v=')[1];
+            let ampersandPosition = youtubeID.indexOf('&');
+            if(ampersandPosition != -1) {
+                youtubeID = youtubeID.substring(0, ampersandPosition);
+            }
             $("#buildVideo").html(
                 '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
                 + youtubeID
