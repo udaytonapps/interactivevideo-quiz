@@ -549,7 +549,7 @@ var IntVideo = (function () {
         } else if (_videoType === typeEnum.YouTube) {
             let youtubeID = _videoUrl.split('v=')[1];
             let ampersandPosition = youtubeID.indexOf('&');
-            if(ampersandPosition != -1) {
+            if(ampersandPosition !== -1) {
                 youtubeID = youtubeID.substring(0, ampersandPosition);
             }
             $("#buildVideo").html(
@@ -568,7 +568,11 @@ var IntVideo = (function () {
                 + '?share=0&title=0&controls=0" frameborder="0" scrolling="0" allowfullscreen></iframe>'
             );
         } else if (_videoType === typeEnum.YouTube) {
-            var youtubeID = _videoUrl.match(/youtube\.com.*?v[\/=](\w+)/)[1];
+            let youtubeID = _videoUrl.split('v=')[1];
+            let ampersandPosition = youtubeID.indexOf('&');
+            if(ampersandPosition !== -1) {
+                youtubeID = youtubeID.substring(0, ampersandPosition);
+            }
             $("#playVideo").html(
                 '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
                 + youtubeID
@@ -875,6 +879,13 @@ var IntVideo = (function () {
                 "questionId": questionId,
                 "answers": answerIds
             }
+        });
+
+        // Update student's score
+        $.ajax({
+            type: "POST",
+            url: "actions/marktotalcorrect.php?PHPSESSID="+sess,
+            data: {}
         });
 
         var questionTime, correct = true;
