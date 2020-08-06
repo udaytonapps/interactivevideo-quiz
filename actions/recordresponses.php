@@ -12,6 +12,8 @@ $p = $CFG->dbprefix;
 
 $IV_DAO = new IV_DAO($PDOX, $p);
 
+header('Content-type: application/json');
+
 if (isset($_POST["questionId"])) {
 
     $userId = $USER->id;
@@ -25,4 +27,8 @@ if (isset($_POST["questionId"])) {
     foreach ($answerIds as $answerId) {
         $IV_DAO->recordResponse($userId, $questionId, $answerId);
     }
+    $response_arr["status"] = 'success';
+} else {
+    $response_arr["status"] = 'error';
 }
+echo (json_encode($response_arr));

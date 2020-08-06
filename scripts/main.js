@@ -875,17 +875,21 @@ var IntVideo = (function () {
         $.ajax({
             type: "POST",
             url: "actions/recordresponses.php?PHPSESSID="+sess,
+            dataType: "json",
             data: {
                 "questionId": questionId,
                 "answers": answerIds
+            },
+            success: function(data) {
+                if (data.status === 'success') {
+                    // Update student's score
+                    $.ajax({
+                        type: "POST",
+                        url: "actions/marktotalcorrect.php?PHPSESSID="+sess,
+                        data: {}
+                    });
+                }
             }
-        });
-
-        // Update student's score
-        $.ajax({
-            type: "POST",
-            url: "actions/marktotalcorrect.php?PHPSESSID="+sess,
-            data: {}
         });
 
         var questionTime, correct = true;
