@@ -138,11 +138,14 @@ if (!$videoId) {
 
     if ($USER->instructor) {
         header( 'Location: '.addSession('build-video.php') ) ;
+        return;
     } else {
         if (!$finished) {
             header( 'Location: '.addSession('play-video.php') ) ;
+            return;
         } else {
             header( 'Location: '.addSession('student-results.php') ) ;
+            return;
         }
     }
 

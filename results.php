@@ -16,6 +16,7 @@ $IV_DAO = new IV_DAO($PDOX, $p);
 if (!isset($_SESSION["videoId"])) {
     // No video id in session. Redirect back to index.
     header( 'Location: '.addSession('index.php') ) ;
+    return;
 }
 
 $videoId = $_SESSION["videoId"];
@@ -138,6 +139,7 @@ if ($USER->instructor) {
 
 } else {
     header( 'Location: '.addSession('play-video.php') ) ;
+    return;
 }
 
 $OUTPUT->footerStart();

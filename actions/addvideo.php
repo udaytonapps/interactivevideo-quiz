@@ -34,5 +34,6 @@ if ( $USER->instructor ) {
     if (isset($videoType) && isset($videoUrl)) {
         $_SESSION["videoId"] = $IV_DAO->createVideo($CONTEXT->id, $LINK->id, $USER->id, $videoUrl, $videoType, $videoTitle);
         header( 'Location: '.addSession('../build-video.php') ) ;
+        return;
     }
 }
