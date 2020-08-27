@@ -26,6 +26,7 @@ if (isset($_SESSION["videoId"])) {
     $_SESSION["finished"] = $finished;
 } else {
     header( 'Location: '.addSession('index.php') ) ;
+    return;
 }
 
 // Start of the output

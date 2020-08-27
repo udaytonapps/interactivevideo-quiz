@@ -33,7 +33,8 @@ if ( $USER->instructor && isset($_POST["import-video"])) {
     }
 
     header( 'Location: '.addSession('../build-video.php') ) ;
-
+    return;
 } else {
     header( 'Location: '.addSession('../index.php') ) ;
+    return;
 }

@@ -15,6 +15,7 @@ $IV_DAO = new IV_DAO($PDOX, $p);
 if (!isset($_SESSION["videoId"])) {
     // No video id in session. Redirect back to index.
     header( 'Location: '.addSession('index.php') ) ;
+    return;
 }
 
 $videoId = $_SESSION["videoId"];
@@ -24,6 +25,7 @@ $video = $IV_DAO->getVideoInfoById($videoId);
 if (!$video) {
     // Video not found.
     header( 'Location: '.addSession('index.php') ) ;
+    return;
 }
 
 $videoType = $video["video_type"];

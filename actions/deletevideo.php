@@ -18,5 +18,6 @@ if ( $USER->instructor ) {
         $IV_DAO->deleteVideoAndQuestions($_SESSION["videoId"]);
         $_SESSION["videoId"] = -1;
         header( 'Location: '.addSession('../index.php') ) ;
+        return;
     }
 }
