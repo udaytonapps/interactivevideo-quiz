@@ -23,9 +23,10 @@ if (isset($_POST["questionId"])) {
     $IV_DAO->deleteUserResponsesForQuestion($userId, $questionId);
 
     // Record new response
-    $answerIds = $_POST["answers"];
-    foreach ($answerIds as $answerId) {
-        $IV_DAO->recordResponse($userId, $questionId, $answerId);
+    if (isset($_POST["answers"]) && is_array($_POST["answers"])) {
+        foreach ($_POST["answers"] as $answerId) {
+            $IV_DAO->recordResponse($userId, $questionId, $answerId);
+        }
     }
     $response_arr["status"] = 'success';
 } else {
