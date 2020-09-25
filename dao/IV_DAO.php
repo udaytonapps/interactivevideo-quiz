@@ -128,14 +128,14 @@ class IV_DAO {
         $query = "UPDATE {$this->p}iv_finished SET started = 1 where video_id = :videoId AND user_id = :userId;";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id);
         $this->PDOX->queryDie($query, $arr);
-        return $this->PDOX->lastInsertId();
+        return 1;
     }
 
     function markStudentAsFinished($video_id, $user_id) {
-        $query = "UPDATE {$this->p}iv_finished SET finished = 1 where video_id = :videoId AND user_id = :userId;";
+        $query = "UPDATE {$this->p}iv_finished SET started = 1, finished = 1 where video_id = :videoId AND user_id = :userId;";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id);
         $this->PDOX->queryDie($query, $arr);
-        return $this->PDOX->lastInsertId();
+        return 1;
     }
 
     function markStudentNumberCorrect($video_id, $user_id, $num_correct) {

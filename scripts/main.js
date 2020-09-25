@@ -21,7 +21,7 @@ var IntVideo = (function () {
     var _questionInterval = null;
 
     intVideo.initBuild = function (videoType, videoUrl) {
-        var tag = document.createElement('script');
+        let tag = document.createElement('script');
         if (videoType === typeEnum.YouTube) {
             _videoType = videoType;
 
@@ -30,14 +30,14 @@ var IntVideo = (function () {
 
             tag.src = "scripts/wwIframeApi.min.js";
         }
-        var firstScriptTag = document.getElementsByTagName('script')[0];
+        let firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         _videoUrl = videoUrl;
 
         _getEmbedForBuild();
 
-        _setupAddQuestionForm();
+        _setup1AddQuestionForm();
 
         _setupEditTitleModal();
 
@@ -102,62 +102,88 @@ var IntVideo = (function () {
         intVideo.wwPlayer('wwvideo').onReady = function(event) {
             _questionModal = $("#askQuestionModal");
 
-            intVideo.loadQuestionsForPlay();
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: "actions/getquestions.php?PHPSESSID="+$("input#sess").val(),
+                success: function (response) {
+                    _questionArray = response;
 
-            _questionInterval = setInterval(function () {
-                var currentPlayTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
-                for (var question in _questionArray) {
-                    var questionTime = _questionArray[question].questionTime;
-                    var questionText = _questionArray[question].questionText;
-                    if (currentPlayTime.toString() === questionTime && _questionArray[question].answered === false) {
-                        intVideo.wwPlayer('wwvideo').pause();
+                    var theQuestions = $("#theQuestions");
 
-                        _questionArray[question].answered = true;
-                        _numberOfQuestionsRemaining--;
+                    theQuestions.hide();
+                    theQuestions.empty();
+                    _numberOfQuestionsRemaining = 0;
 
-                        _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
-                        $("button.answer-option").off("click").on("click", _markAsCorrect);
-                        _questionModal.modal({
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        var submitButton = $("#submitAnswerButton");
-                        submitButton.removeClass("btn-success");
-                        submitButton.addClass("btn-primary");
-                        submitButton.off("click").on("click", _recordResponseAndCloseModal);
-                        submitButton.text("Submit");
+                    var questionCount = 1;
+                    for (var question in _questionArray) {
+                        theQuestions.append('<li class="list-group-item question-item next-up text-muted" data-question-time="' + _questionArray[question].questionTime + '">' +
+                            '<span class="question-time label label-primary">' + _formatPlayTime(_questionArray[question].questionTime) + '</span> Question ' + questionCount + '</li>');
+                        _questionArray[question].answered = false;
+                        _numberOfQuestionsRemaining++;
+                        questionCount++;
                     }
+
+                    _totalQuestions = _numberOfQuestionsRemaining;
+
+                    _updateQuestionsRemainingDisplay();
+                    theQuestions.fadeIn("slow");
                 }
+            }).done( function () {
+                _questionInterval = setInterval(function () {
+                    let currentPlayTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
+                    for (let question in _questionArray) {
+                        let questionTime = _questionArray[question].questionTime;
+                        if (currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
+                            intVideo.wwPlayer('wwvideo').pause();
 
-                $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
-                _updateNextCountdown(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration());
-            }, 1000);
+                            _questionArray[question].answered = true;
+                            _numberOfQuestionsRemaining--;
 
-            var playButton = document.getElementById('playButton');
-            playButton.removeAttribute('disabled');
+                            _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
+                            $("button.answer-option").off("click").on("click", _markAsCorrect);
+                            _questionModal.modal({
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            let submitButton = $("#submitAnswerButton");
+                            submitButton.removeClass("btn-success");
+                            submitButton.addClass("btn-primary");
+                            submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                            submitButton.text("Submit");
+                        }
+                    }
 
-            _questionModal.on('hidden.bs.modal', function() {
-                _questionModal.find("#askQuestionModalBody").empty();
-                _updateQuestionsRemainingDisplay();
-                $("#questionContainer").fadeIn("fast");
-                intVideo.wwPlayer('wwvideo').play();
+                    $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
+                    _updateNextCountdown(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration());
+                }, 1000);
+
+                document.getElementById('playButton').removeAttribute('disabled');
+
+                _questionModal.on('hidden.bs.modal', function() {
+                    _questionModal.find("#askQuestionModalBody").empty();
+                    _updateQuestionsRemainingDisplay();
+                    $("#questionContainer").fadeIn("fast");
+                    intVideo.wwPlayer('wwvideo').play();
+                });
             });
         };
 
         intVideo.wwPlayer('wwvideo').onStateChange = function(event) {
-            var sess = $("input#sess").val();
+            let sess = $("input#sess").val();
 
-            var playButton = document.getElementById('playButton');
-            var pauseButton = document.getElementById('pauseButton');
-            var backButton = document.getElementById('backTen');
+            let playButton = document.getElementById('playButton');
+            let pauseButton = document.getElementById('pauseButton');
+            let backButton = document.getElementById('backTen');
+
             if (event.data == WWIRE.PLAYERSTATES.PLAYING) {
+                pauseButton.removeAttribute('disabled');
+                backButton.removeAttribute('disabled');
+                playButton.setAttribute('disabled', 'disabled');
                 $.ajax({
                     type: 'POST',
                     url: "actions/markstarted.php?PHPSESSID="+sess
                 });
-                pauseButton.removeAttribute('disabled');
-                backButton.removeAttribute('disabled');
-                playButton.setAttribute('disabled', 'disabled');
             } else if (event.data == WWIRE.PLAYERSTATES.PAUSED) {
                 pauseButton.setAttribute('disabled', 'disabled');
                 backButton.setAttribute('disabled', 'disabled');
@@ -212,60 +238,85 @@ var IntVideo = (function () {
     intVideo.youTubeOnReadyPlay = function (event) {
         _questionModal = $("#askQuestionModal");
 
-        intVideo.loadQuestionsForPlay();
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "actions/getquestions.php?PHPSESSID="+$("input#sess").val(),
+            success: function (response) {
+                _questionArray = response;
 
-        _questionInterval = setInterval(function () {
-            var currentPlayTime = Math.floor(intVideo.ytPlayer.getCurrentTime());
-            for (var question in _questionArray) {
-                var questionTime = _questionArray[question].questionTime;
-                var questionText = _questionArray[question].questionText;
-                if (currentPlayTime.toString() === questionTime && _questionArray[question].answered === false) {
-                    intVideo.ytPlayer.pauseVideo();
+                var theQuestions = $("#theQuestions");
 
-                    _questionArray[question].answered = true;
-                    _numberOfQuestionsRemaining--;
+                theQuestions.hide();
+                theQuestions.empty();
+                _numberOfQuestionsRemaining = 0;
 
-                    _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
-                    $("button.answer-option").off("click").on("click", _markAsCorrect);
-                    _questionModal.modal({
-                        backdrop: 'static',
-                        keyboard: false
-                    });
-                    var submitButton = $("#submitAnswerButton");
-                    submitButton.removeClass("btn-success");
-                    submitButton.addClass("btn-primary");
-                    submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                var questionCount = 1;
+                for (var question in _questionArray) {
+                    theQuestions.append('<li class="list-group-item question-item next-up text-muted" data-question-time="' + _questionArray[question].questionTime + '">' +
+                        '<span class="question-time label label-primary">' + _formatPlayTime(_questionArray[question].questionTime) + '</span> Question ' + questionCount + '</li>');
+                    _questionArray[question].answered = false;
+                    _numberOfQuestionsRemaining++;
+                    questionCount++;
                 }
+
+                _totalQuestions = _numberOfQuestionsRemaining;
+
+                _updateQuestionsRemainingDisplay();
+                theQuestions.fadeIn("slow");
             }
-            $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.ytPlayer.getDuration()));
-            _updateNextCountdown(currentPlayTime, intVideo.ytPlayer.getDuration());
-        }, 1000);
+        }).done( function () {
+            _questionInterval = setInterval(function () {
+                let currentPlayTime = Math.floor(intVideo.ytPlayer.getCurrentTime());
+                for (let question in _questionArray) {
+                    let questionTime = _questionArray[question].questionTime;
+                    if (currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
+                        intVideo.ytPlayer.pauseVideo();
 
-        var playButton = document.getElementById('playButton');
-        playButton.removeAttribute('disabled');
+                        _questionArray[question].answered = true;
+                        _numberOfQuestionsRemaining--;
 
-        _questionModal.on('hidden.bs.modal', function() {
-            _questionModal.find("#askQuestionModalBody").empty();
-            _updateQuestionsRemainingDisplay();
-            $("#questionContainer").fadeIn("fast");
-            intVideo.ytPlayer.playVideo();
+                        _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
+                        $("button.answer-option").off("click").on("click", _markAsCorrect);
+                        _questionModal.modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        let submitButton = $("#submitAnswerButton");
+                        submitButton.removeClass("btn-success");
+                        submitButton.addClass("btn-primary");
+                        submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                    }
+                }
+                $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.ytPlayer.getDuration()));
+                _updateNextCountdown(currentPlayTime, intVideo.ytPlayer.getDuration());
+            }, 1000);
+
+            document.getElementById('playButton').removeAttribute('disabled');
+
+            _questionModal.on('hidden.bs.modal', function() {
+                _questionModal.find("#askQuestionModalBody").empty();
+                _updateQuestionsRemainingDisplay();
+                $("#questionContainer").fadeIn("fast");
+                intVideo.ytPlayer.playVideo();
+            });
         });
     };
 
     intVideo.youTubeOnStateChangePlay = function (event) {
-        var sess = $("input#sess").val();
+        let sess = $("input#sess").val();
 
-        var playButton = document.getElementById('playButton');
-        var pauseButton = document.getElementById('pauseButton');
-        var backButton = document.getElementById('backTen');
+        let playButton = document.getElementById('playButton');
+        let pauseButton = document.getElementById('pauseButton');
+        let backButton = document.getElementById('backTen');
         if (event.data == 1) { // Playing
+            pauseButton.removeAttribute('disabled');
+            backButton.removeAttribute('disabled');
+            playButton.setAttribute('disabled', 'disabled');
             $.ajax({
                 type: 'POST',
                 url: "actions/markstarted.php?PHPSESSID="+sess
             });
-            pauseButton.removeAttribute('disabled');
-            backButton.removeAttribute('disabled');
-            playButton.setAttribute('disabled', 'disabled');
         } else if (event.data == 2) { // Paused
             pauseButton.setAttribute('disabled', 'disabled');
             backButton.setAttribute('disabled', 'disabled');
@@ -328,47 +379,14 @@ var IntVideo = (function () {
         });
     };
 
-    intVideo.loadQuestionsForPlay = function () {
-        var sess = $("input#sess").val();
-
-        $.ajax({
-            type: "GET",
-            dataType: "json",
-            url: "actions/getquestions.php?PHPSESSID="+sess,
-            success: function (response) {
-                _questionArray = response;
-
-                var theQuestions = $("#theQuestions");
-
-                theQuestions.hide();
-                theQuestions.empty();
-                _numberOfQuestionsRemaining = 0;
-
-                var questionCount = 1;
-                for (var question in _questionArray) {
-                    theQuestions.append('<li class="list-group-item question-item next-up text-muted" data-question-time="' + _questionArray[question].questionTime + '">' +
-                        '<span class="question-time label label-primary">' + _formatPlayTime(_questionArray[question].questionTime) + '</span> Question ' + questionCount + '</li>');
-                    _questionArray[question].answered = false;
-                    _numberOfQuestionsRemaining++;
-                    questionCount++;
-                }
-
-                _totalQuestions = _numberOfQuestionsRemaining;
-
-                _updateQuestionsRemainingDisplay();
-                theQuestions.fadeIn("slow");
-            }
-        });
-    };
-
     intVideo.backTenSeconds = function () {
-        var currentTime;
+        let currentTime;
         if (_videoType === typeEnum.Warpwire) {
             currentTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
         } else if (_videoType === typeEnum.YouTube) {
             currentTime = Math.floor(intVideo.ytPlayer.getCurrentTime());
         }
-        var newTime = currentTime - 10.0;
+        let newTime = currentTime - 10.0;
         if (newTime < 0) {
             newTime = 0;
         }
@@ -416,7 +434,7 @@ var IntVideo = (function () {
     };
 
     $("#fullScreenButton").click(function () {
-        var vidCon = document.getElementById("playVideoContainer");
+        let vidCon = document.getElementById("playVideoContainer");
         $(vidCon).toggleClass("transition");
     });
 
@@ -434,7 +452,7 @@ var IntVideo = (function () {
                 }
             }
         } else if (_videoType === typeEnum.YouTube) {
-            var fullButton = document.getElementById('fullScreenButton');
+            let fullButton = document.getElementById('fullScreenButton');
             if(fullButton.getAttribute("captions")=="true"){
                 intVideo.ytPlayer.unloadModule("captions");
                 fullButton.setAttribute("captions", "false");
@@ -859,14 +877,14 @@ var IntVideo = (function () {
     };
 
     _recordResponseAndCloseModal = function () {
-        var submitButton = $("#submitAnswerButton");
+        let submitButton = $("#submitAnswerButton");
         submitButton.off("click").on("click", function(){$("#askQuestionModal").modal("hide");});
         submitButton.toggleClass("btn-primary btn-success");
         submitButton.text("Continue Video");
 
-        var sess = $("#sess").val();
-        var questionId = $("#questionId").val();
-        var answerIds = [];
+        let sess = $("#sess").val();
+        let questionId = $("#questionId").val();
+        let answerIds = [];
         $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each( function () {
             answerIds.push($(this).val());
         });
@@ -880,115 +898,96 @@ var IntVideo = (function () {
                 "questionId": questionId,
                 "answers": answerIds
             },
-            success: function(data) {
-                if (data.status === 'success') {
+            success: function(response) {
+                if (response.savestatus === 'success') {
                     // Update student's score
                     $.ajax({
                         type: "POST",
                         url: "actions/marktotalcorrect.php?PHPSESSID="+sess,
                         data: {}
                     });
+                    // Mark correct or not and continue
+                    let correct = response.correct;
+
+                    let questionTime = -1;
+                    for (let question in _questionArray) {
+                        if (_questionArray[question].questionId === questionId) {
+
+                            // Found which question is being answered.
+                            questionTime = _questionArray[question].questionTime;
+                            let questionModalTitle = $("#askQuestionModalTitleText");
+                            questionModalTitle.text(questionModalTitle.text() + " Feedback");
+                            let feedbackString = '';
+                            if (correct) {
+                                feedbackString +=
+                                    '<div><h4><strong>Question:</strong></h4><h4>' + _questionArray[question].questionText + '</h4></div>' +
+                                    '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
+                                feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                let noAnswerProvided = true;
+                                answerIds.forEach(function (id) {
+                                    for (var answer in _questionArray[question].answers) {
+                                        if(id === _questionArray[question].answers[answer].answerId){
+                                            noAnswerProvided = false;
+                                            feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                        }
+                                    }
+                                });
+                                if(noAnswerProvided){
+                                    feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                                }
+                                feedbackString += '</div>';
+                            } else {
+                                feedbackString +=
+                                    '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
+                                feedbackString +=
+                                    '<div class="alert alert-danger">' +'<h3 class="feedback-header">Incorrect</h3><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
+                                feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                let noAnswer = true;
+                                answerIds.forEach(function (id) {
+                                    for (var answer in _questionArray[question].answers) {
+                                        if(id === _questionArray[question].answers[answer].answerId){
+                                            noAnswer = false;
+                                            feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                        }
+                                    }
+                                });
+                                if(noAnswer){
+                                    feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                                }
+                                feedbackString += '</div>';
+                                feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
+                                for (let answer in _questionArray[question].answers) {
+                                    if(response.correctAnswers.includes(_questionArray[question].answers[answer].answerId)) {
+                                        feedbackString += '<div><p>' + _questionArray[question].answers[answer].answerText + '</p></div>';
+                                    }
+                                }
+                            }
+                            $("#askQuestionModalBody").hide().empty().html(feedbackString).fadeIn("fast");
+                            break;
+                        }
+                    }
+                    $("#questionContainer").hide();
+
+                    let questionListItem = $('li.question-item[data-question-time="' + questionTime + '"]');
+
+                    questionListItem.removeClass("next-up");
+
+                    if (correct) {
+                        questionListItem.prepend('<span class="text-success fa fa-check"></span> ');
+                        questionListItem.find("span.question-time").toggleClass("label-primary label-success");
+                    } else {
+                        questionListItem.prepend('<span class="text-danger fa fa-times"></span> ');
+                        questionListItem.find("span.question-time").toggleClass("label-primary label-danger");
+                    }
+                } else {
+                    alert("Unable to save response and continue. Please reload and try again.");
                 }
+            },
+            error: function(response) {
+                alert("Unable to save response and continue. Please reload and try again.");
+                console.error("Something went wrong. " + response.responseText);
             }
         });
-
-        var questionTime, correct = true;
-        for (var question in _questionArray) {
-            if (_questionArray[question].questionId === questionId) {
-
-                // Found which question is being answered.
-                questionTime = _questionArray[question].questionTime;
-                for (var answer in _questionArray[question].answers) {
-                    if (_questionArray[question].answers[answer].isCorrect === "1") {
-                        var found = false;
-                        answerIds.forEach(function (id) {
-                            if (id === _questionArray[question].answers[answer].answerId) {
-                                found = true;
-                            }
-                        });
-                        if (!found) {
-                            // The student failed to mark this answer as correct
-                            correct = false;
-                            break;
-                        }
-                    } else {
-                        // Not a correct answer make sure it wasn't checked by student
-                        answerIds.forEach(function (id) {
-                            if (id === _questionArray[question].answers[answer].answerId) {
-                                // Student marked a wrong answer as correct
-                                correct = false;
-                            }
-                        });
-                        if (!correct) {
-                            // Don't bother with anymore answers the student already answered wrong
-                            break;
-                        }
-                    }
-                }
-                var questionModalTitle = $("#askQuestionModalTitleText");
-                questionModalTitle.text(questionModalTitle.text() + " Feedback");
-                var feedbackString = '';
-                if (correct) {
-                     feedbackString +=
-                         '<div><h4><strong>Question:</strong></h4><h4>' + _questionArray[question].questionText + '</h4></div>' +
-                         '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
-                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
-                    var noAnswerProvided = true;
-                    answerIds.forEach(function (id) {
-                        for (var answer in _questionArray[question].answers) {
-                            if(id === _questionArray[question].answers[answer].answerId){
-                                noAnswerProvided = false;
-                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
-                            }
-                        }
-                    });
-                    if(noAnswerProvided){
-                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
-                    }
-                    feedbackString += '</div>';
-                } else {
-                    feedbackString +=
-                        '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
-                    feedbackString +=
-                        '<div class="alert alert-danger">' +'<h3 class="feedback-header">Incorrect</h3><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
-                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
-                    var noAnswer = true;
-                    answerIds.forEach(function (id) {
-                        for (var answer in _questionArray[question].answers) {
-                            if(id === _questionArray[question].answers[answer].answerId){
-                                noAnswer = false;
-                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
-                            }
-                        }
-                    });
-                    if(noAnswer){
-                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
-                    }
-                    feedbackString += '</div>';
-                    feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
-                    for (var answer in _questionArray[question].answers) {
-                        if(_questionArray[question].answers[answer].isCorrect === "1") {
-                            feedbackString += '<div><p>' + _questionArray[question].answers[answer].answerText + '</p></div>';
-                        }
-                    }
-                }
-                $("#askQuestionModalBody").hide().empty().html(feedbackString).fadeIn("fast");
-                break;
-            }
-        }
-        $("#questionContainer").hide();
-
-        var questionListItem = $('li.question-item[data-question-time="' + questionTime + '"]');
-
-        questionListItem.removeClass("next-up");
-
-        if (correct) {
-            questionListItem.prepend('<span class="text-success fa fa-check"></span> ');
-            questionListItem.find("span.question-time").toggleClass("label-primary label-success");
-        } else {
-            questionListItem.prepend('<span class="text-danger fa fa-times"></span> ');
-            questionListItem.find("span.question-time").toggleClass("label-primary label-danger");
-        }
     };
 
     _updateQuestionsRemainingDisplay = function () {
@@ -1033,7 +1032,6 @@ var IntVideo = (function () {
     };
 
     _updateNextCountdown = function (currentTime, duration) {
-        var sess = $("input#sess").val();
         if (duration > 3600) {
             var start = 11;
             var length = 8;

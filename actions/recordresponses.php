@@ -28,8 +28,31 @@ if (isset($_POST["questionId"])) {
             $IV_DAO->recordResponse($userId, $questionId, $answerId);
         }
     }
-    $response_arr["status"] = 'success';
+
+    // Check if correct response
+    $answers = $IV_DAO->getSortedAnswersForQuestion($questionId);
+    $correctAnswers = array();
+    $correct = true;
+    foreach ($answers as $answer) {
+        if ($answer["is_correct"]) {
+            array_push($correctAnswers, $answer["answer_id"]);
+        }
+        $response = $IV_DAO->getResponse($userId, $questionId, $answer["answer_id"]);
+        if ($answer["is_correct"] == 0 && $response) {
+            // Incorrect answer was chosen.
+            $correct = false;
+        } else if ($answer["is_correct"] == 1 && !$response) {
+            // Correct answer wasn't chosen.
+            $correct = false;
+        }
+    }
+
+    $response_arr["correctAnswers"] = $correctAnswers;
+    $response_arr["correct"] = $correct;
+    $response_arr["savestatus"] = 'success';
 } else {
-    $response_arr["status"] = 'error';
+    $response_arr["correctAnswers"] = false;
+    $response_arr["correct"] = false;
+    $response_arr["savestatus"] = 'error';
 }
 echo (json_encode($response_arr));

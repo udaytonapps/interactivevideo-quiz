@@ -43,7 +43,12 @@ if (isset($_SESSION["videoId"])) {
             $newAnswer->questionId = $answer["question_id"];
             $newAnswer->answerOrder = $answer["answer_order"];
             $newAnswer->answerText = $answer["a_text"];
-            $newAnswer->isCorrect = $answer["is_correct"];
+            if ($USER->instructor) {
+                // only include correct info if an instructor
+                $newAnswer->isCorrect = $answer["is_correct"];
+            } else {
+                $newAnswer->isCorrect = '';
+            }
 
             $newQuestion->answers[] = $newAnswer;
         }
