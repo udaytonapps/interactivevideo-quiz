@@ -37,7 +37,7 @@ var IntVideo = (function () {
 
         _getEmbedForBuild();
 
-        _setup1AddQuestionForm();
+        _setupAddQuestionForm();
 
         _setupEditTitleModal();
 
