@@ -148,21 +148,21 @@ class IV_DAO {
         $query = "SELECT started FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
         $arr = array(":videoId" => $video_id, ":userId" => $user_id);
         $started = $this->PDOX->rowDie($query, $arr);
-        return $started["started"];
+        return $started ? $started["started"] : false;
     }
 
     function isStudentFinished($video_id, $user_id) {
         $query = "SELECT finished FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
         $arr = array(":videoId" => $video_id, ":userId" => $user_id);
         $finished = $this->PDOX->rowDie($query, $arr);
-        return $finished["finished"];
+        return $finished ? $finished["finished"] : false;
     }
 
     function numCorrectForStudent($video_id, $user_id) {
         $query = "SELECT num_correct FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
         $arr = array(":videoId" => $video_id, ":userId" => $user_id);
         $num_correct = $this->PDOX->rowDie($query, $arr);
-        return $num_correct["num_correct"];
+        return $num_correct ? $num_correct["num_correct"] : false;
     }
 
     function findDisplayName($user_id) {
@@ -177,7 +177,7 @@ class IV_DAO {
         $query = "SELECT COUNT(*) as Count FROM {$this->p}iv_question WHERE video_id = :video_id;";
         $arr = array(':video_id' => $video_id);
         $count = $this->PDOX->rowDie($query, $arr);
-        return $count["Count"];
+        return $count ? $count["Count"] : 0;
     }
 
     function getTsugiUserId($userId) {
