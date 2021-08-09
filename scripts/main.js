@@ -901,6 +901,10 @@ var IntVideo = (function () {
                 errorMsg.hide().fadeIn();
                 return false;
             }
+            // Fix quotes in answer text
+            $("input.answer-text").each(function() {
+                $(this).val($(this).val().split('"').join('&quot;'));
+            });
         }
         if (qType === "1") {
             // Check that there is atleast one correct answer
@@ -1011,7 +1015,7 @@ var IntVideo = (function () {
                                         '<div class="alert alert-info">' + _questionArray[question].correctFeedback + '</div>';
                                 } else if (_questionArray[question].questionType === "3") {
                                     feedbackString +=
-                                        '<div class="alert alert-info">Acknowledged. Please continue the video.</div>';
+                                        '<div class="alert alert-info"><strong>Acknowledged.</strong> Please continue the video.</div>';
                                 } else if (_questionArray[question].questionType === "4") {
                                     feedbackString +=
                                         '<h4><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
