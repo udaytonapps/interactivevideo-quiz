@@ -29,6 +29,7 @@ if (isset($_SESSION["videoId"])) {
         $newQuestion->questionId = $question["question_id"];
         $newQuestion->videoId = $question["video_id"];
         $newQuestion->questionTime = $question["q_time"];
+        $newQuestion->questionType = $question["q_type"];
         $newQuestion->questionText = $question["q_text"];
         $newQuestion->correctFeedback = $question["correct_fb"];
         $newQuestion->incorrectFeedback = $question["incorrect_fb"];

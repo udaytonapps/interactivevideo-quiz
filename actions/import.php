@@ -25,7 +25,7 @@ if ( $USER->instructor && isset($_POST["import-video"])) {
     foreach ($prevQuestions as $prevQuestion) {
         $prevAnswers = $IV_DAO->getSortedAnswersForQuestion($prevQuestion["question_id"]);
         // Add question
-        $newQuestionId = $IV_DAO->addQuestion($newId, $prevQuestion["q_time"], $prevQuestion["q_text"], $prevQuestion["correct_fb"], $prevQuestion["incorrect_fb"], $prevQuestion["randomize"]);
+        $newQuestionId = $IV_DAO->addQuestion($newId, $prevQuestion["q_time"], $prevQuestion["q_type"], $prevQuestion["q_text"], $prevQuestion["correct_fb"], $prevQuestion["incorrect_fb"], $prevQuestion["randomize"]);
         // Add All Answers
         foreach($prevAnswers as $prevAnswer) {
             $IV_DAO->addAnswer($newQuestionId, $prevAnswer["answer_order"], $prevAnswer["is_correct"], $prevAnswer["a_text"]);

@@ -70,26 +70,53 @@ foreach ($questions as $question) {
     // Get answers for question
     $answers = $IV_DAO->getSortedAnswersForQuestion($question["question_id"]);
     $correct = true;
-    foreach ($answers as $answer) {
-        $listContent = $listContent . '<li class="list-group-item">';
-        $response = $IV_DAO->getResponse($userId, $question["question_id"], $answer["answer_id"]);
-        if ($answer["is_correct"] == 1 && $response) {
-            // Correct answer and was chosen. Show in UI
-            $listContent = $listContent . '<span class="fa fa-check text-success"></span>';
-        } else if ($answer["is_correct"] == 0 && $response) {
-            // Incorrect answer was chosen. Mark as wrong in UI
-            $listContent = $listContent . '<span class="fa fa-times text-danger"></span>';
-            $correct = false;
-        } else if ($answer["is_correct"] == 1 && !$response) {
-            // Correct answer wasn't chosen. Don't show in UI but mark as wrong
-            $correct = false;
-        }
-        if ($answer["is_correct"] == 1) {
-            $listContent = $listContent . ' <span class="text-success"><strong>'.$answer["a_text"].'</strong></span></li>';
-        } else {
-            $listContent = $listContent . ' <span>'.$answer["a_text"].'</span></li>';
-        }
+    if ($question["q_type"] == "1") {
+        foreach ($answers as $answer) {
+            $listContent = $listContent . '<li class="list-group-item">';
+            $response = $IV_DAO->getResponse($userId, $question["question_id"], $answer["answer_id"]);
+            if ($answer["is_correct"] == 1 && $response) {
+                // Correct answer and was chosen. Show in UI
+                $listContent = $listContent . '<span class="fa fa-check text-success"></span>';
+            } else if ($answer["is_correct"] == 0 && $response) {
+                // Incorrect answer was chosen. Mark as wrong in UI
+                $listContent = $listContent . '<span class="fa fa-times text-danger"></span>';
+                $correct = false;
+            } else if ($answer["is_correct"] == 1 && !$response) {
+                // Correct answer wasn't chosen. Don't show in UI but mark as wrong
+                $correct = false;
+            }
+            if ($answer["is_correct"] == 1) {
+                $listContent = $listContent . ' <span class="text-success"><strong>'.$answer["a_text"].'</strong></span></li>';
+            } else {
+                $listContent = $listContent . ' <span>'.$answer["a_text"].'</span></li>';
+            }
 
+        }
+    } else if ($question["q_type"] == "4") {
+        foreach ($answers as $answer) {
+            $listContent = $listContent . '<li class="list-group-item">';
+            $response = $IV_DAO->getResponse($userId, $question["question_id"], $answer["answer_id"]);
+            if ($response) {
+                // Answer and was chosen. Show in UI
+                $listContent = $listContent . '<span class="fa fa-check text-success"></span> <span class="text-success"><strong>'.$answer["a_text"].'</strong></span></li>';
+            } else {
+                $listContent = $listContent . ' <span>'.$answer["a_text"].'</span></li>';
+            }
+        }
+    }
+
+    if ($question["q_type"] == "1") {
+        $type = "Multiple Choice";
+    } else if ($question["q_type"] == "2") {
+        $type = "Short Answer";
+        $response = $IV_DAO->getShortAnswerResponse($userId, $question["question_id"]) ? $IV_DAO->getShortAnswerResponse($userId, $question["question_id"])["response"] : "";
+        $listContent = $listContent . '<li class="list-group-item">' . $response . '</li>';
+    } else if ($question["q_type"] == "3") {
+        $type = "Info Card";
+    } else if ($question["q_type"] == "4") {
+        $type = "Multiple Choice Survey (Ungraded)";
+    } else {
+        $type = '';
     }
 
     echo ('<div>
@@ -100,7 +127,7 @@ foreach ($questions as $question) {
     } else {
         echo ('<span class="fa fa-times text-danger"></span><span class="sr-only">Incorrect</span>');
     }
-    echo('<span class="label label-default pull-right">'.IVUtil::formatQuestionTime($question["q_time"]).'</span> Question '.$questionNumber.'</h4>
+    echo('<span class="label label-default pull-right">'.IVUtil::formatQuestionTime($question["q_time"]).'</span> Question '.$questionNumber.' <small class="text-muted">'.$type.'</small></h4>
                     <div class="question-results">
                     <p><strong>'.$question["q_text"].'</strong></p>
                     <ul class="list-group">'.$listContent.'</ul>

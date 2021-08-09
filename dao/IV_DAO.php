@@ -15,7 +15,7 @@ class IV_DAO {
         $query = "SELECT video_id FROM {$this->p}iv_video WHERE context_id = :contextId AND link_id = :linkId;";
         $arr = array(':contextId' => $context_id, ':linkId' => $link_id);
         $context = $this->PDOX->rowDie($query, $arr);
-        return $context["video_id"];
+        return $context ? $context["video_id"] : false;
     }
 
     function createVideo($context_id, $link_id, $user_id, $video_url, $video_type, $video_title) {
@@ -49,16 +49,22 @@ class IV_DAO {
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    function addQuestion($video_id, $question_time, $question_text, $correct_feedback, $incorrect_feedback, $randomize) {
-        $query = "INSERT INTO {$this->p}iv_question (video_id, q_time, q_text, correct_fb, incorrect_fb, randomize) VALUES (:videoId, :questionTime, :questionText, :correctFeedback, :incorrectFeedback, :randomize);";
-        $arr = array(':videoId' => $video_id, ':questionTime' => $question_time, ':questionText' => $question_text, ':correctFeedback' => $correct_feedback, ':incorrectFeedback' => $incorrect_feedback, ":randomize" => $randomize);
+    function addQuestion($video_id, $question_time, $question_type, $question_text, $correct_feedback, $incorrect_feedback, $randomize) {
+        $query = "INSERT INTO {$this->p}iv_question (video_id, q_time, q_type, q_text, correct_fb, incorrect_fb, randomize) VALUES (:videoId, :questionTime, :questionType, :questionText, :correctFeedback, :incorrectFeedback, :randomize);";
+        $arr = array(':videoId' => $video_id, ':questionTime' => $question_time, ':questionType' => $question_type, ':questionText' => $question_text, ':correctFeedback' => $correct_feedback, ':incorrectFeedback' => $incorrect_feedback, ":randomize" => $randomize);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
-    function updateQuestion($question_id, $question_time, $question_text, $correct_feedback, $incorrect_feedback, $randomize) {
-        $query = "UPDATE {$this->p}iv_question SET q_time = :questionTime, q_text = :questionText, correct_fb = :correctFeedback, incorrect_fb = :incorrectFeedback, randomize = :randomize WHERE question_id = :questionId;";
-        $arr = array(':questionTime' => $question_time, ':questionText' => $question_text, ':correctFeedback' => $correct_feedback, ':incorrectFeedback' => $incorrect_feedback, ":randomize" => $randomize, ":questionId" => $question_id);
+    function getQuestionById($questionId) {
+        $query = "SELECT * FROM {$this->p}iv_question WHERE question_id = :questionId;";
+        $arr = array(':questionId' => $questionId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
+    function updateQuestion($question_id, $question_time, $question_type, $question_text, $correct_feedback, $incorrect_feedback, $randomize) {
+        $query = "UPDATE {$this->p}iv_question SET q_time = :questionTime, q_type = :questionType, q_text = :questionText, correct_fb = :correctFeedback, incorrect_fb = :incorrectFeedback, randomize = :randomize WHERE question_id = :questionId;";
+        $arr = array(':questionTime' => $question_time, ':questionType' => $question_type, ':questionText' => $question_text, ':correctFeedback' => $correct_feedback, ':incorrectFeedback' => $incorrect_feedback, ":randomize" => $randomize, ":questionId" => $question_id);
         $this->PDOX->queryDie($query, $arr);
     }
 
@@ -100,8 +106,21 @@ class IV_DAO {
         return $this->PDOX->lastInsertId();
     }
 
+    function recordShortAnswer($user_id, $question_id, $short_answer) {
+        $query = "INSERT INTO {$this->p}iv_shortanswer (user_id, question_id, response) VALUES (:userId, :questionId, :shortAnswer);";
+        $arr = array(":userId" => $user_id, ":questionId" => $question_id, ":shortAnswer" => $short_answer);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
+
     function deleteUserResponsesForQuestion($user_id, $question_id) {
         $query = "DELETE FROM {$this->p}iv_response WHERE user_id = :userId AND question_id = :questionId;";
+        $arr = array(":userId" => $user_id, ":questionId" => $question_id);
+        $this->PDOX->queryDie($query, $arr);
+    }
+
+    function deleteUserShortAnswerForQuestion($user_id, $question_id) {
+        $query = "DELETE FROM {$this->p}iv_shortanswer WHERE user_id = :userId AND question_id = :questionId;";
         $arr = array(":userId" => $user_id, ":questionId" => $question_id);
         $this->PDOX->queryDie($query, $arr);
     }
@@ -109,6 +128,12 @@ class IV_DAO {
     function getResponse($user_id, $question_id, $answer_id) {
         $query = "SELECT * FROM {$this->p}iv_response WHERE user_id = :userId AND question_id = :questionId AND answer_id = :answerId;";
         $arr = array(':userId' => $user_id, ':questionId' => $question_id, ':answerId' => $answer_id);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
+    function getShortAnswerResponse($user_id, $question_id) {
+        $query = "SELECT * FROM {$this->p}iv_shortanswer WHERE user_id = :userId AND question_id = :questionId;";
+        $arr = array(':userId' => $user_id, ':questionId' => $question_id);
         return $this->PDOX->rowDie($query, $arr);
     }
 

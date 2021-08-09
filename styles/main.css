@@ -151,3 +151,7 @@ h4.question-header {
 .spaceBelow{
     padding-bottom: 1em;
 }
+
+#answerContainer.hideCorrect button.answer-correct {
+    display:none;
+}

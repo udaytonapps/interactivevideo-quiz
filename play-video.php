@@ -44,6 +44,8 @@ $OUTPUT->header();
 $OUTPUT->bodyStart();
 
 include("menu.php");
+$OUTPUT->topNav($menu);
+$OUTPUT->flashMessages();
 
 if ($finished) {
     ?>
@@ -52,7 +54,7 @@ if ($finished) {
             <div class="modal-content">
                 <div class="modal-body" id="tryAgainBody">
                     <h3>You have already finished watching this video.</h3>
-                    <p>Click continue to rewatch this video with questions. Any questions you answer will override your previous answers.</p>
+                    <p>Click continue to re-watch this video with questions. Any questions you answer will override your previous answers.</p>
                     <p><a href="<?php echo $videoUrl ?>" target="_blank" title="Link to video without questions">Click here to watch this video without the questions.</a></p>
                 </div>
                 <div class="modal-footer">
@@ -64,7 +66,6 @@ if ($finished) {
     <?php
 }
 ?>
-<div class="container-fluid">
     <div class="row">
         <div class="col-sm-12 col-md-9">
             <span class="h3 video-title"><?php echo $videoTitle ?></span>
@@ -107,7 +108,6 @@ if ($finished) {
             </div>
         </div>
     </div>
-</div>
     <div id="askQuestionModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content move-modal-down">

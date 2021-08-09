@@ -25,6 +25,7 @@ $DATABASE_INSTALL = array(
     question_id   INTEGER NOT NULL AUTO_INCREMENT,
     video_id      INTEGER NOT NULL,
     q_time        INTEGER NOT NULL,
+    q_type        TINYINT NOT NULL DEFAULT 1,
     q_text        TEXT NULL,
     randomize     BOOL NOT NULL DEFAULT 0,
     correct_fb    TEXT NULL,
@@ -71,6 +72,20 @@ $DATABASE_INSTALL = array(
         
     UNIQUE(user_id, question_id, answer_id),
     PRIMARY KEY(response_id)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
+    array( "{$CFG->dbprefix}iv_shortanswer",
+        "create table {$CFG->dbprefix}iv_shortanswer (
+    shortanswer_id      INTEGER NOT NULL AUTO_INCREMENT,
+    user_id             INTEGER NOT NULL,
+    question_id         INTEGER NOT NULL,
+    response            TEXT NULL,
+
+    CONSTRAINT `{$CFG->dbprefix}iv_shortanswer_ibfk_1`
+        FOREIGN KEY (`question_id`)
+        REFERENCES `{$CFG->dbprefix}iv_question` (`question_id`)
+        ON DELETE CASCADE,
+        
+    PRIMARY KEY(shortanswer_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
     array( "{$CFG->dbprefix}iv_finished",
         "create table {$CFG->dbprefix}iv_finished (

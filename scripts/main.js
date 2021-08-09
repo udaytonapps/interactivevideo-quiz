@@ -522,6 +522,9 @@ var IntVideo = (function () {
                     $("#videoHrs").val(hours);
                     $("#videoMin").val(mins);
                     $("#videoSec").val(secs);
+
+                    $("#questionType").val(_questionArray[question].questionType).change();
+
                     $("#questionText").val(_questionArray[question].questionText);
 
                     $(".possible-answer").remove();
@@ -657,6 +660,52 @@ var IntVideo = (function () {
             $("#feedbackDown").hide();
             $("#feedbackUp").show();
         });
+
+        $("#questionType").off("change").on("change", function () {
+            let selectedType = $(this).val();
+            if (selectedType === "1") {
+                // Selected multiple choice show all
+                $("#mccontent").fadeIn();
+                $("#feedbackContent").fadeIn();
+                $("#incorrectFeedbackContent").show();
+                $("#questionTextLabel").text("Question Text");
+                $("#correctFeedbackLabel").text("Correct Feedback");
+                $(".possible-answer").remove();
+                var answerContainer = $("#answerContainer");
+                answerContainer.removeClass("hideCorrect");
+                _numberOfAnswers = 0;
+                _appendPossibleAnswerMarkup(answerContainer);
+                _appendPossibleAnswerMarkup(answerContainer);
+                $("#random-box").fadeIn();
+            } else if (selectedType === "2") {
+                // Selected short answer show question text and correct feedback
+                $("#mccontent").hide();
+                $("#feedbackContent").fadeIn();
+                $("#incorrectFeedbackContent").hide();
+                $("#correctFeedbackLabel").text("Feedback");
+                $(".possible-answer").remove();
+            } else if (selectedType === "3") {
+                // Selected info card just question text
+                $("#mccontent").hide();
+                $("#feedbackContent").hide();
+                $("#questionTextLabel").text("Card Text");
+                $(".possible-answer").remove();
+            } else if (selectedType === "4") {
+                // Selected multiple choice survey show all
+                $("#mccontent").fadeIn();
+                $("#feedbackContent").fadeIn();
+                $("#incorrectFeedbackContent").hide();
+                $("#correctFeedbackLabel").text("Feedback");
+                $("#questionTextLabel").text("Question Text");
+                $(".possible-answer").remove();
+                var answerContainer = $("#answerContainer");
+                _numberOfAnswers = 0;
+                _appendPossibleAnswerMarkup(answerContainer);
+                _appendPossibleAnswerMarkup(answerContainer);
+                answerContainer.addClass("hideCorrect");
+                $("#random-box").hide();
+            }
+        });
     };
 
     _setupEditTitleModal = function () {
@@ -740,6 +789,7 @@ var IntVideo = (function () {
         $("#videoMin").val("");
         $("#videoSec").val("");
         $("#questionId").val("-1");
+        $("#questionType").val("1").change();
         $("#questionText").val("");
         $("#answersToRemove").val("");
         $(".possible-answer").remove();
@@ -843,17 +893,22 @@ var IntVideo = (function () {
                 }
             }
         }
-        // Check for no answers
-        if (theForm.find("div.possible-answer").length === 0) {
-            feedback.text("You must provide at least one possible answer.").fadeIn();
-            errorMsg.hide().fadeIn();
-            return false;
+        let qType = $("#questionType").val();
+        if (qType === "1" || qType === "4") {
+            // Check for no answers
+            if (theForm.find("div.possible-answer").length === 0) {
+                feedback.text("You must provide at least one possible answer.").fadeIn();
+                errorMsg.hide().fadeIn();
+                return false;
+            }
         }
-        // Check that there is atleast one correct answer
-        if (theForm.find("input.correct-checkbox:checked").length === 0) {
-            feedback.text("At least one answer must be marked as correct.").fadeIn();
-            errorMsg.hide().fadeIn();
-            return false;
+        if (qType === "1") {
+            // Check that there is atleast one correct answer
+            if (theForm.find("input.correct-checkbox:checked").length === 0) {
+                feedback.text("At least one answer must be marked as correct.").fadeIn();
+                errorMsg.hide().fadeIn();
+                return false;
+            }
         }
         return true;
     };
@@ -862,18 +917,28 @@ var IntVideo = (function () {
         $("#askQuestionModalTitle").html("<span id=\"askQuestionModalTitleText\">Question " + (_totalQuestions - _numberOfQuestionsRemaining) + "</span>" +
             "<span class=\"label label-default pull-right\">" + _formatPlayTime(question.questionTime) + "</span>");
         modalBody.append('<h4 class="question-text">' + question.questionText + '</h4>' +
-            '<input type="hidden" id="questionId" value="'+question.questionId+'">' +
-            '<div class="list-group answer-list">');
-        if (question.randomize === "1") {
-            _shuffle(question.answers);
+            '<input type="hidden" id="questionId" value="'+question.questionId+'">');
+        if (question.questionType === "1" || question.questionType === "4") {
+            modalBody.append('<div class="list-group answer-list">');
+            if (question.randomize === "1") {
+                _shuffle(question.answers);
+            }
+            for (var answer in question.answers) {
+                modalBody.append("<div class=\"list-group-item answer\">" +
+                    "<div class=\"checkbox sr-only\"><label><input type=\"checkbox\" class=\"correct-checkbox\" name=\"markedAnswer[]\" value=\"" + question.answers[answer].answerId + "\">"+question.answers[answer].answerText+"</label></div>" +
+                    "<span><button type=\"button\" class=\"btn btn-default answer-option\">" + question.answers[answer].answerText + "</button></span>" +
+                    "</div>");
+            }
+            modalBody.append('</div>');
+        } else if (question.questionType === "2") {
+            // short answer
+            modalBody.append(`
+                <div class="form-group">
+                    <label for="response" class="sr-only">Response</label>
+                    <textarea class="form-control" rows="3" id="response" name="response"></textarea>
+                </div> 
+            `);
         }
-        for (var answer in question.answers) {
-            modalBody.append("<div class=\"list-group-item answer\">" +
-            "<div class=\"checkbox sr-only\"><label><input type=\"checkbox\" class=\"correct-checkbox\" name=\"markedAnswer[]\" value=\"" + question.answers[answer].answerId + "\">"+question.answers[answer].answerText+"</label></div>" +
-            "<span><button type=\"button\" class=\"btn btn-default answer-option\">" + question.answers[answer].answerText + "</button></span>" +
-            "</div>");
-        }
-        modalBody.append('</div>');
     };
 
     _recordResponseAndCloseModal = function () {
@@ -888,6 +953,8 @@ var IntVideo = (function () {
         $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each( function () {
             answerIds.push($(this).val());
         });
+        let textArea = $("#response");
+        let response = textArea.length ? textArea.val() : "";
 
         // First persist responses
         $.ajax({
@@ -896,7 +963,8 @@ var IntVideo = (function () {
             dataType: "json",
             data: {
                 "questionId": questionId,
-                "answers": answerIds
+                "answers": answerIds,
+                "response": response
             },
             success: function(response) {
                 if (response.savestatus === 'success') {
@@ -919,26 +987,53 @@ var IntVideo = (function () {
                             questionModalTitle.text(questionModalTitle.text() + " Feedback");
                             let feedbackString = '';
                             if (correct) {
-                                feedbackString +=
-                                    '<div><h4><strong>Question:</strong></h4><h4>' + _questionArray[question].questionText + '</h4></div>' +
-                                    '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
-                                feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
-                                let noAnswerProvided = true;
-                                answerIds.forEach(function (id) {
-                                    for (var answer in _questionArray[question].answers) {
-                                        if(id === _questionArray[question].answers[answer].answerId){
-                                            noAnswerProvided = false;
-                                            feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                if (_questionArray[question].questionType === "1") {
+                                    feedbackString +=
+                                        '<h4><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
+                                        '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
+                                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                    let noAnswerProvided = true;
+                                    answerIds.forEach(function (id) {
+                                        for (var answer in _questionArray[question].answers) {
+                                            if(id === _questionArray[question].answers[answer].answerId){
+                                                noAnswerProvided = false;
+                                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                            }
                                         }
+                                    });
+                                    if(noAnswerProvided){
+                                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
                                     }
-                                });
-                                if(noAnswerProvided){
-                                    feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                                    feedbackString += '</div>';
+                                } else if (_questionArray[question].questionType === "2") {
+                                    feedbackString +=
+                                        '<h4>Thank you for your response.</h4>' +
+                                        '<div class="alert alert-info">' + _questionArray[question].correctFeedback + '</div>';
+                                } else if (_questionArray[question].questionType === "3") {
+                                    feedbackString +=
+                                        '<div class="alert alert-info">Acknowledged. Please continue the video.</div>';
+                                } else if (_questionArray[question].questionType === "4") {
+                                    feedbackString +=
+                                        '<h4><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
+                                        '<div class="alert alert-success">' +'<p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
+                                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                    let noAnswerProvided = true;
+                                    answerIds.forEach(function (id) {
+                                        for (var answer in _questionArray[question].answers) {
+                                            if(id === _questionArray[question].answers[answer].answerId){
+                                                noAnswerProvided = false;
+                                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                            }
+                                        }
+                                    });
+                                    if(noAnswerProvided){
+                                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                                    }
+                                    feedbackString += '</div>';
                                 }
-                                feedbackString += '</div>';
                             } else {
                                 feedbackString +=
-                                    '<div><h4><strong>Question: </strong></h4><h4>' + _questionArray[question].questionText + '</div></h4>';
+                                    '<h4><strong>Question: </strong>' + _questionArray[question].questionText + '</h4>';
                                 feedbackString +=
                                     '<div class="alert alert-danger">' +'<h3 class="feedback-header">Incorrect</h3><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
                                 feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';

@@ -1,35 +1,14 @@
 <?php
-$instructorMenu = array(
-    "build-video.php" => '<span aria-hidden="true" class="fa fa-lg fa-wrench"></span> Build Mode',
-    "results.php" => '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Video Results',
-    "play-video.php" => '<span aria-hidden="true" class="fa fa-lg fa-play-circle"></span> Preview Mode'
-);
-$studentMenu = array(
-    'play-video.php' => '<span aria-hidden="true" class="fa fa-lg fa-play-circle"></span> Play Mode'
-);
+$menu = new \Tsugi\UI\MenuSet();
+$menu->setHome('Interactive Video', 'index.php');
 
-if($USER->instructor) {
-    $menu = $instructorMenu;
+if ($USER->instructor) {
+    $menu->addRight('<span class="fas fa-user-graduate" aria-hidden="true"></span> Student View', 'play-video.php');
+    $menu->addRight('<span class="fas fa-table" aria-hidden="true"></span> Results', "results.php");
+    $menu->addRight('<span class="fas fa-edit" aria-hidden="true"></span> Build', 'build-video.php');
 } else {
+    $menu->addRight('<span class="fas fa-user-graduate" aria-hidden="true"></span> Play Video', 'play-video.php');
     if (isset($_SESSION["finished"]) && $_SESSION["finished"]) {
-        $studentMenu['student-results.php'] = '<span aria-hidden="true" class="fa fa-lg fa-table"></span> Results';
+        $menu->addRight('<span class="fas fa-table" aria-hidden="true"></span> Results', "results.php");
     }
-    $menu = $studentMenu;
 }
-?>
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="index.php">Interactive Video</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <?php foreach( $menu as $menupage => $menulabel ) : ?>
-                <li<?php if($menupage == basename($_SERVER['PHP_SELF'])){echo ' class="active"';} ?>>
-                    <a href="<?php echo $menupage ; ?>">
-                        <?php echo $menulabel ; ?>
-                    </a>
-                </li>
-            <?php endforeach ?>
-        </ul>
-    </div>
-</nav>
