@@ -19,20 +19,31 @@ if (isset($_POST["questionId"])) {
     $userId = $USER->id;
     $questionId = $_POST["questionId"];
 
-    // First clear previous response
-    $IV_DAO->deleteUserResponsesForQuestion($userId, $questionId);
-    $IV_DAO->deleteUserShortAnswerForQuestion($userId, $questionId);
-
-    // Record new response
-    if (isset($_POST["answers"]) && is_array($_POST["answers"])) {
-        foreach ($_POST["answers"] as $answerId) {
-            $IV_DAO->recordResponse($userId, $questionId, $answerId);
-        }
+    // Check for existing response
+    $hasResponded = $IV_DAO->hasStudentResponded($userId, $questionId);
+    $singleAttempt = $LAUNCH->link->settingsGet("singleattempt", false);
+    if ($singleAttempt == "1") {
+        $singleAttempt = true;
     }
 
-    // Record new short answer
-    if (isset($_POST["response"]) && $_POST["response"] !== '') {
-        $IV_DAO->recordShortAnswer($userId, $questionId, $_POST["response"]);
+    if (!$singleAttempt || !$hasResponded) {
+        // Only record new response when single attempt if student hasn't answered yet.
+
+        // First clear previous response
+        $IV_DAO->deleteUserResponsesForQuestion($userId, $questionId);
+        $IV_DAO->deleteUserShortAnswerForQuestion($userId, $questionId);
+
+        // Record new response
+        if (isset($_POST["answers"]) && is_array($_POST["answers"])) {
+            foreach ($_POST["answers"] as $answerId) {
+                $IV_DAO->recordResponse($userId, $questionId, $answerId);
+            }
+        }
+
+        // Record new short answer
+        if (isset($_POST["response"]) && $_POST["response"] !== '') {
+            $IV_DAO->recordShortAnswer($userId, $questionId, $_POST["response"]);
+        }
     }
 
     $question = $IV_DAO->getQuestionById($questionId);
@@ -46,7 +57,7 @@ if (isset($_POST["questionId"])) {
             if ($answer["is_correct"]) {
                 array_push($correctAnswers, $answer["answer_id"]);
             }
-            $response = $IV_DAO->getResponse($userId, $questionId, $answer["answer_id"]);
+            $response = in_array($answer["answer_id"], $_POST["answers"]);
             if ($answer["is_correct"] == 0 && $response) {
                 // Incorrect answer was chosen.
                 $correct = false;

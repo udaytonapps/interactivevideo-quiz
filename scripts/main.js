@@ -22,6 +22,8 @@ var IntVideo = (function () {
 
     var _questionInterval = null;
 
+    var _singleAttempt = 0;
+
     intVideo.initBuild = function (videoType, videoUrl, startTime = 0, endTime = 0) {
         let tag = document.createElement('script');
         if (videoType === typeEnum.YouTube) {
@@ -48,7 +50,7 @@ var IntVideo = (function () {
         intVideo.updateQuestionList(true);
     };
 
-    intVideo.initPlay = function (videoType, videoUrl, startTime = 0, endTime = 0) {
+    intVideo.initPlay = function (videoType, videoUrl, startTime = 0, endTime = 0, singleAttempt = 0) {
         var tag = document.createElement('script');
         if (videoType === typeEnum.YouTube) {
             _videoType = videoType;
@@ -64,6 +66,7 @@ var IntVideo = (function () {
         _videoUrl = videoUrl;
         _videoStart = startTime;
         _videoEnd = endTime;
+        _singleAttempt = singleAttempt;
 
         if (_videoType === typeEnum.YouTube) {
             intVideo.defaultYoutubeCaptions();
@@ -141,7 +144,7 @@ var IntVideo = (function () {
                     let currentPlayTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
                     for (let question in _questionArray) {
                         let questionTime = _questionArray[question].questionTime;
-                        if (currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
+                        if (_videoStart <= questionTime && currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
                             intVideo.wwPlayer('wwvideo').pause();
 
                             _questionArray[question].answered = true;
@@ -277,7 +280,7 @@ var IntVideo = (function () {
                 let currentPlayTime = Math.floor(intVideo.ytPlayer.getCurrentTime());
                 for (let question in _questionArray) {
                     let questionTime = _questionArray[question].questionTime;
-                    if (currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
+                    if (_videoStart <= questionTime && currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
                         intVideo.ytPlayer.pauseVideo();
 
                         _questionArray[question].answered = true;
@@ -952,6 +955,10 @@ var IntVideo = (function () {
                     <p id="emptyResponseWarning" class="alert alert-danger" style="margin-top:1rem;padding:0.5rem;display:none;">You must submit a response.</p>
                 </div> 
             `);
+        }
+        if (_singleAttempt === 1) {
+            // Add warning that student
+            modalBody.append('<p class="alert alert-warning" style="margin-top:1rem;padding:0.5rem;"><strong>Single Attempt:</strong> your instructor has set this video to "single attempt" so only your first response to each question will be recorded.</p>');
         }
     };
 

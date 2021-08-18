@@ -39,6 +39,9 @@ $OUTPUT->bodyStart();
 
 include("menu.php");
 
+$OUTPUT->topNav($menu);
+$OUTPUT->flashMessages();
+
 $video = $IV_DAO->getVideoInfoById($videoId);
 
 $questionsArray = array();

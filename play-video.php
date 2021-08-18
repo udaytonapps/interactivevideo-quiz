@@ -69,6 +69,11 @@ if (count($end_time) == 4) {
 }
 $endTimeSeconds = (intval($hours) * 3600) + (intval($minutes) * 60) + intval($seconds);
 
+$singleAttempt = $LTI->link->settingsGet("singleattempt", 0);
+if ($singleAttempt === "1") {
+    $singleAttempt = 1;
+}
+
 // Start of the output
 $OUTPUT->header();
 ?>
@@ -170,9 +175,9 @@ $OUTPUT->footerStart();
             <?php
             if ($finished) {
                 echo ('$("#continueModal").modal("show");');
-                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.'); });');
+                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.', '.$singleAttempt.'); });');
             } else {
-                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.');');
+                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.', '.$singleAttempt.');');
             }
             ?>
         });

@@ -9,6 +9,6 @@ if ($USER->instructor) {
 } else {
     $menu->addRight('<span class="fas fa-user-graduate" aria-hidden="true"></span> Play Video', 'play-video.php');
     if (isset($_SESSION["finished"]) && $_SESSION["finished"]) {
-        $menu->addRight('<span class="fas fa-table" aria-hidden="true"></span> Results', "results.php");
+        $menu->addRight('<span class="fas fa-table" aria-hidden="true"></span> Results', "student-results.php");
     }
 }

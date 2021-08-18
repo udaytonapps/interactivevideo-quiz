@@ -137,6 +137,21 @@ class IV_DAO {
         return $this->PDOX->rowDie($query, $arr);
     }
 
+    function hasStudentResponded($user_id, $question_id): bool
+    {
+        $query = "SELECT count(*) as num_responses FROM {$this->p}iv_response WHERE user_id = :userId AND question_id = :questionId;";
+        $arr = array(':userId' => $user_id, ':questionId' => $question_id);
+        $hasResponded = $this->PDOX->rowDie($query, $arr)["num_responses"] > 0;
+        if (!$hasResponded) {
+            // No MC response so check short answer
+            $shortAnswerResponse = $this->getShortAnswerResponse($user_id, $question_id);
+            if ($shortAnswerResponse && $shortAnswerResponse["response"] !== "") {
+                $hasResponded = true;
+            }
+        }
+        return $hasResponded;
+    }
+
     function getStudentsWithResponses($video_id) {
         $query = "SELECT DISTINCT r.user_id FROM {$this->p}iv_response r JOIN {$this->p}iv_question q ON r.question_id = q.question_id WHERE q.video_id = :videoId;";
         $arr = array(':videoId' => $video_id);
