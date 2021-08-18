@@ -170,7 +170,7 @@ $OUTPUT->footerStart();
             <?php
             if ($finished) {
                 echo ('$("#continueModal").modal("show");');
-                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'"); });');
+                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.'); });');
             } else {
                 echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.');');
             }
