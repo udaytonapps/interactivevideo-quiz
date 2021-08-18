@@ -35,6 +35,40 @@ $videoTitle = $video["video_title"];
 $finished = $IV_DAO->isStudentFinished($videoId, $USER->id);
 $_SESSION["finished"] = $finished;
 
+$videoStart = $LTI->link->settingsGet("starttime", "00");
+preg_match("/^([\d]{1,2})?\:?([\d]{1,2})?\:?([\d]{1,2})?$/", $videoStart, $str_time);
+$hours = 0;
+$minutes = 0;
+$seconds = 0;
+if (count($str_time) == 4) {
+    $hours = $str_time[1];
+    $minutes = $str_time[2];
+    $seconds = $str_time[3];
+} else if (count($str_time) == 3) {
+    $minutes = $str_time[1];
+    $seconds = $str_time[2];
+} else if (count($str_time) == 2) {
+    $seconds = $str_time[1];
+}
+$startTimeSeconds = (intval($hours) * 3600) + (intval($minutes) * 60) + intval($seconds);
+
+$videoEnd = $LTI->link->settingsGet("endtime", "00");
+preg_match("/^([\d]{1,2})?\:?([\d]{1,2})?\:?([\d]{1,2})?$/", $videoEnd, $end_time);
+$hours = 0;
+$minutes = 0;
+$seconds = 0;
+if (count($end_time) == 4) {
+    $hours = $end_time[1];
+    $minutes = $end_time[2];
+    $seconds = $end_time[3];
+} else if (count($end_time) == 3) {
+    $minutes = $end_time[1];
+    $seconds = $end_time[2];
+} else if (count($end_time) == 2) {
+    $seconds = $end_time[1];
+}
+$endTimeSeconds = (intval($hours) * 3600) + (intval($minutes) * 60) + intval($seconds);
+
 // Start of the output
 $OUTPUT->header();
 ?>
@@ -138,7 +172,7 @@ $OUTPUT->footerStart();
                 echo ('$("#continueModal").modal("show");');
                 echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'"); });');
             } else {
-                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'");');
+                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.');');
             }
             ?>
         });

@@ -10,6 +10,8 @@ var IntVideo = (function () {
 
     var _videoType = typeEnum.Warpwire;
     var _videoUrl = '';
+    var _videoStart = 0;
+    var _videoEnd = 0;
 
     var _numberOfAnswers = 0;
     var _numberOfQuestionsRemaining = 0;
@@ -20,7 +22,7 @@ var IntVideo = (function () {
 
     var _questionInterval = null;
 
-    intVideo.initBuild = function (videoType, videoUrl) {
+    intVideo.initBuild = function (videoType, videoUrl, startTime = 0, endTime = 0) {
         let tag = document.createElement('script');
         if (videoType === typeEnum.YouTube) {
             _videoType = videoType;
@@ -34,6 +36,8 @@ var IntVideo = (function () {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         _videoUrl = videoUrl;
+        _videoStart = startTime;
+        _videoEnd = endTime;
 
         _getEmbedForBuild();
 
@@ -44,7 +48,7 @@ var IntVideo = (function () {
         intVideo.updateQuestionList(true);
     };
 
-    intVideo.initPlay = function (videoType, videoUrl) {
+    intVideo.initPlay = function (videoType, videoUrl, startTime = 0, endTime = 0) {
         var tag = document.createElement('script');
         if (videoType === typeEnum.YouTube) {
             _videoType = videoType;
@@ -58,6 +62,9 @@ var IntVideo = (function () {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         _videoUrl = videoUrl;
+        _videoStart = startTime;
+        _videoEnd = endTime;
+
         if (_videoType === typeEnum.YouTube) {
             intVideo.defaultYoutubeCaptions();
         }
@@ -561,45 +568,47 @@ var IntVideo = (function () {
     };
 
     _getEmbedForBuild = function () {
+        let videoHtml = '<iframe id=';
         if (_videoType === typeEnum.Warpwire) {
-            $("#buildVideo").html(
-                '<iframe id="wwvideo" data-ww-id="wwvideo" src="'
-                + _videoUrl
-                + '" frameborder="0" scrolling="0" allowfullscreen></iframe>'
-            );
+            videoHtml += '"wwvideo" data-ww-id="wwvideo" src="' + _videoUrl + '?';
         } else if (_videoType === typeEnum.YouTube) {
             let youtubeID = _videoUrl.split('v=')[1];
             let ampersandPosition = youtubeID.indexOf('&');
             if(ampersandPosition !== -1) {
                 youtubeID = youtubeID.substring(0, ampersandPosition);
             }
-            $("#buildVideo").html(
-                '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
-                + youtubeID
-                + '?enablejsapi=1" frameborder="0" scrolling="0" allowfullscreen></iframe>'
-            );
+            videoHtml += '"ytvideo" src="https://www.youtube.com/embed/' + youtubeID + '?enablejsapi=1';
         }
+        if (_videoStart > 0) {
+            videoHtml += '&start=' + _videoStart;
+        }
+        if (_videoEnd > _videoStart) {
+            videoHtml += '&end=' + _videoEnd;
+        }
+        videoHtml += '" allowfullscreen></iframe>';
+        $("#buildVideo").html(videoHtml);
     };
 
     _getEmbedForPlay = function () {
+        let videoHtml = '<iframe id=';
         if (_videoType === typeEnum.Warpwire) {
-            $("#playVideo").html(
-                '<iframe id="wwvideo" data-ww-id="wwvideo" src="'
-                + _videoUrl
-                + '?share=0&title=0&controls=0" frameborder="0" scrolling="0" allowfullscreen></iframe>'
-            );
+            videoHtml += '"wwvideo" data-ww-id="wwvideo" src="' + _videoUrl + '?share=0&title=0&controls=0';
         } else if (_videoType === typeEnum.YouTube) {
             let youtubeID = _videoUrl.split('v=')[1];
             let ampersandPosition = youtubeID.indexOf('&');
             if(ampersandPosition !== -1) {
                 youtubeID = youtubeID.substring(0, ampersandPosition);
             }
-            $("#playVideo").html(
-                '<iframe id="ytvideo" src="https://www.youtube.com/embed/'
-                + youtubeID
-                + '?enablejsapi=1&amp;rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" scrolling="0" allowfullscreen></iframe>'
-            );
+            videoHtml += '"ytvideo" src="https://www.youtube.com/embed/' + youtubeID + '?enablejsapi=1&amp;rel=0&amp;controls=0&amp;showinfo=0';
         }
+        if (_videoStart > 0) {
+            videoHtml += '&start=' + _videoStart;
+        }
+        if (_videoEnd > _videoStart) {
+            videoHtml += '&end=' + _videoEnd;
+        }
+        videoHtml += '" allowfullscreen></iframe>';
+        $("#playVideo").html(videoHtml);
     };
 
     _setupAddQuestionForm = function () {
