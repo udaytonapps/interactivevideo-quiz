@@ -940,12 +940,20 @@ var IntVideo = (function () {
                 <div class="form-group">
                     <label for="response" class="sr-only">Response</label>
                     <textarea class="form-control" rows="3" id="response" name="response"></textarea>
+                    <p id="emptyResponseWarning" class="alert alert-danger" style="margin-top:1rem;padding:0.5rem;display:none;">You must submit a response.</p>
                 </div> 
             `);
         }
     };
 
     _recordResponseAndCloseModal = function () {
+        let responseWarning = $("#emptyResponseWarning");
+        responseWarning.hide();
+        let textArea = $("#response");
+        if (textArea.length && textArea.val() === "") {
+            responseWarning.fadeIn();
+            return false;
+        }
         let submitButton = $("#submitAnswerButton");
         submitButton.off("click").on("click", function(){$("#askQuestionModal").modal("hide");});
         submitButton.toggleClass("btn-primary btn-success");
@@ -957,7 +965,7 @@ var IntVideo = (function () {
         $('input[type="checkbox"][name="markedAnswer\\[\\]"]:checked').each( function () {
             answerIds.push($(this).val());
         });
-        let textArea = $("#response");
+
         let response = textArea.length ? textArea.val() : "";
 
         // First persist responses
