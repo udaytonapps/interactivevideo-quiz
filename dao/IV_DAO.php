@@ -1,6 +1,8 @@
 <?php
 namespace IV\DAO;
 
+use Exception;
+
 class IV_DAO {
 
     private $PDOX;
@@ -38,9 +40,24 @@ class IV_DAO {
     }
 
     function getVideoInfoById($video_id) {
-        $query = "SELECT video_type, video_url, video_title FROM {$this->p}iv_video WHERE video_id = :videoId;";
+        $query = "SELECT video_type, video_url, video_title, link_id FROM {$this->p}iv_video WHERE video_id = :videoId;";
         $arr = array(':videoId' => $video_id);
         return $this->PDOX->rowDie($query, $arr);
+    }
+
+    function getAllSettings($link_id) {
+        $row = $this->PDOX->rowDie("SELECT settings FROM {$this->p}lti_link WHERE link_id = :ID",
+            array(":ID" => $link_id));
+
+        if ( $row === false ) return array();
+        $json = $row['settings'];
+        if ( $json === null ) return array();
+        try {
+            $retval = json_decode($json, true);
+        } catch(Exception $e) {
+            $retval = array();
+        }
+        return $retval;
     }
 
     function getSortedQuestionsForVideo($video_id) {

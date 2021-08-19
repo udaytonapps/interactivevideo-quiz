@@ -30,7 +30,13 @@ if (!$video) {
 
 $videoType = $video["video_type"];
 $videoUrl = $video["video_url"];
-$videoTitle = $video["video_title"];
+
+$videoTitle = $LTI->link->settingsGet("videotitle", false);
+
+if (!$videoTitle) {
+    $LTI->link->settingsSet("videotitle", $video["video_title"]);
+    $videoTitle = $video["video_title"];
+}
 
 $finished = $IV_DAO->isStudentFinished($videoId, $USER->id);
 $_SESSION["finished"] = $finished;

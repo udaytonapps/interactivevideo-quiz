@@ -32,6 +32,21 @@ if ( $USER->instructor && isset($_POST["import-video"])) {
         }
     }
 
+    // Import settings from previous link
+    $allSettings = $IV_DAO->getAllSettings($previousVideo["link_id"]);
+    if (array_key_exists("videotitle", $allSettings)) {
+        $LAUNCH->link->settingsSet("videotitle", $allSettings["videotitle"]);
+    }
+    if (array_key_exists("singleattempt", $allSettings)) {
+        $LAUNCH->link->settingsSet("singleattempt", $allSettings["singleattempt"]);
+    }
+    if (array_key_exists("starttime", $allSettings)) {
+        $LAUNCH->link->settingsSet("starttime", $allSettings["starttime"]);
+    }
+    if (array_key_exists("endtime", $allSettings)) {
+        $LAUNCH->link->settingsSet("endtime", $allSettings["endtime"]);
+    }
+
     header( 'Location: '.addSession('../build-video.php') ) ;
     return;
 } else {
