@@ -142,13 +142,13 @@ var IntVideo = (function () {
             }).done( function () {
                 _questionInterval = setInterval(function () {
                     let currentPlayTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
-                    if (currentPlayTime < _videoStart) {
-                        intVideo.wwPlayer('wwvideo').seekTo(seconds);
-                        intVideo.wwPlayer('wwvideo').play();
-                    } else if (_videoEnd > _videoStart && currentPlayTime > _videoEnd) {
-                        let endTime = intVideo.wwPlayer('wwvideo').getDuration();
+                    if (currentPlayTime < parseInt(_videoStart)) {
+                        intVideo.wwPlayer('wwvideo').seekTo(parseInt(_videoStart));
+                    }
+                    if (parseInt(_videoEnd) > parseInt(_videoStart) && currentPlayTime > parseInt(_videoEnd)) {
+                        let endTime = Math.floor(intVideo.wwPlayer('wwvideo').getDuration()) - 1;
+                        _videoEnd = -1; // Set end time so that this only runs once
                         intVideo.wwPlayer('wwvideo').seekTo(endTime);
-                        intVideo.wwPlayer('wwvideo').play();
                     } else {
                         for (let question in _questionArray) {
                             let questionTime = _questionArray[question].questionTime;
@@ -964,7 +964,7 @@ var IntVideo = (function () {
                 </div> 
             `);
         }
-        if (_singleAttempt === 1) {
+        if (_singleAttempt === 1 && question.questionType !== "3") {
             // Add warning that student
             modalBody.append('<p class="alert alert-warning" style="margin-top:1rem;padding:0.5rem;"><strong>Single Attempt:</strong> your instructor has set this video to "single attempt" so only your first response to each question will be recorded.</p>');
         }
@@ -1025,34 +1025,36 @@ var IntVideo = (function () {
                             if (correct) {
                                 if (_questionArray[question].questionType === "1") {
                                     feedbackString +=
-                                        '<h4><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
-                                        '<div class="alert alert-success">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
-                                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                        '<h4 style="font-weight:normal;"><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
+                                        '<div class="alert alert-success" style="padding:0.5rem;">' +'<h3 class="feedback-header">Correct</h3><p><strong>' + _questionArray[question].correctFeedback + '</strong></p></div>';
+                                    feedbackString +='<h4>You Answered:</h4>';
                                     let noAnswerProvided = true;
                                     answerIds.forEach(function (id) {
                                         for (var answer in _questionArray[question].answers) {
                                             if(id === _questionArray[question].answers[answer].answerId){
                                                 noAnswerProvided = false;
-                                                feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                                feedbackString += '<p>' +  _questionArray[question].answers[answer].answerText + '</p>';
                                             }
                                         }
                                     });
                                     if(noAnswerProvided){
-                                        feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                                        feedbackString += '<p>' +  "No Answer" + '</p>';
                                     }
-                                    feedbackString += '</div>';
                                 } else if (_questionArray[question].questionType === "2") {
                                     feedbackString +=
-                                        '<h4>Thank you for your response.</h4>' +
-                                        '<div class="alert alert-info">' + _questionArray[question].correctFeedback + '</div>';
+                                        '<h4>Thank you for your response.</h4>';
+                                    if (_questionArray[question].correctFeedback !== null && _questionArray[question].correctFeedback !== "") {
+                                        feedbackString +=
+                                            '<div class="alert alert-info" style="padding:0.5rem;">' + _questionArray[question].correctFeedback + '</div>';
+                                    }
                                 } else if (_questionArray[question].questionType === "3") {
                                     feedbackString +=
-                                        '<div class="alert alert-info"><strong>Acknowledged.</strong> Please continue the video.</div>';
+                                        '<div class="alert alert-info" style="padding:0.5rem;">Press the "Continue Video" button to continue.</div>';
                                 } else if (_questionArray[question].questionType === "4") {
                                     feedbackString +=
-                                        '<h4><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
-                                        '<div class="alert alert-success">' +'<p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
-                                    feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                        '<h4 style="font-weight: normal"><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
+                                        '<div class="alert alert-success" style="padding:0.5rem;">' +'<p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
+                                    feedbackString +='</div><h4><strong>You Answered:</strong></h4></div>';
                                     let noAnswerProvided = true;
                                     answerIds.forEach(function (id) {
                                         for (var answer in _questionArray[question].answers) {
@@ -1069,27 +1071,26 @@ var IntVideo = (function () {
                                 }
                             } else {
                                 feedbackString +=
-                                    '<h4><strong>Question: </strong>' + _questionArray[question].questionText + '</h4>';
+                                    '<h4 style="font-weight: normal;"><strong>Question: </strong>' + _questionArray[question].questionText + '</h4>';
                                 feedbackString +=
-                                    '<div class="alert alert-danger">' +'<h3 class="feedback-header">Incorrect</h3><p class="spaceBelow"><strong>' + _questionArray[question].incorrectFeedback + '</strong></p>';
-                                feedbackString +='<div><h4><strong>You Answered:</strong></h4></div>';
+                                    '<div class="alert alert-danger" style="padding:0.5rem;">' +'<h3 class="feedback-header">Incorrect</h3><p><strong>' + _questionArray[question].incorrectFeedback + '</strong></p></div>';
+                                feedbackString +='<h4>You Answered:</h4>';
                                 let noAnswer = true;
                                 answerIds.forEach(function (id) {
                                     for (var answer in _questionArray[question].answers) {
                                         if(id === _questionArray[question].answers[answer].answerId){
                                             noAnswer = false;
-                                            feedbackString += '<div><p>' +  _questionArray[question].answers[answer].answerText + '</p></div>';
+                                            feedbackString += '<p>' +  _questionArray[question].answers[answer].answerText + '</p>';
                                         }
                                     }
                                 });
                                 if(noAnswer){
-                                    feedbackString += '<div><p>' +  "No Answer" + '</p></div></div>';
+                                    feedbackString += '<p>' +  "No Answer" + '</p>';
                                 }
-                                feedbackString += '</div>';
-                                feedbackString +='<div><h4><strong>Correct Answer(s):</strong></h4></div>';
+                                feedbackString +='<h4>Correct Answer(s):</h4>';
                                 for (let answer in _questionArray[question].answers) {
                                     if(response.correctAnswers.includes(_questionArray[question].answers[answer].answerId)) {
-                                        feedbackString += '<div><p>' + _questionArray[question].answers[answer].answerText + '</p></div>';
+                                        feedbackString += '<p>' + _questionArray[question].answers[answer].answerText + '</p>';
                                     }
                                 }
                             }

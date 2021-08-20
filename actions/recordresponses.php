@@ -57,7 +57,7 @@ if (isset($_POST["questionId"])) {
             if ($answer["is_correct"]) {
                 array_push($correctAnswers, $answer["answer_id"]);
             }
-            $response = in_array($answer["answer_id"], $_POST["answers"]);
+            $response = isset($_POST["answers"]) && is_array($_POST["answers"]) && in_array($answer["answer_id"], $_POST["answers"]);
             if ($answer["is_correct"] == 0 && $response) {
                 // Incorrect answer was chosen.
                 $correct = false;

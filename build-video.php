@@ -91,6 +91,8 @@ if (count($end_time) == 4) {
 }
 $endTimeSeconds = (intval($hours) * 3600) + (intval($minutes) * 60) + intval($seconds);
 
+$singleAttempt = $LTI->link->settingsGet("singleattempt", 0);
+
 // Start of the output
 $OUTPUT->header();
 ?>
@@ -111,10 +113,16 @@ $OUTPUT->pageTitle($videoTitle, false, true);
                     Loading video <span aria-hidden="true" class="fa fa-spinner fa-spin"></span>
                 </p>
             </div>
-            <p class="text-center" style="padding-top:1rem;" >
+            <p class="text-center pull-right" style="padding-top:1rem;" >
                 <a href="actions/deletevideo.php" class="h4 text-danger delete-video" onclick="return IntVideo.deleteVideoConfirm();">
                     <span class="fa fa-trash" aria-hidden="true" title="Delete Video"></span> Delete Video
                 </a>
+            </p>
+            <h4 style="margin-bottom:0;">Current Video Settings</h4>
+            <p>
+                <strong>Start Time: </strong><?= gmdate("H:i:s", $startTimeSeconds) ?><br>
+                <strong>End Time: </strong><?= ($endTimeSeconds > $startTimeSeconds) ? gmdate("H:i:s", $endTimeSeconds) : 'End of video' ?><br>
+                <?= $singleAttempt == 1 ? 'Only count first attempt for each question enabled.' : ''?><br>
             </p>
         </div>
         <div class="col-sm-4">
