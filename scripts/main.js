@@ -1053,7 +1053,7 @@ var IntVideo = (function () {
                                 } else if (_questionArray[question].questionType === "4") {
                                     feedbackString +=
                                         '<h4 style="font-weight: normal"><strong>Question:</strong> ' + _questionArray[question].questionText + '</h4>' +
-                                        '<div class="alert alert-success" style="padding:0.5rem;">' +'<p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
+                                        '<div class="alert alert-info" style="padding:0.5rem;">' +'<p><strong>' + _questionArray[question].correctFeedback + '</strong></p>';
                                     feedbackString +='</div><h4><strong>You Answered:</strong></h4></div>';
                                     let noAnswerProvided = true;
                                     answerIds.forEach(function (id) {
