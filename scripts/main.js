@@ -142,28 +142,36 @@ var IntVideo = (function () {
             }).done( function () {
                 _questionInterval = setInterval(function () {
                     let currentPlayTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
-                    for (let question in _questionArray) {
-                        let questionTime = _questionArray[question].questionTime;
-                        if (_videoStart <= questionTime && currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
-                            intVideo.wwPlayer('wwvideo').pause();
+                    if (currentPlayTime < _videoStart) {
+                        intVideo.wwPlayer('wwvideo').seekTo(seconds);
+                        intVideo.wwPlayer('wwvideo').play();
+                    } else if (_videoEnd > _videoStart && currentPlayTime > _videoEnd) {
+                        let endTime = intVideo.wwPlayer('wwvideo').getDuration();
+                        intVideo.wwPlayer('wwvideo').seekTo(endTime);
+                        intVideo.wwPlayer('wwvideo').play();
+                    } else {
+                        for (let question in _questionArray) {
+                            let questionTime = _questionArray[question].questionTime;
+                            if (_videoStart <= questionTime && currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
+                                intVideo.wwPlayer('wwvideo').pause();
 
-                            _questionArray[question].answered = true;
-                            _numberOfQuestionsRemaining--;
+                                _questionArray[question].answered = true;
+                                _numberOfQuestionsRemaining--;
 
-                            _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
-                            $("button.answer-option").off("click").on("click", _markAsCorrect);
-                            _questionModal.modal({
-                                backdrop: 'static',
-                                keyboard: false
-                            });
-                            let submitButton = $("#submitAnswerButton");
-                            submitButton.removeClass("btn-success");
-                            submitButton.addClass("btn-primary");
-                            submitButton.off("click").on("click", _recordResponseAndCloseModal);
-                            submitButton.text("Submit");
+                                _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
+                                $("button.answer-option").off("click").on("click", _markAsCorrect);
+                                _questionModal.modal({
+                                    backdrop: 'static',
+                                    keyboard: false
+                                });
+                                let submitButton = $("#submitAnswerButton");
+                                submitButton.removeClass("btn-success");
+                                submitButton.addClass("btn-primary");
+                                submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                                submitButton.text("Submit");
+                            }
                         }
                     }
-
                     $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
                     _updateNextCountdown(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration());
                 }, 1000);
