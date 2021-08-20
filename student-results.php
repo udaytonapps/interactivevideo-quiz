@@ -44,6 +44,13 @@ $OUTPUT->flashMessages();
 
 $video = $IV_DAO->getVideoInfoById($videoId);
 
+$videoTitle = $LTI->link->settingsGet("videotitle", false);
+
+if (!$videoTitle) {
+    $LTI->link->settingsSet("videotitle", $video["video_title"]);
+    $videoTitle = $video["video_title"];
+}
+
 $questionsArray = array();
 
 $questions = $IV_DAO->getSortedQuestionsForVideo($videoId);
@@ -61,7 +68,7 @@ if ($USER->instructor) {
 }
 
 echo ('<div class="row"><div class="col-sm-8">
-            <h3 class="video-title">'.$video["video_title"].'</h3>');
+            <h3 class="video-title">'.$videoTitle.'</h3>');
 
 $questionNumber = 0;
 $totalCorrect = 0;
