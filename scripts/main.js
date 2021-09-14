@@ -887,9 +887,16 @@ var IntVideo = (function () {
         feedback.hide();
         // Check if video time is > duration or less than 0
         var videoTime = videoTimeInput;
-        if (parseInt(videoTime.val()) > duration || parseInt(videoTime.val()) < 0) {
+        if (parseInt(videoTime.val()) > duration ||
+            (_videoEnd > _videoStart && parseInt(videoTime.val()) >= _videoEnd) ||
+            parseInt(videoTime.val()) < 0 ||
+            parseInt(videoTime.val()) < _videoStart) {
             videoTime.parent().parent("div.form-group").addClass("has-error");
-            feedback.text("The question must appear during the video. Enter a whole number between 0 and "+ duration + " seconds.").fadeIn();
+            let endtime = duration;
+            if (_videoEnd > _videoStart) {
+                endtime = _videoEnd;
+            }
+            feedback.text("The question must appear during the video. Enter a whole number between " + _videoStart + " and " + endtime + " seconds.").fadeIn();
             errorMsg.hide().fadeIn();
             return false
         }
