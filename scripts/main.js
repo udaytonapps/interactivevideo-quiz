@@ -142,25 +142,34 @@ var IntVideo = (function () {
             }).done( function () {
                 _questionInterval = setInterval(function () {
                     let currentPlayTime = Math.floor(intVideo.wwPlayer('wwvideo').getCurrentTime());
-                    for (let question in _questionArray) {
-                        let questionTime = _questionArray[question].questionTime;
-                        if (_videoStart <= questionTime && currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
-                            intVideo.wwPlayer('wwvideo').pause();
+                    if (currentPlayTime < parseInt(_videoStart)) {
+                        intVideo.wwPlayer('wwvideo').seekTo(parseInt(_videoStart));
+                    }
+                    if (parseInt(_videoEnd) > parseInt(_videoStart) && currentPlayTime > parseInt(_videoEnd)) {
+                        let endTime = Math.floor(intVideo.wwPlayer('wwvideo').getDuration()) - 1;
+                        _videoEnd = -1; // Set end time so that this only runs once
+                        intVideo.wwPlayer('wwvideo').seekTo(endTime);
+                    } else {
+                        for (let question in _questionArray) {
+                            let questionTime = _questionArray[question].questionTime;
+                            if (_videoStart <= questionTime && currentPlayTime >= parseInt(questionTime, 10) && _questionArray[question].answered === false) {
+                                intVideo.wwPlayer('wwvideo').pause();
 
-                            _questionArray[question].answered = true;
-                            _numberOfQuestionsRemaining--;
+                                _questionArray[question].answered = true;
+                                _numberOfQuestionsRemaining--;
 
-                            _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
-                            $("button.answer-option").off("click").on("click", _markAsCorrect);
-                            _questionModal.modal({
-                                backdrop: 'static',
-                                keyboard: false
-                            });
-                            let submitButton = $("#submitAnswerButton");
-                            submitButton.removeClass("btn-success");
-                            submitButton.addClass("btn-primary");
-                            submitButton.off("click").on("click", _recordResponseAndCloseModal);
-                            submitButton.text("Submit");
+                                _addQuestionToModal(_questionModal.find("#askQuestionModalBody"), _questionArray[question]);
+                                $("button.answer-option").off("click").on("click", _markAsCorrect);
+                                _questionModal.modal({
+                                    backdrop: 'static',
+                                    keyboard: false
+                                });
+                                let submitButton = $("#submitAnswerButton");
+                                submitButton.removeClass("btn-success");
+                                submitButton.addClass("btn-primary");
+                                submitButton.off("click").on("click", _recordResponseAndCloseModal);
+                                submitButton.text("Submit");
+                            }
                         }
                     }
                     $("#currentPlayTime").text(_updateCurrentPlayTime(currentPlayTime, intVideo.wwPlayer('wwvideo').getDuration()));
