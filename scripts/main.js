@@ -615,7 +615,7 @@ var IntVideo = (function () {
         if (_videoStart > 0) {
             videoHtml += '&start=' + _videoStart;
         }
-        if (_videoEnd > _videoStart) {
+        if (_videoEnd > _videoStart && _videoType !== typeEnum.Warpwire) {
             videoHtml += '&end=' + _videoEnd;
         }
         videoHtml += '" allowfullscreen></iframe>';
