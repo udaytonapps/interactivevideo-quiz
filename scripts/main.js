@@ -448,6 +448,10 @@ var IntVideo = (function () {
     intVideo.defaultYoutubeCaptions = function () {
         if(intVideo.ytPlayer != null) {
             intVideo.ytPlayer.loadModule("captions");
+            intVideo.ytPlayer.loadModule("cc");
+            intVideo.ytPlayer.setOption("captions", 'track', {
+                'languageCode': 'en'
+            });
         }
     };
 
@@ -470,16 +474,17 @@ var IntVideo = (function () {
                 }
             }
         } else if (_videoType === typeEnum.YouTube) {
-            let fullButton = document.getElementById('fullScreenButton');
-            if(fullButton.getAttribute("captions")=="true"){
+            let captionBtn = document.getElementById('captionButton');
+            if(captionBtn.getAttribute("data-captions")==="true"){
                 intVideo.ytPlayer.unloadModule("captions");
-                fullButton.setAttribute("captions", "false");
+                intVideo.ytPlayer.unloadModule("cc");
+                captionBtn.setAttribute("data-captions", "false");
                 document.getElementById("captionButton").classList.remove('btn-icon-selected');
-                document.getElementById("captionButton").classList.add('btn-icon');
                 document.getElementById("captionButton").classList.add('btn-icon');
             }else{
                 intVideo.ytPlayer.loadModule("captions");
-                fullButton.setAttribute("captions", "true");
+                intVideo.ytPlayer.loadModule("cc");
+                captionBtn.setAttribute("data-captions", "true");
                 document.getElementById("captionButton").classList.remove('btn-icon');
                 document.getElementById("captionButton").classList.add('btn-icon-selected');
             }
@@ -610,7 +615,7 @@ var IntVideo = (function () {
             if(ampersandPosition !== -1) {
                 youtubeID = youtubeID.substring(0, ampersandPosition);
             }
-            videoHtml += '"ytvideo" src="https://www.youtube.com/embed/' + youtubeID + '?enablejsapi=1&amp;rel=0&amp;controls=0&amp;showinfo=0';
+            videoHtml += '"ytvideo" src="https://www.youtube.com/embed/' + youtubeID + '?enablejsapi=1&amp;rel=0&amp;controls=0&amp;showinfo=0&amp;cc_load_policy=1&amp;modestbranding=1';
         }
         if (_videoStart > 0) {
             videoHtml += '&start=' + _videoStart;

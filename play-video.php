@@ -134,10 +134,10 @@ if ($finished) {
                     <button id="backTen" class="btn btn-warning" disabled="disabled" onclick="IntVideo.backTenSeconds()">
                         <span class="fa fa-undo" aria-hidden="true" title="Back Ten Seconds"></span> 10<span class="sr-only">Back 10 Seconds</span>
                     </button>
-                    <button id="captionButton" class="btn btn-icon"  onclick="IntVideo.toggleCaptions()">
+                    <button id="captionButton" data-captions="true" class="btn btn-icon"  onclick="IntVideo.toggleCaptions()">
                         <span class="fa fa-cc " aria-hidden="true" title="Captions"></span><span class="sr-only">Turn Captions On/Off</span>
                     </button>
-                    <button id="fullScreenButton" class="btn btn-icon"  captions = "true" onclick="IntVideo.toggleFullScreen()">
+                    <button id="fullScreenButton" class="btn btn-icon" onclick="IntVideo.toggleFullScreen()">
                         <span id="fullScreenSpan" class="fa fa-expand" aria-hidden="true" title="FullScreen"></span><span class="sr-only">Full Screen</span>
                     </button>
                     <span class="pull-right" id="currentPlayTime"></span>
