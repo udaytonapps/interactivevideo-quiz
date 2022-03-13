@@ -14,7 +14,6 @@ $IV_DAO = new IV_DAO($PDOX, $p);
 
 // Start of the output
 $OUTPUT->header();
-$OUTPUT->topNav($menu);
 ?>
     <!-- Our main css file that overrides default Tsugi styling -->
     <link rel="stylesheet" type="text/css" href="styles/main.css">
@@ -22,6 +21,9 @@ $OUTPUT->topNav($menu);
 $OUTPUT->bodyStart();
 
 include("menu.php");
+
+$OUTPUT->topNav($menu);
+$OUTPUT->flashMessages();
 
 $videoId = $IV_DAO->getVideoId($CONTEXT->id, $LINK->id);
 
