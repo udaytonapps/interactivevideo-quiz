@@ -105,3 +105,17 @@ $DATABASE_INSTALL = array(
     PRIMARY KEY(finished_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8")
 );
+
+$DATABASE_UPGRADE = function($oldversion) {
+    global $CFG, $PDOX;
+
+    // Add question type column
+    if (!$PDOX->columnExists('q_type', "{$CFG->dbprefix}iv_question")) {
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_question ADD q_type TINYINT NOT NULL DEFAULT 1";
+        echo("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+
+    return '202203131300';
+};
