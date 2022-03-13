@@ -30,10 +30,55 @@ if (!$video) {
 
 $videoType = $video["video_type"];
 $videoUrl = $video["video_url"];
-$videoTitle = $video["video_title"];
+
+$videoTitle = $LTI->link->settingsGet("videotitle", false);
+
+if (!$videoTitle) {
+    $LTI->link->settingsSet("videotitle", $video["video_title"]);
+    $videoTitle = $video["video_title"];
+}
 
 $finished = $IV_DAO->isStudentFinished($videoId, $USER->id);
 $_SESSION["finished"] = $finished;
+
+$videoStart = $LTI->link->settingsGet("starttime", "00");
+preg_match("/^([\d]{1,2})?\:?([\d]{1,2})?\:?([\d]{1,2})?$/", $videoStart, $str_time);
+$hours = 0;
+$minutes = 0;
+$seconds = 0;
+if (count($str_time) == 4) {
+    $hours = $str_time[1];
+    $minutes = $str_time[2];
+    $seconds = $str_time[3];
+} else if (count($str_time) == 3) {
+    $minutes = $str_time[1];
+    $seconds = $str_time[2];
+} else if (count($str_time) == 2) {
+    $seconds = $str_time[1];
+}
+$startTimeSeconds = (intval($hours) * 3600) + (intval($minutes) * 60) + intval($seconds);
+
+$videoEnd = $LTI->link->settingsGet("endtime", "00");
+preg_match("/^([\d]{1,2})?\:?([\d]{1,2})?\:?([\d]{1,2})?$/", $videoEnd, $end_time);
+$hours = 0;
+$minutes = 0;
+$seconds = 0;
+if (count($end_time) == 4) {
+    $hours = $end_time[1];
+    $minutes = $end_time[2];
+    $seconds = $end_time[3];
+} else if (count($end_time) == 3) {
+    $minutes = $end_time[1];
+    $seconds = $end_time[2];
+} else if (count($end_time) == 2) {
+    $seconds = $end_time[1];
+}
+$endTimeSeconds = (intval($hours) * 3600) + (intval($minutes) * 60) + intval($seconds);
+
+$singleAttempt = $LTI->link->settingsGet("singleattempt", 0);
+if ($singleAttempt === "1") {
+    $singleAttempt = 1;
+}
 
 // Start of the output
 $OUTPUT->header();
@@ -44,6 +89,8 @@ $OUTPUT->header();
 $OUTPUT->bodyStart();
 
 include("menu.php");
+$OUTPUT->topNav($menu);
+$OUTPUT->flashMessages();
 
 if ($finished) {
     ?>
@@ -52,7 +99,7 @@ if ($finished) {
             <div class="modal-content">
                 <div class="modal-body" id="tryAgainBody">
                     <h3>You have already finished watching this video.</h3>
-                    <p>Click continue to rewatch this video with questions. Any questions you answer will override your previous answers.</p>
+                    <p>Click continue to re-watch this video with questions. Any questions you answer will override your previous answers.</p>
                     <p><a href="<?php echo $videoUrl ?>" target="_blank" title="Link to video without questions">Click here to watch this video without the questions.</a></p>
                 </div>
                 <div class="modal-footer">
@@ -64,7 +111,6 @@ if ($finished) {
     <?php
 }
 ?>
-<div class="container-fluid">
     <div class="row">
         <div class="col-sm-12 col-md-9">
             <span class="h3 video-title"><?php echo $videoTitle ?></span>
@@ -88,10 +134,10 @@ if ($finished) {
                     <button id="backTen" class="btn btn-warning" disabled="disabled" onclick="IntVideo.backTenSeconds()">
                         <span class="fa fa-undo" aria-hidden="true" title="Back Ten Seconds"></span> 10<span class="sr-only">Back 10 Seconds</span>
                     </button>
-                    <button id="captionButton" class="btn btn-icon"  onclick="IntVideo.toggleCaptions()">
+                    <button id="captionButton" data-captions="true" class="btn btn-icon"  onclick="IntVideo.toggleCaptions()">
                         <span class="fa fa-cc " aria-hidden="true" title="Captions"></span><span class="sr-only">Turn Captions On/Off</span>
                     </button>
-                    <button id="fullScreenButton" class="btn btn-icon"  captions = "true" onclick="IntVideo.toggleFullScreen()">
+                    <button id="fullScreenButton" class="btn btn-icon" onclick="IntVideo.toggleFullScreen()">
                         <span id="fullScreenSpan" class="fa fa-expand" aria-hidden="true" title="FullScreen"></span><span class="sr-only">Full Screen</span>
                     </button>
                     <span class="pull-right" id="currentPlayTime"></span>
@@ -107,7 +153,6 @@ if ($finished) {
             </div>
         </div>
     </div>
-</div>
     <div id="askQuestionModal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content move-modal-down">
@@ -136,9 +181,9 @@ $OUTPUT->footerStart();
             <?php
             if ($finished) {
                 echo ('$("#continueModal").modal("show");');
-                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'"); });');
+                echo ('$("#continueModal").on("hide.bs.modal", function () { IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.', '.$singleAttempt.'); });');
             } else {
-                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'");');
+                echo ('IntVideo.initPlay('.$videoType.', "'.$videoUrl.'", '.$startTimeSeconds.', '.$endTimeSeconds.', '.$singleAttempt.');');
             }
             ?>
         });

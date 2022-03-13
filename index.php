@@ -22,21 +22,23 @@ $OUTPUT->bodyStart();
 
 include("menu.php");
 
+$OUTPUT->topNav($menu);
+$OUTPUT->flashMessages();
+
 $videoId = $IV_DAO->getVideoId($CONTEXT->id, $LINK->id);
 
 if (!$videoId) {
     // No video id in the database so ask for URL
-    echo('<div class="container-flud">');
     if ($USER->instructor) {
         // Show the enter URL form
         ?>
         <div class="row">
-            <div class="col-sm-6 col-sm-offset-1" style="border-right: 1px solid #ccc;">
+            <div class="col-sm-7" style="border-right: 1px solid #ccc;">
                 <form method="post" action="actions/addvideo.php" id="addVideoForm">
                     <!-- TODO: This form uses two inputs for video url and can be simplified to a shared one.
                          TODO: Validate video url -->
-                    <h3>Create a new interactive video</h3>
-                    <p>Add a Warpwire or YouTube video URL below to begin creating your interactive video.</p>
+                    <h3 class="text-center">Create a new interactive video</h3>
+                    <p class="text-center">Add a Warpwire or YouTube video URL below to begin creating your interactive video.</p>
 
                     <div class="form-group">
                         <label for="videoTitle">Video Title</label>
@@ -81,13 +83,13 @@ if (!$videoId) {
                     <button type="submit" class="btn btn-success">Create</button> <span class="text-danger" id="blankUrlAlert" style="display:none;"><span aria-hidden="true" class="fa fa-warning"></span> You must enter a video url to continue.</span>
                 </form>
             </div>
-            <div class="col-sm-4">
-                <h3>Reuse an existing interactive video</h3>
-                <p>You can select a video from the list below to use a previously created video and questions.</p>
+            <div class="col-sm-5">
+                <h3 class="text-center">Reuse an existing interactive video</h3>
+                <p class="text-center">You can select a video from the list below to use a previously created video and questions.</p>
                 <?php
                 $previousVideos = $IV_DAO->findVideosForImport($USER->id);
                 if (!$previousVideos) {
-                    echo '<p>No previous videos available for import.</p>';
+                    echo '<p class="text-center">No previous videos available for import.</p>';
                 } else {
                     $videoMap = array();
                     foreach ($previousVideos as $video) {
@@ -128,7 +130,6 @@ if (!$videoId) {
         </div>
         <?php
     }
-    echo('</div>');
 } else {
     // Video has been set so go to video page.
     $_SESSION["videoId"] = $videoId;

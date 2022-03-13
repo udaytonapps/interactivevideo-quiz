@@ -16,6 +16,11 @@ if ( $USER->instructor ) {
 
     if (isset($_SESSION["videoId"])) {
         $IV_DAO->deleteVideoAndQuestions($_SESSION["videoId"]);
+
+        // clear start and end time settings
+        $LAUNCH->link->settingsSet("starttime", "00");
+        $LAUNCH->link->settingsSet("endtime", "00");
+
         $_SESSION["videoId"] = -1;
         header( 'Location: '.addSession('../index.php') ) ;
         return;

@@ -19,4 +19,6 @@ if (isset($_SESSION["videoId"])) {
     $IV_DAO->createFinishRecordIfNotExist($videoId, $userId);
 
     echo $IV_DAO->markStudentAsFinished($videoId, $userId);
+} else {
+    $_SESSION["error"] = "Unable to mark finished due to unset video id.";
 }

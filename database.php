@@ -25,6 +25,7 @@ $DATABASE_INSTALL = array(
     question_id   INTEGER NOT NULL AUTO_INCREMENT,
     video_id      INTEGER NOT NULL,
     q_time        INTEGER NOT NULL,
+    q_type        TINYINT NOT NULL DEFAULT 1,
     q_text        TEXT NULL,
     randomize     BOOL NOT NULL DEFAULT 0,
     correct_fb    TEXT NULL,
@@ -72,6 +73,20 @@ $DATABASE_INSTALL = array(
     UNIQUE(user_id, question_id, answer_id),
     PRIMARY KEY(response_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
+    array( "{$CFG->dbprefix}iv_shortanswer",
+        "create table {$CFG->dbprefix}iv_shortanswer (
+    shortanswer_id      INTEGER NOT NULL AUTO_INCREMENT,
+    user_id             INTEGER NOT NULL,
+    question_id         INTEGER NOT NULL,
+    response            TEXT NULL,
+
+    CONSTRAINT `{$CFG->dbprefix}iv_shortanswer_ibfk_1`
+        FOREIGN KEY (`question_id`)
+        REFERENCES `{$CFG->dbprefix}iv_question` (`question_id`)
+        ON DELETE CASCADE,
+        
+    PRIMARY KEY(shortanswer_id)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8"),
     array( "{$CFG->dbprefix}iv_finished",
         "create table {$CFG->dbprefix}iv_finished (
     finished_id       INTEGER NOT NULL AUTO_INCREMENT,
@@ -90,3 +105,17 @@ $DATABASE_INSTALL = array(
     PRIMARY KEY(finished_id)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8")
 );
+
+$DATABASE_UPGRADE = function($oldversion) {
+    global $CFG, $PDOX;
+
+    // Add question type column
+    if (!$PDOX->columnExists('q_type', "{$CFG->dbprefix}iv_question")) {
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_question ADD q_type TINYINT NOT NULL DEFAULT 1";
+        echo("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+
+    return '202203131300';
+};

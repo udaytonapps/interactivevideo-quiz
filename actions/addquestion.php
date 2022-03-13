@@ -19,17 +19,18 @@ if ( $USER->instructor ) {
     // Add the Question
     $questionTime = $_POST['videoTime'];
     $questionText = $_POST['questionText'];
+    $questionType = $_POST['questionType'] ?? 1;
     $randomize = isset($_POST['randomize']) ? 1 : 0;
     $correctFeedback = isset($_POST['correctFeedback']) ? $_POST['correctFeedback'] : "";
     $incorrectFeedback = isset($_POST['incorrectFeedback']) ? $_POST['incorrectFeedback'] : "";
 
     if ($_POST["questionId"] == -1) {
         // This is a new question
-        $questionId = $IV_DAO->addQuestion($videoId, $questionTime, $questionText, $correctFeedback, $incorrectFeedback, $randomize);
+        $questionId = $IV_DAO->addQuestion($videoId, $questionTime, $questionType, $questionText, $correctFeedback, $incorrectFeedback, $randomize);
     } else {
         // Update existing question
         $questionId = $_POST["questionId"];
-        $IV_DAO->updateQuestion($questionId, $questionTime, $questionText, $correctFeedback, $incorrectFeedback, $randomize);
+        $IV_DAO->updateQuestion($questionId, $questionTime, $questionType, $questionText, $correctFeedback, $incorrectFeedback, $randomize);
     }
 
     // First delete "removed" answers

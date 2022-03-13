@@ -25,18 +25,22 @@ if (isset($_SESSION["videoId"])) {
     foreach ($questions as $question) {
         $questionNumber++;
 
-        // Get answers for question
-        $answers = $IV_DAO->getSortedAnswersForQuestion($question["question_id"]);
-        $correct = true;
-        foreach ($answers as $answer) {
-            $response = $IV_DAO->getResponse($userId, $question["question_id"], $answer["answer_id"]);
-            if ($answer["is_correct"] == 0 && $response) {
-                // Incorrect answer was chosen.
-                $correct = false;
-            } else if ($answer["is_correct"] == 1 && !$response) {
-                // Correct answer wasn't chosen.
-                $correct = false;
+        if ($question["q_type"] == "1") {
+            // Get answers for question
+            $answers = $IV_DAO->getSortedAnswersForQuestion($question["question_id"]);
+            $correct = true;
+            foreach ($answers as $answer) {
+                $response = $IV_DAO->getResponse($userId, $question["question_id"], $answer["answer_id"]);
+                if ($answer["is_correct"] == 0 && $response) {
+                    // Incorrect answer was chosen.
+                    $correct = false;
+                } else if ($answer["is_correct"] == 1 && !$response) {
+                    // Correct answer wasn't chosen.
+                    $correct = false;
+                }
             }
+        } else {
+            $correct = true;
         }
 
         if ($correct) {

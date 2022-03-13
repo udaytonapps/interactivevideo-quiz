@@ -30,10 +30,11 @@ $OUTPUT->header();
 $OUTPUT->bodyStart();
 
 include("menu.php");
+$OUTPUT->topNav($menu);
+$OUTPUT->flashMessages();
 
 if ($USER->instructor) {
-    echo('<div class="container-fluid">
-            <h3>Video Results</h3>');
+    echo('<h3>Video Results</h3>');
 
     echo('<div class="row"><div class="col-sm-6"><div class="table-responsive">
             <table class="table table-bordered table-striped">
@@ -135,7 +136,7 @@ if ($USER->instructor) {
     echo ("</tbody>
            </table>
            </div></div>
-           </div></div>");
+           </div>");
 
 } else {
     header( 'Location: '.addSession('play-video.php') ) ;
