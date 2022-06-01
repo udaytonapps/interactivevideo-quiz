@@ -36,9 +36,9 @@ $OUTPUT->flashMessages();
 if ($USER->instructor) {
     echo('<h3>Video Results</h3>');
 
-    echo('<div class="row"><div class="col-sm-6"><div class="table-responsive">
+    echo('<div class="row"><div class="col-sm-12"><div class="table-responsive">
             <table class="table table-bordered table-striped">
-            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Started Video</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th></tr></thead>
+            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Video Started</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th><th class="col-md-2 text-center">Start Time</th><th class="col-md-2 text-center">Finish Time</th><th class="col-md-2 text-center">Answer Updated</th></tr></thead>
             <tbody>');
 
         $hasRosters = LTIX::populateRoster(false);
@@ -100,6 +100,12 @@ if ($USER->instructor) {
 
                 $startedVideo = $IV_DAO->hasStudentStarted($videoId, $userId);
 
+                $startedAt = $IV_DAO->getStudentStartedAt($videoId, $userId);
+
+                $finishedAt = $IV_DAO->getStudentFinishedAt($videoId, $userId);
+
+                $updatedAt = $IV_DAO->getStudentUpdatedAt($videoId, $userId);
+
                 $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
 
                 $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
@@ -127,9 +133,34 @@ if ($USER->instructor) {
                 } else {
                     echo('<span class="fa fa-lg fa-times text-danger"></span>');
                 }
-
+                
                 echo('</td>
                 <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td>
+                <td class="text-center">');
+                
+                if ($startedAt) {
+                    echo('<span>'. date("m/d/y g:i a", strtotime($startedAt)) .'</span>');
+                } else {
+                    echo('<span>-</span>');
+                }
+                
+                echo('</td><td class="text-center">');
+                
+                if ($finishedAt) {
+                    echo('<span>'. date("m/d/y g:i a", strtotime($finishedAt)) .'</span>');
+                } else {
+                    echo('<span>-</span>');
+                }
+                
+                echo('</td><td class="text-center">');
+                
+                if ($updatedAt) {
+                    echo('<span>'. date("m/d/y g:i a", strtotime($updatedAt)) .'</span>');
+                } else {
+                    echo('<span>-</span>');
+                }
+                
+                echo('</td>
                 </tr>');
             }
         }
