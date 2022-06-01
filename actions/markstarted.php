@@ -17,3 +17,4 @@ $videoId = $_SESSION["videoId"];
 $IV_DAO->createFinishRecordIfNotExist($videoId, $userId);
 
 $IV_DAO->markStudentAsStarted($videoId, $userId);
+$IV_DAO->setStudentStartedAt($videoId, $userId);
