@@ -38,7 +38,7 @@ if ($USER->instructor) {
 
     echo('<div class="row"><div class="col-sm-12"><div class="table-responsive">
             <table class="table table-bordered table-striped">
-            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Video Started</th><th class="col-md-2 text-center">Finished Video</th><th class="col-md-2 text-center">Correct Answers</th><th class="col-md-2 text-center">Start Time</th><th class="col-md-2 text-center">Finish Time</th><th class="col-md-2 text-center">Answer Updated</th></tr></thead>
+            <thead><tr><th class="col-md-4">Student Name</th><th class="col-md-2 text-center">Started</th><th class="col-md-2 text-center">Finished</th><th class="col-md-2 text-center">Correct Answers</th><th class="col-md-2 text-left">Start Time</th><th class="col-md-2 text-left">Finish Time</th><th class="col-md-2 text-left">Last Activity</th></tr></thead>
             <tbody>');
 
         $hasRosters = LTIX::populateRoster(false);
@@ -135,33 +135,28 @@ if ($USER->instructor) {
                 }
                 
                 echo('</td>
-                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td>
-                <td class="text-center">');
+                <td style="text-align: center">' . $num_correct . '/' . $question_count . '</td>');
                 
                 if ($startedAt) {
-                    echo('<span>'. date("m/d/y g:i a", strtotime($startedAt)) .'</span>');
+                    echo('<td class="text-left"><span>'. date("m/d/y g:i a", strtotime($startedAt)) .'</span></td>');
                 } else {
-                    echo('<span>-</span>');
+                    echo('<td class="text-center"><span>-</span></td>');
                 }
-                
-                echo('</td><td class="text-center">');
+            
                 
                 if ($finishedAt) {
-                    echo('<span>'. date("m/d/y g:i a", strtotime($finishedAt)) .'</span>');
+                    echo('<td class="text-left"><span>'. date("m/d/y g:i a", strtotime($finishedAt)) .'</span></td>');
                 } else {
-                    echo('<span>-</span>');
+                    echo('<td class="text-center"><span>-</span></td>');
                 }
-                
-                echo('</td><td class="text-center">');
                 
                 if ($updatedAt) {
-                    echo('<span>'. date("m/d/y g:i a", strtotime($updatedAt)) .'</span>');
+                    echo('<td class="text-left"><span>'. date("m/d/y g:i a", strtotime($updatedAt)) .'</span></td>');
                 } else {
-                    echo('<span>-</span>');
+                    echo('<td class="text-center"><span>-</span></td>');
                 }
                 
-                echo('</td>
-                </tr>');
+                echo('</tr>');
             }
         }
     echo ("</tbody>
