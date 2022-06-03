@@ -107,7 +107,7 @@ function generateTableRows($userId, $videoId, $displayName) {
             <td><a href="student-results.php?student='.$userId.'"><?php echo $displayName ?></a></td>
             <td class="text-center"><span class="fa fa-lg fa-check text-success"></span></td>
         <?php } else { ?>
-            <td><p><?php $displayName ?></p></td>
+            <td><p><?php echo $displayName ?></p></td>
             <td class="text-center"><span class="fa fa-lg fa-times text-danger"></span></td>
         <?php }
         // Finished Video
