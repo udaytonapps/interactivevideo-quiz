@@ -56,9 +56,9 @@ if ($USER->instructor) {
                         $hasRoster = LTIX::populateRoster(false);
                         if ($hasRoster) {
                             // If there is a roster, student list will be populated from it (such as when launched from LMS)
-                            $students = $GLOBALS['ROSTER']->data;
-                            usort($students, array('IVUtil', 'compareStudentsLastName'));
-                            foreach ($rosterData as $student) {
+                            $rosterStudents = $GLOBALS['ROSTER']->data;
+                            usort($rosterStudents, array('IVUtil', 'compareStudentsLastName'));
+                            foreach ($rosterStudents as $student) {
                                 if ($student["role"] == 'Learner') {
                                     $userId = $IV_DAO->getTsugiUserId($student["user_id"]);
                                     // Display name is populated from the roster data
