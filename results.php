@@ -104,10 +104,10 @@ function generateTableRows($userId, $videoId, $displayName) {
         <?php
         // Started Video
         if ($startedVideo) { ?>
-            <td><a href="student-results.php?student=<?php echo $userId ?>"><?php echo $displayName ?></a></td>
+            <td><a href="student-results.php?student=<?= $userId; ?>"><?= $displayName; ?></a></td>
             <td class="text-center"><span class="fa fa-lg fa-check text-success"></span></td>
         <?php } else { ?>
-            <td><p><?php echo $displayName ?></p></td>
+            <td><p><?= $displayName; ?></p></td>
             <td class="text-center"><span class="fa fa-lg fa-times text-danger"></span></td>
         <?php }
         // Finished Video
@@ -116,23 +116,23 @@ function generateTableRows($userId, $videoId, $displayName) {
         <?php } else { ?>
             <td class="text-center"><span class="fa fa-lg fa-times text-danger"></span></td>
         <?php } ?>
-            <td style="text-align: center"><?php echo ($num_correct . '/' . $question_count) ?></td>
+            <td style="text-align: center"><?= ($num_correct . '/' . $question_count); ?></td>
         <?php
         // Started At
         if ($startedAt) { ?>
-            <td class="text-left"><span><?php echo date("m/d/y g:i a", strtotime($startedAt)) ?></span></td>
+            <td class="text-left"><span><?= date("m/d/y g:i a", strtotime($startedAt)); ?></span></td>
         <?php } else { ?>
             <td class="text-center"><span>-</span></td>
         <?php }
         // Finished At
         if ($finishedAt) { ?>
-            <td class="text-left"><span><?php echo date("m/d/y g:i a", strtotime($finishedAt)) ?></span></td>
+            <td class="text-left"><span><?= date("m/d/y g:i a", strtotime($finishedAt)); ?></span></td>
             <?php } else { ?>
             <td class="text-center"><span>-</span></td>
         <?php }
         // Updated At
         if ($updatedAt) { ?>
-            <td class="text-left"><span><?php echo date("m/d/y g:i a", strtotime($updatedAt)) ?></span></td>
+            <td class="text-left"><span><?= date("m/d/y g:i a", strtotime($updatedAt)); ?></span></td>
             <?php } else { ?>
             <td class="text-center"><span>-</span></td>
         <?php } ?>
