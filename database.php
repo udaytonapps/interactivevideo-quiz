@@ -59,6 +59,7 @@ $DATABASE_INSTALL = array(
     user_id       INTEGER NOT NULL,
     question_id   INTEGER NOT NULL,
     answer_id     INTEGER NOT NULL,
+    updated_at    TIMESTAMP,
 
     CONSTRAINT `{$CFG->dbprefix}iv_response_ibfk_1`
         FOREIGN KEY (`question_id`)
@@ -79,6 +80,7 @@ $DATABASE_INSTALL = array(
     user_id             INTEGER NOT NULL,
     question_id         INTEGER NOT NULL,
     response            TEXT NULL,
+    updated_at          TIMESTAMP,
 
     CONSTRAINT `{$CFG->dbprefix}iv_shortanswer_ibfk_1`
         FOREIGN KEY (`question_id`)
@@ -94,7 +96,9 @@ $DATABASE_INSTALL = array(
     user_id           INTEGER NOT NULL,
     num_correct       INTEGER NOT NULL DEFAULT 0,
     started           BOOL NOT NULL DEFAULT 0,
+    started_at        TIMESTAMP,
     finished          BOOL NOT NULL DEFAULT 0,
+    finished_at       TIMESTAMP,
 
     CONSTRAINT `{$CFG->dbprefix}iv_finished_ibfk_1`
         FOREIGN KEY (`video_id`)
@@ -117,5 +121,34 @@ $DATABASE_UPGRADE = function($oldversion) {
         $q = $PDOX->queryDie($sql);
     }
 
-    return '202203131300';
+    // Add started_at column
+    if (!$PDOX->columnExists('started_at', "{$CFG->dbprefix}iv_finished")) {
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished ADD started_at TIMESTAMP";
+        echo("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+
+    // Add finished_at column
+    if (!$PDOX->columnExists('finished_at', "{$CFG->dbprefix}iv_finished")) {
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished ADD finished_at TIMESTAMP";
+        echo("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+    // Add updated_at column
+    if (!$PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_response")) {
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_response ADD updated_at TIMESTAMP";
+        echo("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+    // Add updated_at column
+    if (!$PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_shortanswer")) {
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_shortanswer ADD updated_at TIMESTAMP";
+        echo("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+    return '202205311210';
 };

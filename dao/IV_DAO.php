@@ -117,14 +117,14 @@ class IV_DAO {
     }
 
     function recordResponse($user_id, $question_id, $answer_id) {
-        $query = "INSERT INTO {$this->p}iv_response (user_id, question_id, answer_id) VALUES (:userId, :questionId, :answerId);";
+        $query = "INSERT INTO {$this->p}iv_response (user_id, question_id, answer_id, updated_at) VALUES (:userId, :questionId, :answerId, CURRENT_TIMESTAMP);";
         $arr = array(":userId" => $user_id, ":questionId" => $question_id, ":answerId" => $answer_id);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
     function recordShortAnswer($user_id, $question_id, $short_answer) {
-        $query = "INSERT INTO {$this->p}iv_shortanswer (user_id, question_id, response) VALUES (:userId, :questionId, :shortAnswer);";
+        $query = "INSERT INTO {$this->p}iv_shortanswer (user_id, question_id, response, updated_at) VALUES (:userId, :questionId, :shortAnswer, CURRENT_TIMESTAMP);";
         $arr = array(":userId" => $user_id, ":questionId" => $question_id, ":shortAnswer" => $short_answer);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
@@ -169,6 +169,22 @@ class IV_DAO {
         return $hasResponded;
     }
 
+    function getStudentUpdatedAt($video_id, $user_id) {
+        $query = "SELECT DISTINCT a.updated_at
+        FROM (
+            SELECT * FROM {$this->p}iv_response 
+            UNION
+            SELECT * FROM {$this->p}iv_shortanswer
+        ) AS a
+        LEFT JOIN {$this->p}iv_question q
+        ON q.question_id = a.question_id
+        WHERE a.user_id = :userId AND q.video_id = :videoId ORDER BY a.updated_at DESC LIMIT 1;";
+
+        $arr = array(':userId' => $user_id, ':videoId' => $video_id);
+        $updatedAt = $this->PDOX->rowDie($query, $arr);
+        return $updatedAt ? $updatedAt["updated_at"] : false;
+    }
+
     function getStudentsWithResponses($video_id) {
         $query = "SELECT DISTINCT r.user_id FROM {$this->p}iv_response r JOIN {$this->p}iv_question q ON r.question_id = q.question_id WHERE q.video_id = :videoId;";
         $arr = array(':videoId' => $video_id);
@@ -208,11 +224,37 @@ class IV_DAO {
         return $started ? $started["started"] : false;
     }
 
+    function setStudentStartedAt($video_id, $user_id) {
+        $query = "UPDATE {$this->p}iv_finished SET started_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND started_at IS NULL;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+        $this->PDOX->queryDie($query, $arr);
+    }
+
+    function getStudentStartedAt($video_id, $user_id) {
+        $query = "SELECT started_at FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $started_at = $this->PDOX->rowDie($query, $arr);
+        return $started_at ? $started_at["started_at"] : false;
+    }
+
     function isStudentFinished($video_id, $user_id) {
         $query = "SELECT finished FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
         $arr = array(":videoId" => $video_id, ":userId" => $user_id);
         $finished = $this->PDOX->rowDie($query, $arr);
         return $finished ? $finished["finished"] : false;
+    }
+
+    function setStudentFinishedAt($video_id, $user_id) {
+        $query = "UPDATE {$this->p}iv_finished SET finished_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND finished_at IS NULL;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+        $this->PDOX->queryDie($query, $arr);
+    }
+
+    function getStudentFinishedAt($video_id, $user_id) {
+        $query = "SELECT finished_at FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $finishedAt = $this->PDOX->rowDie($query, $arr);
+        return $finishedAt ? $finishedAt["finished_at"] : false;
     }
 
     function numCorrectForStudent($video_id, $user_id) {
