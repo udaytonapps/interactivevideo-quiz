@@ -245,7 +245,8 @@ class IV_DAO {
     }
 
     function setStudentFinishedAt($video_id, $user_id) {
-        $query = "UPDATE {$this->p}iv_finished SET finished_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND finished_at IS NULL;";
+        // Certain versions of MySQL may have defaulted finished_at to 0000-00-00 00:00:00 instead of null
+        $query = "UPDATE {$this->p}iv_finished SET finished_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND finished_at IS NULL OR finished_at = '0000-00-00 00:00:00';";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id);
         $this->PDOX->queryDie($query, $arr);
     }
@@ -253,8 +254,13 @@ class IV_DAO {
     function getStudentFinishedAt($video_id, $user_id) {
         $query = "SELECT finished_at FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
         $arr = array(":videoId" => $video_id, ":userId" => $user_id);
-        $finishedAt = $this->PDOX->rowDie($query, $arr);
-        return $finishedAt ? $finishedAt["finished_at"] : false;
+        $finishedAtResult = $this->PDOX->rowDie($query, $arr);
+        $finishedAt = $finishedAtResult ? $finishedAtResult["finished_at"] : false;
+        // Certain versions of MySQL may have defaulted finished_at to 0000-00-00 00:00:00 instead of null
+        if ($finishedAt == '0000-00-00 00:00:00') {
+            $finishedAt = false;
+        }
+        return $finishedAt;
     }
 
     function numCorrectForStudent($video_id, $user_id) {
