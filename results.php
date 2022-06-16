@@ -110,12 +110,14 @@ function generateTableRows($userId, $videoId, $displayName) {
         $updatedAt = strtotime($updatedAt);
         array_push($timeArr, $updatedAt);
     }
-    
-    $updatedAt = max($timeArr);
+    if (count($timeArr) > 0) {
+        $updatedAt = max($timeArr);
+    }
     
     if ($num_correct == null) {
         $num_correct = 0;
     }
+
     ?>
         <tr>
         <?php
