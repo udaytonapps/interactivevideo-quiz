@@ -59,7 +59,6 @@ $DATABASE_INSTALL = array(
     user_id       INTEGER NOT NULL,
     question_id   INTEGER NOT NULL,
     answer_id     INTEGER NOT NULL,
-    updated_at    TIMESTAMP NULL,
 
     CONSTRAINT `{$CFG->dbprefix}iv_response_ibfk_1`
         FOREIGN KEY (`question_id`)
@@ -80,7 +79,6 @@ $DATABASE_INSTALL = array(
     user_id             INTEGER NOT NULL,
     question_id         INTEGER NOT NULL,
     response            TEXT NULL,
-    updated_at          TIMESTAMP NULL,
 
     CONSTRAINT `{$CFG->dbprefix}iv_shortanswer_ibfk_1`
         FOREIGN KEY (`question_id`)
@@ -96,9 +94,10 @@ $DATABASE_INSTALL = array(
     user_id           INTEGER NOT NULL,
     num_correct       INTEGER NOT NULL DEFAULT 0,
     started           BOOL NOT NULL DEFAULT 0,
-    started_at        TIMESTAMP NULL,
     finished          BOOL NOT NULL DEFAULT 0,
+    started_at        TIMESTAMP NULL,
     finished_at       TIMESTAMP NULL,
+    updated_at        TIMESTAMP NULL,
 
     CONSTRAINT `{$CFG->dbprefix}iv_finished_ibfk_1`
         FOREIGN KEY (`video_id`)
@@ -136,19 +135,47 @@ $DATABASE_UPGRADE = function($oldversion) {
         error_log("Upgrading: " . $sql);
         $q = $PDOX->queryDie($sql);
     }
+
     // Add updated_at column
-    if (!$PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_response")) {
-        $sql = "ALTER TABLE {$CFG->dbprefix}iv_response ADD updated_at TIMESTAMP NULL";
-        echo("Upgrading: " . $sql . "<br/>\n");
+    if (!$PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_finished")) {
+         $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished ADD updated_at TIMESTAMP NULL";
+         echo ("Upgrading: " . $sql . "<br/>\n");
+         error_log("Upgrading: " . $sql);
+         $q = $PDOX->queryDie($sql);
+    }
+
+    // Migrate updated_at columns to iv_finished if the tool user had the intermediary state
+    // of having the updated_at on each of the response and short answer tables
+    if (
+        $PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_response") &&
+        $PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_shortanswer")
+    ) {
+
+        // Migrate the updated_at data
+        $sql = "UPDATE {$CFG->dbprefix}iv_finished as t1
+        SET updated_at = (
+            SELECT DISTINCT a.updated_at
+            FROM (
+                SELECT * FROM {$CFG->dbprefix}iv_response 
+                UNION
+                SELECT * FROM {$CFG->dbprefix}iv_shortanswer
+            ) AS a
+            LEFT JOIN {$CFG->dbprefix}iv_question q
+            ON q.question_id = a.question_id
+            WHERE a.user_id = t1.user_id AND q.video_id = t1.video_id ORDER BY a.updated_at DESC LIMIT 1
+        )";
+        $q = $PDOX->queryDie($sql);
+
+        // Remove the old columns once the data was moved
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_response DROP COLUMN updated_at";
+        echo ("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+
+        $sql = "ALTER TABLE {$CFG->dbprefix}iv_shortanswer DROP COLUMN updated_at";
+        echo ("Upgrading: " . $sql . "<br/>\n");
         error_log("Upgrading: " . $sql);
         $q = $PDOX->queryDie($sql);
     }
-    // Add updated_at column
-    if (!$PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_shortanswer")) {
-        $sql = "ALTER TABLE {$CFG->dbprefix}iv_shortanswer ADD updated_at TIMESTAMP NULL";
-        echo("Upgrading: " . $sql . "<br/>\n");
-        error_log("Upgrading: " . $sql);
-        $q = $PDOX->queryDie($sql);
-    }
-    return '202206160841';
+    return '202206170841';
 };

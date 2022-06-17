@@ -117,14 +117,14 @@ class IV_DAO {
     }
 
     function recordResponse($user_id, $question_id, $answer_id) {
-        $query = "INSERT INTO {$this->p}iv_response (user_id, question_id, answer_id, updated_at) VALUES (:userId, :questionId, :answerId, CURRENT_TIMESTAMP);";
+        $query = "INSERT INTO {$this->p}iv_response (user_id, question_id, answer_id) VALUES (:userId, :questionId, :answerId);";
         $arr = array(":userId" => $user_id, ":questionId" => $question_id, ":answerId" => $answer_id);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
     function recordShortAnswer($user_id, $question_id, $short_answer) {
-        $query = "INSERT INTO {$this->p}iv_shortanswer (user_id, question_id, response, updated_at) VALUES (:userId, :questionId, :shortAnswer, CURRENT_TIMESTAMP);";
+        $query = "INSERT INTO {$this->p}iv_shortanswer (user_id, question_id, response) VALUES (:userId, :questionId, :shortAnswer);";
         $arr = array(":userId" => $user_id, ":questionId" => $question_id, ":shortAnswer" => $short_answer);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
@@ -169,20 +169,21 @@ class IV_DAO {
         return $hasResponded;
     }
 
-    function getStudentUpdatedAt($video_id, $user_id) {
-        $query = "SELECT DISTINCT a.updated_at
-        FROM (
-            SELECT * FROM {$this->p}iv_response 
-            UNION
-            SELECT * FROM {$this->p}iv_shortanswer
-        ) AS a
-        LEFT JOIN {$this->p}iv_question q
-        ON q.question_id = a.question_id
-        WHERE a.user_id = :userId AND q.video_id = :videoId ORDER BY a.updated_at DESC LIMIT 1;";
+    function setStudentUpdatedAt($user_id, $question_id) {
+        $query = "UPDATE {$this->p}iv_finished AS f
+        LEFT JOIN {$this->p}iv_question AS q
+        ON q.video_id = f.video_id
+        SET f.updated_at = CURRENT_TIMESTAMP
+        WHERE q.question_id = :questionId AND f.user_id = :userId;";
+        $arr = array(':questionId' => $question_id, ':userId' => $user_id);
+        $this->PDOX->queryDie($query, $arr);
+    }
 
-        $arr = array(':userId' => $user_id, ':videoId' => $video_id);
-        $updatedAt = $this->PDOX->rowDie($query, $arr);
-        return $updatedAt ? $updatedAt["updated_at"] : false;
+    function getStudentUpdatedAt($video_id, $user_id) {
+        $query = "SELECT updated_at FROM {$this->p}iv_finished WHERE video_id = :videoId AND user_id = :userId;";
+        $arr = array(":videoId" => $video_id, ":userId" => $user_id);
+        $updated_at = $this->PDOX->rowDie($query, $arr);
+        return $updated_at ? $updated_at["updated_at"] : false;
     }
 
     function getStudentsWithResponses($video_id) {
@@ -246,7 +247,8 @@ class IV_DAO {
 
     function setStudentFinishedAt($video_id, $user_id) {
         // Certain versions of MySQL may have defaulted finished_at to 0000-00-00 00:00:00 instead of null
-        $query = "UPDATE {$this->p}iv_finished SET finished_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND finished_at IS NULL OR finished_at = '0000-00-00 00:00:00';";
+        // Have to set SQL mode for this query to ensure 0000-00-00 00:00:00 can be seen and updated
+        $query = "SET sql_mode = ''; UPDATE {$this->p}iv_finished SET finished_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND (finished_at IS NULL OR finished_at = '0000-00-00 00:00:00');";
         $arr = array(':videoId' => $video_id, ':userId' => $user_id);
         $this->PDOX->queryDie($query, $arr);
     }
@@ -260,6 +262,12 @@ class IV_DAO {
         if ($finishedAt == '0000-00-00 00:00:00') {
             $finishedAt = false;
         }
+        // We aren't able to set this 0000-00-00 00:00:00 value in our DB due to the configuration, but
+        // this version different was simulated by checking that a string value out of the DB and handling it
+        // Example:
+        // if ($finishedAt == '2022-06-17 09:57:26') {
+        //     $finishedAt = false;
+        // }
         return $finishedAt;
     }
 
