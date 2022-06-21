@@ -19,6 +19,9 @@ if (isset($_POST["questionId"])) {
     $userId = $USER->id;
     $questionId = $_POST["questionId"];
 
+    // Record updated_at
+    $IV_DAO->setStudentUpdatedAt($userId, $questionId);
+
     // Check for existing response
     $hasResponded = $IV_DAO->hasStudentResponded($userId, $questionId);
     $singleAttempt = $LAUNCH->link->settingsGet("singleattempt", false);

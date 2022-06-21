@@ -96,9 +96,28 @@ function generateTableRows($userId, $videoId, $displayName) {
     $startedAt = $IV_DAO->getStudentStartedAt($videoId, $userId);
     $finishedAt = $IV_DAO->getStudentFinishedAt($videoId, $userId);
     $updatedAt = $IV_DAO->getStudentUpdatedAt($videoId, $userId);
+    $timeArr = array();
+    
+    if ($startedAt) {
+        $startedAt = strtotime($startedAt);
+        array_push($timeArr, $startedAt);
+    }
+    if ($finishedAt) {
+        $finishedAt = strtotime($finishedAt);
+        array_push($timeArr, $finishedAt);
+    }
+    if ($updatedAt) {
+        $updatedAt = strtotime($updatedAt);
+        array_push($timeArr, $updatedAt);
+    }
+    if (count($timeArr) > 0) {
+        $updatedAt = max($timeArr);
+    }
+    
     if ($num_correct == null) {
         $num_correct = 0;
     }
+
     ?>
         <tr>
         <?php
@@ -120,19 +139,19 @@ function generateTableRows($userId, $videoId, $displayName) {
         <?php
         // Started At
         if ($startedAt) { ?>
-            <td class="text-left"><span><?= date("m/d/y g:i a", strtotime($startedAt)); ?></span></td>
+            <td class="text-left"><span><?= date("m/d/y g:i a", $startedAt); ?></span></td>
         <?php } else { ?>
             <td class="text-center"><span>-</span></td>
         <?php }
         // Finished At
         if ($finishedAt) { ?>
-            <td class="text-left"><span><?= date("m/d/y g:i a", strtotime($finishedAt)); ?></span></td>
+            <td class="text-left"><span><?= date("m/d/y g:i a", $finishedAt); ?></span></td>
             <?php } else { ?>
             <td class="text-center"><span>-</span></td>
         <?php }
         // Updated At
         if ($updatedAt) { ?>
-            <td class="text-left"><span><?= date("m/d/y g:i a", strtotime($updatedAt)); ?></span></td>
+            <td class="text-left"><span><?= date("m/d/y g:i a", $updatedAt); ?></span></td>
             <?php } else { ?>
             <td class="text-center"><span>-</span></td>
         <?php } ?>
