@@ -14,7 +14,10 @@ $IV_DAO = new IV_DAO($PDOX, $p);
 $userId = $USER->id;
 $videoId = $_SESSION["videoId"];
 
+$currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
+$currentTime = $currentTime->format("Y-m-d H:i:s");
+
 $IV_DAO->createFinishRecordIfNotExist($videoId, $userId);
 
 $IV_DAO->markStudentAsStarted($videoId, $userId);
-$IV_DAO->setStudentStartedAt($videoId, $userId);
+$IV_DAO->setStudentStartedAt($videoId, $userId, $currentTime);

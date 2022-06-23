@@ -95,9 +95,9 @@ $DATABASE_INSTALL = array(
     num_correct       INTEGER NOT NULL DEFAULT 0,
     started           BOOL NOT NULL DEFAULT 0,
     finished          BOOL NOT NULL DEFAULT 0,
-    started_at        TIMESTAMP NULL,
-    finished_at       TIMESTAMP NULL,
-    updated_at        TIMESTAMP NULL,
+    started_at        DATETIME NULL,
+    finished_at       DATETIME NULL,
+    updated_at        DATETIME NULL,
 
     CONSTRAINT `{$CFG->dbprefix}iv_finished_ibfk_1`
         FOREIGN KEY (`video_id`)
@@ -138,7 +138,7 @@ $DATABASE_UPGRADE = function($oldversion) {
 
     // Add updated_at column
     if (!$PDOX->columnExists('updated_at', "{$CFG->dbprefix}iv_finished")) {
-         $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished ADD updated_at TIMESTAMP NULL";
+         $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished ADD updated_at DATETIME NULL";
          echo ("Upgrading: " . $sql . "<br/>\n");
          error_log("Upgrading: " . $sql);
          $q = $PDOX->queryDie($sql);
@@ -177,5 +177,22 @@ $DATABASE_UPGRADE = function($oldversion) {
         error_log("Upgrading: " . $sql);
         $q = $PDOX->queryDie($sql);
     }
-    return '202206170841';
+    
+    // Change tables to DATETIME instead of TIMESTAMP
+    $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished MODIFY COLUMN started_at DATETIME";
+    echo ("Upgrading: " . $sql . "<br/>\n");
+    error_log("Upgrading: " . $sql);
+    $q = $PDOX->queryDie($sql);
+
+    $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished MODIFY COLUMN finished_at DATETIME";
+    echo ("Upgrading: " . $sql . "<br/>\n");
+    error_log("Upgrading: " . $sql);
+    $q = $PDOX->queryDie($sql);
+
+    $sql = "ALTER TABLE {$CFG->dbprefix}iv_finished MODIFY COLUMN updated_at DATETIME";
+    echo ("Upgrading: " . $sql . "<br/>\n");
+    error_log("Upgrading: " . $sql);
+    $q = $PDOX->queryDie($sql);
+
+    return '202206231241';
 };

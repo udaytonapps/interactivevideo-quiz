@@ -19,8 +19,11 @@ if (isset($_POST["questionId"])) {
     $userId = $USER->id;
     $questionId = $_POST["questionId"];
 
+    $currentTime = new DateTime('now', new DateTimeZone($CFG->timezone));
+    $currentTime = $currentTime->format("Y-m-d H:i:s");
+
     // Record updated_at
-    $IV_DAO->setStudentUpdatedAt($userId, $questionId);
+    $IV_DAO->setStudentUpdatedAt($userId, $questionId, $currentTime);
 
     // Check for existing response
     $hasResponded = $IV_DAO->hasStudentResponded($userId, $questionId);
