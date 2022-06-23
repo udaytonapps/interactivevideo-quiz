@@ -169,13 +169,13 @@ class IV_DAO {
         return $hasResponded;
     }
 
-    function setStudentUpdatedAt($user_id, $question_id) {
+    function setStudentUpdatedAt($user_id, $question_id, $currentTime) {
         $query = "UPDATE {$this->p}iv_finished AS f
         LEFT JOIN {$this->p}iv_question AS q
         ON q.video_id = f.video_id
-        SET f.updated_at = CURRENT_TIMESTAMP
+        SET f.updated_at = :currentTime
         WHERE q.question_id = :questionId AND f.user_id = :userId;";
-        $arr = array(':questionId' => $question_id, ':userId' => $user_id);
+        $arr = array(':questionId' => $question_id, ':userId' => $user_id, ':currentTime' => $currentTime);
         $this->PDOX->queryDie($query, $arr);
     }
 
@@ -225,9 +225,9 @@ class IV_DAO {
         return $started ? $started["started"] : false;
     }
 
-    function setStudentStartedAt($video_id, $user_id) {
-        $query = "UPDATE {$this->p}iv_finished SET started_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND started_at IS NULL;";
-        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+    function setStudentStartedAt($video_id, $user_id, $currentTime) {
+        $query = "UPDATE {$this->p}iv_finished SET started_at = :currentTime where video_id = :videoId AND user_id = :userId AND started_at IS NULL;";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id, ':currentTime' => $currentTime);
         $this->PDOX->queryDie($query, $arr);
     }
 
@@ -245,11 +245,11 @@ class IV_DAO {
         return $finished ? $finished["finished"] : false;
     }
 
-    function setStudentFinishedAt($video_id, $user_id) {
+    function setStudentFinishedAt($video_id, $user_id, $currentTime) {
         // Certain versions of MySQL may have defaulted finished_at to 0000-00-00 00:00:00 instead of null
         // Have to set SQL mode for this query to ensure 0000-00-00 00:00:00 can be seen and updated
-        $query = "SET sql_mode = ''; UPDATE {$this->p}iv_finished SET finished_at = CURRENT_TIMESTAMP where video_id = :videoId AND user_id = :userId AND (finished_at IS NULL OR finished_at = '0000-00-00 00:00:00');";
-        $arr = array(':videoId' => $video_id, ':userId' => $user_id);
+        $query = "SET sql_mode = ''; UPDATE {$this->p}iv_finished SET finished_at = :currentTime where video_id = :videoId AND user_id = :userId AND (finished_at IS NULL OR finished_at = '0000-00-00 00:00:00');";
+        $arr = array(':videoId' => $video_id, ':userId' => $user_id, ':currentTime' => $currentTime);
         $this->PDOX->queryDie($query, $arr);
     }
 
