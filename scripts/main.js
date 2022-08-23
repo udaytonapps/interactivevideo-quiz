@@ -31,8 +31,7 @@ var IntVideo = (function () {
 
             tag.src = "https://www.youtube.com/iframe_api";
         } else {
-
-            tag.src = "scripts/wwIframeApi.min.js";
+            tag.src = "https://www.warpwire.com/player_api/";
         }
         let firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
@@ -57,8 +56,7 @@ var IntVideo = (function () {
 
             tag.src = "https://www.youtube.com/iframe_api";
         } else {
-
-            tag.src = "scripts/wwIframeApi.min.js";
+            tag.src = "https://www.warpwire.com/player_api/";
         }
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
