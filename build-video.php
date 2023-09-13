@@ -13,6 +13,8 @@ $p = $CFG->dbprefix;
 
 $IV_DAO = new IV_DAO($PDOX, $p);
 
+$LAUNCH = LTIX::requireData();
+
 if (!isset($_SESSION["videoId"])) {
     // No video id in session. Redirect back to index.
     header( 'Location: '.addSession('index.php') ) ;
@@ -181,9 +183,9 @@ $OUTPUT->pageTitle($videoTitle, false, true);
                         <div id="feedbackContent">
                             <div class="panel panel-default">
                                 <div class="panel-heading feedback-panel">
-                                    <a data-toggle="collapse" href="#panelFeedback" class="btn btn-link btn-block">
+                                    <button data-toggle="collapse" href="#panelFeedback" class="btn btn-block">
                                         <span id="feedbackDown" aria-hidden="true" class="fa fa-chevron-down"></span><span id="feedbackUp" aria-hidden="true" class="fa fa-chevron-up" style="display:none;"></span>Add Feedback
-                                    </a>
+                                    </button>
                                 </div>
                                 <div id="panelFeedback" class="panel-body collapse">
                                     <div class="form-group">

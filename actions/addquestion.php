@@ -45,7 +45,8 @@ if ( $USER->instructor ) {
     for ($i = 1; $i <= 6; $i++) {
         if (isset($_POST['answer'.$i])) {
             $answerOrder = $i;
-            $isCorrect = in_array ($i, $_POST['correctAnswer']) ? 1 : 0;
+            $haystack = $_POST['correctAnswer'] ?? array();
+            $isCorrect = in_array ($i, $haystack) ? 1 : 0;
             $answerText = $_POST['answer'.$i];
 
             if ($_POST["answerId".$i] == -1) {

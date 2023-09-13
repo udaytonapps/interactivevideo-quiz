@@ -133,9 +133,9 @@ foreach ($questions as $question) {
                     <h4 class="question-header">');
     if ($correct) {
         $totalCorrect++;
-        echo ('<span class="fa fa-check text-success"></span><span class="sr-only">Correct</span>');
+        echo('<span class="badge check-badge"><span class="fa fa-check text-success"></span><span class="sr-only">Correct</span></span>');
     } else {
-        echo ('<span class="fa fa-times text-danger"></span><span class="sr-only">Incorrect</span>');
+        echo('<span class="badge cancel-badge"><span class="fa fa-times text-danger"></span><span class="sr-only">Incorrect</span></span>');
     }
     echo('<span class="label label-default pull-right">'.IVUtil::formatQuestionTime($question["q_time"]).'</span> Question '.$questionNumber.' <small class="text-muted">'.$type.'</small></h4>
                     <div class="question-results">
@@ -149,7 +149,7 @@ $IV_DAO->markStudentNumberCorrect($videoId, $userId, $totalCorrect);
 
 echo ('</div>
             <div class="col-sm-4 text-right">
-            <h4 class="score">Score: <span class="text-success">'.$totalCorrect.' / '.$questionNumber.'</span> correct</h4>
+            <h4 class="score">Score: <span>'.$totalCorrect.' / '.$questionNumber.'</span> correct</h4>
             <a href="'.$video["video_url"].'" target="_blank" title="View Video">View video without questions</a>
             </div></div>');
 

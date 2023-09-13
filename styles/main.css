@@ -155,3 +155,16 @@ h4.question-header {
 #answerContainer.hideCorrect button.answer-correct {
     display:none;
 }
+.breadcrumb {
+    background-color: var(--background-color);
+}
+.list-group-item {
+    color: black;
+}
+.check-badge, .cancel-badge {
+    background-color: white;
+    font-size: inherit;
+    width: 32px;
+    margin-bottom: 2px;
+    margin-right: 5px;
+}

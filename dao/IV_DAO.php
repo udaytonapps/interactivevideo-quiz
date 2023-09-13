@@ -20,6 +20,13 @@ class IV_DAO {
         return $context ? $context["video_id"] : false;
     }
 
+    function getVideoIdByLinkId($link_id) {
+        $query = "SELECT video_id FROM {$this->p}iv_video WHERE link_id = :linkId;";
+        $arr = array(':linkId' => $link_id);
+        $context = $this->PDOX->rowDie($query, $arr);
+        return $context ? $context["video_id"] : false;
+    }
+
     function createVideo($context_id, $link_id, $user_id, $video_url, $video_type, $video_title) {
         $query = "INSERT INTO {$this->p}iv_video (link_id, context_id, user_id, video_url, video_type, video_title) VALUES (:linkId, :contextId, :userId, :videoUrl, :videoType, :videoTitle);";
         $arr = array(':linkId' => $link_id, ':contextId' => $context_id, ':userId' => $user_id, ':videoUrl' => $video_url, ':videoType' => $video_type, ':videoTitle' => $video_title);
@@ -320,4 +327,42 @@ class IV_DAO {
         }
     }
 
+    /** Imports title, attempt count, start/end times, and questions
+     *  The associated user_id is set to the previous owner
+     */
+    function importVideo($prevId, $newContextId, $newLinkId) {
+        global $LAUNCH;
+        $previousVideo = $this->getVideoInfoById($prevId);
+
+        if ($previousVideo && isset($previousVideo["link_id"])) {
+            $newId = $this->createVideo($newContextId, $newLinkId, $previousVideo["user_id"], $previousVideo["video_url"], $previousVideo["video_type"], $previousVideo["video_title"]);
+    
+            $prevQuestions = $this->getSortedQuestionsForVideo($prevId);
+            foreach ($prevQuestions as $prevQuestion) {
+                $prevAnswers = $this->getSortedAnswersForQuestion($prevQuestion["question_id"]);
+                // Add question
+                $newQuestionId = $this->addQuestion($newId, $prevQuestion["q_time"], $prevQuestion["q_type"], $prevQuestion["q_text"], $prevQuestion["correct_fb"], $prevQuestion["incorrect_fb"], $prevQuestion["randomize"]);
+                // Add All Answers
+                foreach($prevAnswers as $prevAnswer) {
+                    $this->addAnswer($newQuestionId, $prevAnswer["answer_order"], $prevAnswer["is_correct"], $prevAnswer["a_text"]);
+                }
+            }
+    
+            // Import settings from previous link
+            $allSettings = $this->getAllSettings($previousVideo["link_id"]);
+            if (array_key_exists("videotitle", $allSettings)) {
+                $LAUNCH->link->settingsSet("videotitle", $allSettings["videotitle"]);
+            }
+            if (array_key_exists("singleattempt", $allSettings)) {
+                $LAUNCH->link->settingsSet("singleattempt", $allSettings["singleattempt"]);
+            }
+            if (array_key_exists("starttime", $allSettings)) {
+                $LAUNCH->link->settingsSet("starttime", $allSettings["starttime"]);
+            }
+            if (array_key_exists("endtime", $allSettings)) {
+                $LAUNCH->link->settingsSet("endtime", $allSettings["endtime"]);
+            }
+        }
+
+    }
 }

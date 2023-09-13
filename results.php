@@ -53,16 +53,15 @@ if ($USER->instructor) {
                     </thead>
                     <tbody>
                         <?php
-                        $hasRoster = LTIX::populateRoster(false);
-                        if ($hasRoster) {
+                        $rosterStudents = LTIX::getRosterMembers($LTI);
+                        if ($rosterStudents) {
                             // If there is a roster, student list will be populated from it (such as when launched from LMS)
-                            $rosterStudents = $GLOBALS['ROSTER']->data;
                             usort($rosterStudents, array('IVUtil', 'compareStudentsLastName'));
                             foreach ($rosterStudents as $student) {
-                                if ($student["role"] == 'Learner') {
-                                    $userId = $IV_DAO->getTsugiUserId($student["user_id"]);
+                                if (in_array($student->sakai_ext->sakai_role, ['Student', 'Learner'])) {
+                                    $userId = $IV_DAO->getTsugiUserId($student->lti11_legacy_user_id);
                                     // Display name is populated from the roster data
-                                    $displayName = $student["person_name_family"] . ', ' . $student["person_name_given"];
+                                    $displayName = $student->family_name . ', ' . $student->given_name;
                                     generateTableRows($userId, $videoId, $displayName);
                                 }
                             }
@@ -85,6 +84,78 @@ if ($USER->instructor) {
 } else {
     header( 'Location: '.addSession('play-video.php') ) ;
     return;
+}
+
+function generateTableRows($userId, $videoId, $displayName) {
+    global $IV_DAO;
+    $startedVideo = $IV_DAO->hasStudentStarted($videoId, $userId);
+    $finishedVideo = $IV_DAO->isStudentFinished($videoId, $userId);
+    $num_correct = $IV_DAO->numCorrectForStudent($videoId, $userId);
+    $question_count = $IV_DAO->countQuestions($videoId);
+    $startedAt = $IV_DAO->getStudentStartedAt($videoId, $userId);
+    $finishedAt = $IV_DAO->getStudentFinishedAt($videoId, $userId);
+    $updatedAt = $IV_DAO->getStudentUpdatedAt($videoId, $userId);
+    $timeArr = array();
+    
+    if ($startedAt) {
+        $startedAt = strtotime($startedAt);
+        array_push($timeArr, $startedAt);
+    }
+    if ($finishedAt) {
+        $finishedAt = strtotime($finishedAt);
+        array_push($timeArr, $finishedAt);
+    }
+    if ($updatedAt) {
+        $updatedAt = strtotime($updatedAt);
+        array_push($timeArr, $updatedAt);
+    }
+    if (count($timeArr) > 0) {
+        $updatedAt = max($timeArr);
+    }
+    
+    if ($num_correct == null) {
+        $num_correct = 0;
+    }
+
+    ?>
+        <tr>
+        <?php
+        // Started Video
+        if ($startedVideo) { ?>
+            <td><a href="student-results.php?student=<?= $userId; ?>"><?= $displayName; ?></a></td>
+            <td class="text-center"><span class="fa fa-lg fa-check text-success"></span></td>
+        <?php } else { ?>
+            <td><p><?= $displayName; ?></p></td>
+            <td class="text-center"><span class="fa fa-lg fa-times text-danger"></span></td>
+        <?php }
+        // Finished Video
+        if ($finishedVideo) { ?>
+            <td class="text-center"><span class="fa fa-lg fa-check text-success"></span></td>
+        <?php } else { ?>
+            <td class="text-center"><span class="fa fa-lg fa-times text-danger"></span></td>
+        <?php } ?>
+            <td style="text-align: center"><?= ($num_correct . '/' . $question_count); ?></td>
+        <?php
+        // Started At
+        if ($startedAt) { ?>
+            <td class="text-left"><span><?= date("m/d/y g:i a", $startedAt); ?></span></td>
+        <?php } else { ?>
+            <td class="text-center"><span>-</span></td>
+        <?php }
+        // Finished At
+        if ($finishedAt) { ?>
+            <td class="text-left"><span><?= date("m/d/y g:i a", $finishedAt); ?></span></td>
+            <?php } else { ?>
+            <td class="text-center"><span>-</span></td>
+        <?php }
+        // Updated At
+        if ($updatedAt) { ?>
+            <td class="text-left"><span><?= date("m/d/y g:i a", $updatedAt); ?></span></td>
+            <?php } else { ?>
+            <td class="text-center"><span>-</span></td>
+        <?php } ?>
+        </tr>
+    <?php
 }
 
 function generateTableRows($userId, $videoId, $displayName) {

@@ -20,7 +20,7 @@ class IVUtil {
 
     public static function formatQuestionTime($time) {
         $hours = floor($time / 3600);
-        $mins = floor($time / 60 % 60);
+        $mins = floor($time / 60) % 60;
         $secs = floor($time % 60);
         if ($hours > 0) {
             return sprintf('%02d:%02d:%02d', $hours, $mins, $secs);
@@ -31,6 +31,6 @@ class IVUtil {
 
     // Comparator for student last name used for sorting roster
     public static function compareStudentsLastName($a, $b) {
-        return strcmp($a["person_name_family"], $b["person_name_family"]);
+        return strcmp($a->family_name, $b->family_name);
     }
 }
